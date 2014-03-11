@@ -1,0 +1,21 @@
+{% extends 'base_general.html' %}
+
+{% block title %} Users {% end %}
+
+{% block main %}
+
+<h1>Users</h1>
+
+<p>
+	<a href="{{ reverse_url('users.add') }}">Add a new user</a>
+</p>
+
+<ul>
+{% for username in usernames %}
+	<li>
+		<a href="{{ reverse_url('user.overview', username) }}">{{ username }}</a>
+	</li>
+{% end %}
+</ul>
+
+{% end %}

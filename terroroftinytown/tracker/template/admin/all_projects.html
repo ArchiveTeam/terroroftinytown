@@ -1,0 +1,19 @@
+{% extends 'base_general.html' %}
+
+{% block title %} Projects {% end %}
+
+{% block main %}
+
+<h1>Projects</h1>
+
+<a href="">Add a new project</a>
+
+<ul>
+{% for project in projects %}
+	<li>
+		<a href="{{ reverse_url('project.overview', project)}}">{{ project }}</a>
+	</li>
+{% end %}
+</ul>
+
+{% end %}

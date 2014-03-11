@@ -1,0 +1,23 @@
+{% extends '../base.html' %}
+
+{% block title %} Admin {% end %}
+
+{% block body %}
+<div id="index-admin_nav">
+	<a href="{{ reverse_url('admin.logout') }}">Log out</a>
+</div>
+
+<div class="row">
+	<div id="admin-menu" class="column third">
+		{% block menu %}
+		{% end %}
+	</div>
+	<div id="admin-main" role="main" class="column two-thirds">
+		{% if 'message' in globals() %}
+			<div id="site-message">{{ message }}</div>
+		{% end %}
+		{% block main %}
+		{% end %}
+	</div>
+</div>
+{% end %}

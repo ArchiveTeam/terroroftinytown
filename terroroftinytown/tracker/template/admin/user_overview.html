@@ -1,0 +1,11 @@
+{% extends 'base_general.html' %}
+
+{% block title %} {{ username }} {% end %}
+
+{% block main %}
+
+<h1>{{ username }}</h1>
+
+<a href="{{ reverse_url('user.delete', username) }}">Delete</a>
+
+{% end %}

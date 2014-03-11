@@ -1,0 +1,11 @@
+{% extends 'base_general.html' %}
+
+{% block title %} Delete {{ username }} {% end %}
+
+{% block main %}
+
+<h1>Delete {{ username }}?</h1>
+
+{% module Form(form, submit='Delete') %}
+
+{% end %}

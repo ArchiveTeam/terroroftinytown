@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %} URLTeam Tracker {% end %}
+
+{% block body %}
+<div id="index-admin_nav">
+	<a href="{{ reverse_url('admin') }}">Tracker admin</a>
+</div>
+
+<div id="index-banner">
+	<div id="index-banner-title">URLTeam Tracker</div>
+	<div id="index-banner-byline">The Terror of Tiny Town</div>
+</div>
+
+<div id="index-main" role="main">
+	<nav id="index-nav">
+		<a class="index-nav-item"
+			href="http://archiveteam.org/index.php?title=Warrior">How to help</a>
+		<a class="index-nav-item"
+			href="http://archiveteam.org/index.php?title=URLTeam">About</a>
+		<a class="index-nav-item"
+			href="">Status</a>
+		<a class="index-nav-item"
+			href="https://github.com/ArchiveTeam/terroroftinytown">
+			Source code</a>
+	</nav>
+	<div id="leaderboard" class="row clearfix">
+		<div id="leaderboard-totals" class="column half">
+			<h1>Totals</h1>
+			<table class="leaderboard-table">
+				<tr>
+					<th>Username</th>
+					<th>Found</th>
+					<th>Scanned</th>
+				</tr>
+			</table>
+		</div>
+		<div id="leaderboard-recent" class="column half">
+			<h1>Recent</h1>
+			<table class="leaderboard-table">
+				<tr>
+					<th>Username</th>
+					<th>Found</th>
+					<th>Scanned</th>
+					<th>Service</th>
+				</tr>
+			</table>
+		</div>
+	</div>
+</div>
+{% end %}

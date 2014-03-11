@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+
+{% block menu %}
+<a href="{{ reverse_url('admin.overview') }}">Overview</a><br>
+<a href="{{ reverse_url('projects.overview') }}">Projects</a><br>
+<a href="{{ reverse_url('users.overview') }}">Users</a><br>
+{% end %}

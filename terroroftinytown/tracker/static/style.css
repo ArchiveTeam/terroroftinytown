@@ -1,0 +1,57 @@
+@font-face {
+	font-family: 'Fixedsys Excelsior';
+	font-weight: bold;
+	src: url('FixedsysExcelsiorIIIb.woff');
+}
+
+html,body {
+	font-size: 1em;
+	color: #FBFBFB;
+	background-color: #4D1948;
+	font-family: sans-serif;
+	margin: 0px;
+}
+
+a:link {
+	color: #B1DDFF;
+}
+
+a:visited {
+	color: #E3CDFF;
+}
+
+h1 {
+	font-size: 1.5em;
+}
+
+#body_wrapper {
+	padding: 0.5em;
+	max-width: 60em;
+	margin: auto;
+}
+
+#index-admin_nav {
+	text-align: right;
+}
+
+#index-banner,#index-nav {
+	text-align: center;
+}
+
+#index-banner {
+	font-weight: bold;
+	font-family: 'Fixedsys Excelsior';
+	text-shadow: black 0em 0em 0.1em;
+}
+
+#index-banner-title {
+	font-size: 4em;
+}
+
+#index-banner-byline {
+	font-size: 2em;
+}
+
+.leaderboard-table {
+	width: 100%;
+}
