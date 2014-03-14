@@ -21,5 +21,12 @@ class AddUserForm(LoginForm):
     pass
 
 
+class ChangePasswordForm(LoginForm):
+    password = PasswordField(
+        'New password:',
+        [validators.Length(min=8, max=100)]
+    )
+
+
 class ConfirmForm(Form):
     confirm = BooleanField('Yes, proceed.', [validators.InputRequired()])

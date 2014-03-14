@@ -1,0 +1,4 @@
+redis>=2.9
+rom>=0.26
+six>=1.5
+tornado>=3.2

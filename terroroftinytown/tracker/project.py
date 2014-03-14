@@ -7,5 +7,5 @@ from terroroftinytown.tracker.base import BaseHandler
 class AllOverviewHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
-        projects = self.application.db.all_projects()
+        projects = []
         self.render('admin/all_projects.html', projects=projects)

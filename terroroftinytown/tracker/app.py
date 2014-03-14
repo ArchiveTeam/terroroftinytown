@@ -17,10 +17,8 @@ class Application(tornado.web.Application):
             U(r'/admin/', admin.AdminHandler, name='admin'),
             U(r'/admin/login', account.LoginHandler, name='admin.login'),
             U(r'/admin/logout', account.LogoutHandler, name='admin.logout'),
-            U(r'/users/overview', account.AllOverviewHandler, name='users.overview'),
-            U(r'/users/add', account.AddUserHandler, name='users.add'),
-            U(r'/user/([a-z0-9_-]*)', account.UserOverviewHandler, name='user.overview'),
-            U(r'/user/([a-z0-9_-]*)/delete', account.DeleteUserHandler, name='user.delete'),
+            U(r'/users/', account.AllOverviewHandler, name='users.overview'),
+            U(r'/user/([a-z0-9_-]*)', account.UserHandler, name='user.overview'),
             U(r'/admin/overview', admin.OverviewHandler, name='admin.overview'),
             U(r'/projects/overview', project.AllOverviewHandler, name='projects.overview'),
         ]

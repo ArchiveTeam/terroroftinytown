@@ -1,0 +1,14 @@
+{% extends 'base_general.html' %}
+
+{% block title %} {{ username }} {% end %}
+
+{% block main %}
+
+<h1>{{ username }}</h1>
+
+{% module Form(password_form, action='?action=password', submit='Apply') %}
+
+{% module Form(delete_form, action='?action=delete', submit='Delete') %}
+
+
+{% end %}
