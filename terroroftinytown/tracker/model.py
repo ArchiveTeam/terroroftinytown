@@ -3,7 +3,7 @@ import base64
 import hmac
 import os
 from rom import Model
-from rom.columns import Text
+from rom.columns import Text, Float, Json, Boolean
 
 
 class User(Model):
@@ -27,7 +27,16 @@ class User(Model):
 
 class Project(Model):
     name = Text(required=True, unique=True, index=True, prefix=True)
+    min_version = Text()
     alphabet = Text()
+    url_template = Text()
+    rate_limit = Float()
+    redirect_codes = Json()
+    no_redirect_codes = Json()
+    unavailable_codes = Json()
+    banned_codes = Json()
+    body_regex = Text()
+    custom_code_required = Boolean()
 
 
 def make_hash(plaintext, salt):
