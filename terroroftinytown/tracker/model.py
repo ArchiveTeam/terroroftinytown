@@ -7,7 +7,7 @@ from rom.columns import Text
 
 
 class User(Model):
-    username = Text(required=True, unique=True, index=True)
+    username = Text(required=True, unique=True, index=True, prefix=True)
     salt = Text()
     hash = Text()
 
@@ -22,13 +22,11 @@ class User(Model):
 
     @classmethod
     def no_users_exist(cls):
-        # DERP: https://github.com/josiahcarlson/rom/issues/12
-        print(User.query.order_by('username').count())
-        return User.query.order_by('username').count() == 0
+        return User.query.startswith(username='').count() == 0
 
 
 class Project(Model):
-    name = Text(required=True, unique=True, index=True)
+    name = Text(required=True, unique=True, index=True, prefix=True)
     alphabet = Text()
 
 

@@ -53,7 +53,7 @@ class LogoutHandler(BaseHandler):
 
 class AllOverviewHandler(BaseHandler):
     def _get_all_usernames(self):
-        users = User.query.order_by('username').all()
+        users = User.query.startswith(username='').all()
         return [user.username for user in users]
 
     @tornado.web.authenticated
