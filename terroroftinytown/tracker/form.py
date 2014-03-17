@@ -30,3 +30,13 @@ class ChangePasswordForm(LoginForm):
 
 class ConfirmForm(Form):
     confirm = BooleanField('Yes, proceed.', [validators.InputRequired()])
+
+
+class AddProjectForm(Form):
+    name = StringField(
+        'Name:',
+        [
+            validators.Length(min=3, max=30),
+            validators.Regexp(r'^[a-z0-9_-]+$')
+        ]
+    )

@@ -51,7 +51,7 @@ class LogoutHandler(BaseHandler):
         self.redirect('/')
 
 
-class AllOverviewHandler(BaseHandler):
+class AllUsersHandler(BaseHandler):
     def _get_all_usernames(self):
         users = User.query.startswith(username='').all()
         return [user.username for user in users]
@@ -69,6 +69,7 @@ class AllOverviewHandler(BaseHandler):
     @tornado.web.authenticated
     def post(self):
         action = self.get_argument('action')
+        message = None
 
         if action != 'add_user':
             raise HTTPError(400, 'Unknown action')
@@ -85,17 +86,17 @@ class AllOverviewHandler(BaseHandler):
                 user = User(username=username)
                 user.set_password(password)
                 user.save()
-                self.redirect(self.reverse_url('admin'))
+                self.redirect(self.reverse_url('user.overview', username))
                 return
             else:
-                self.render(
-                    'admin/all_users.html',
-                    add_user_form=add_user_form,
-                    usernames=self._get_all_usernames(),
-                    message='User already exists.'
-                )
+                message = 'User already exists.'
 
-        self.render(self.reverse_url('users.overview'))
+        self.render(
+            'admin/all_users.html',
+            add_user_form=add_user_form,
+            usernames=self._get_all_usernames(),
+            message=message
+        )
 
 
 class UserHandler(BaseHandler):
