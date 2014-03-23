@@ -3,7 +3,7 @@ import os.path
 from tornado.web import URLSpec as U
 import tornado.web
 
-from terroroftinytown.tracker import account, admin, project
+from terroroftinytown.tracker import account, admin, project, api
 from terroroftinytown.tracker.base import BaseHandler
 from terroroftinytown.tracker.ui import FormUIModule
 
@@ -26,6 +26,10 @@ class Application(tornado.web.Application):
             U(r'/project/([a-z0-9_-]*)/blocked', project.BlockedHandler, name='project.blocked'),
             U(r'/project/([a-z0-9_-]*)/settings', project.SettingsHandler, name='project.settings'),
             U(r'/project/([a-z0-9_-]*)/delete', project.DeleteHandler, name='project.delete'),
+            U(r'/api/live_stats', api.LiveStatsHandler, name='api.live_stats'),
+            U(r'/api/project_settings', api.ProjectSettingsHandler, name='api.project_settings'),
+            U(r'/api/get', api.GetHandler, name='api.get'),
+            U(r'/api/done', api.DoneHandler, name='api.done'),
         ]
 
         static_path = os.path.join(
