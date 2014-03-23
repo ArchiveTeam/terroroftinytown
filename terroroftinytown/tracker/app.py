@@ -14,14 +14,18 @@ class Application(tornado.web.Application):
 
         handlers = [
             U(r'/', IndexHandler),
-            U(r'/admin/', admin.AdminHandler, name='admin'),
+            U(r'/admin/', admin.AdminHandler, name='admin.overview'),
             U(r'/admin/login', account.LoginHandler, name='admin.login'),
             U(r'/admin/logout', account.LogoutHandler, name='admin.logout'),
             U(r'/users/', account.AllUsersHandler, name='users.overview'),
             U(r'/user/([a-z0-9_-]*)', account.UserHandler, name='user.overview'),
-            U(r'/admin/overview', admin.OverviewHandler, name='admin.overview'),
             U(r'/projects/overview', project.AllProjectsHandler, name='projects.overview'),
             U(r'/project/([a-z0-9_-]*)', project.ProjectHandler, name='project.overview'),
+            U(r'/project/([a-z0-9_-]*)/queue', project.QueueHandler, name='project.queue'),
+            U(r'/project/([a-z0-9_-]*)/claims', project.ClaimsHandler, name='project.claims'),
+            U(r'/project/([a-z0-9_-]*)/blocked', project.BlockedHandler, name='project.blocked'),
+            U(r'/project/([a-z0-9_-]*)/settings', project.SettingsHandler, name='project.settings'),
+            U(r'/project/([a-z0-9_-]*)/delete', project.DeleteHandler, name='project.delete'),
         ]
 
         static_path = os.path.join(

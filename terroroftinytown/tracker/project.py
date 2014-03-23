@@ -56,4 +56,29 @@ class AllProjectsHandler(BaseHandler):
 
 class ProjectHandler(BaseHandler):
     def get(self, name):
-        self.write('ok')
+        self.render('admin/project_overview.html', project_name=name)
+
+
+class QueueHandler(BaseHandler):
+    def get(self, name):
+        self.render('admin/project_overview.html', project_name=name)
+
+
+class ClaimsHandler(BaseHandler):
+    def get(self, name):
+        self.render('admin/project_overview.html', project_name=name)
+
+
+class BlockedHandler(BaseHandler):
+    def get(self, name):
+        self.render('admin/project_overview.html', project_name=name)
+
+
+class SettingsHandler(BaseHandler):
+    def get(self, name):
+        self.render('admin/project_overview.html', project_name=name)
+
+
+class DeleteHandler(BaseHandler):
+    def get(self, name):
+        self.render('admin/project_overview.html', project_name=name)
