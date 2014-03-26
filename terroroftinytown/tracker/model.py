@@ -3,10 +3,12 @@ import base64
 import hmac
 import os
 from rom import Model
-from rom.columns import Text, Float, Json, Boolean
+from rom.columns import Text, Float, Json, Boolean, ManyToOne, DateTime, Integer
+import datetime
 
 
 class User(Model):
+    '''User accounts that manager the tracker.'''
     username = Text(required=True, unique=True, index=True, prefix=True)
     salt = Text()
     hash = Text()
@@ -26,6 +28,7 @@ class User(Model):
 
 
 class Project(Model):
+    '''Project settings.'''
     name = Text(required=True, unique=True, index=True, prefix=True)
     min_version = Text()
     alphabet = Text()
@@ -37,6 +40,30 @@ class Project(Model):
     banned_codes = Json()
     body_regex = Text()
     custom_code_required = Boolean()
+    max_items = Integer()
+
+
+class Queue(Model):
+    '''The lower and upper bounds on the current sequence numbers.'''
+    project = ManyToOne('Project', required=True)
+    lower_sequence_num = Integer(required=True)
+    upper_sequence_num = Integer(required=True)
+
+
+class Claim(Model):
+    '''A item checked out by a user.'''
+    project = ManyToOne('Project', required=True)
+    sequence_num = Integer(required=True)
+    datetime_claimed = DateTime(
+        default=datetime.datetime.utcnow()
+    )
+    tamper_key = Text()
+    username = Text()
+    ip_address = Text()
+
+
+TODO_SET_KEY = 'TODO:{project_id}'
+'''A set containing sequence numbers. Used for atomic checkouts.'''
 
 
 def make_hash(plaintext, salt):

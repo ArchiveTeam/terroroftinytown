@@ -13,12 +13,12 @@ class LiveStatsHandler(BaseHandler):
 
 
 class GetHandler(BaseHandler):
-    def get(self):
+    def post(self):
         self.render('TODO')
 
 
 class DoneHandler(BaseHandler):
-    def get(self):
+    def post(self):
         self.render('TODO')
 
 
