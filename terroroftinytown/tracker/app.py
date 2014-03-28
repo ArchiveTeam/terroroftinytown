@@ -52,6 +52,14 @@ class Application(tornado.web.Application):
             **kwargs
         )
 
+    def checkout_item(self, username, prefered_projects=None):
+        # TODO: return Claim
+        pass
+
+    def checkin_item(self, claim_id, tamper_key, results):
+        # TODO:
+        pass
+
 
 class IndexHandler(BaseHandler):
     def get(self):

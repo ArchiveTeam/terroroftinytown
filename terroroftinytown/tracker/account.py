@@ -4,8 +4,8 @@ from tornado.web import HTTPError
 import tornado.web
 
 from terroroftinytown.tracker.base import BaseHandler
-from terroroftinytown.tracker.form import LoginForm, AddUserForm, ConfirmForm, \
-    ChangePasswordForm
+from terroroftinytown.tracker.form import (LoginForm, AddUserForm, ConfirmForm,
+    ChangePasswordForm)
 from terroroftinytown.tracker.model import User
 import terroroftinytown.tracker.util
 

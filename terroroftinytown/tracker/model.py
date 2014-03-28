@@ -1,10 +1,10 @@
 # encoding=utf-8
 import base64
+import datetime
 import hmac
 import os
 from rom import Model
 from rom.columns import Text, Float, Json, Boolean, ManyToOne, DateTime, Integer
-import datetime
 
 
 class User(Model):
@@ -42,6 +42,23 @@ class Project(Model):
     custom_code_required = Boolean()
     max_items = Integer()
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'min_version': self.min_version,
+            'alphabet': self.alphabet,
+            'url_template': self.url_template,
+            'rate_limit': self.rate_limit,
+            'redirect_codes': self.redirect_codes,
+            'no_redirect_codes': self.no_redirect_codes,
+            'unavailable_codes': self.unavailable_codes,
+            'banned_codes': self.banned_codes,
+            'body_regex': self.body_regex,
+            'custom_code_required': self.custom_code_required,
+            'max_items': self.max_items,
+        }
+
 
 class Queue(Model):
     '''The lower and upper bounds on the current sequence numbers.'''
@@ -60,6 +77,17 @@ class Claim(Model):
     tamper_key = Text()
     username = Text()
     ip_address = Text()
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'project': self.project.to_dict(),
+            'sequence_num': self.sequence_num,
+            'datetime_claimed': self.datetime_claimed,
+            'tamper_key': self.tamper_key,
+            'username': self.username,
+            'ip_address': self.ip_address,
+        }
 
 
 TODO_SET_KEY = 'TODO:{project_id}'
