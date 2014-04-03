@@ -13,3 +13,7 @@ class Database(object):
         rom.util.set_connection_settings(host=host, port=port, db=db)
         rom.util.refresh_indices(User)
         rom.util.refresh_indices(Project)
+
+    @property
+    def connection(self):
+        return self._connection

@@ -24,7 +24,9 @@ class LoginHandler(BaseHandler):
 
         if form.validate() \
         and self._login(form.username.data, form.password.data):
-            self.redirect(self.get_argument('next', self.reverse_url('admin')))
+            self.redirect(
+                self.get_argument('next', self.reverse_url('admin.overview'))
+            )
             return
 
         yield terroroftinytown.tracker.util.sleep(1)
