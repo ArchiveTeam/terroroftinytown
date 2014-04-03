@@ -1,5 +1,6 @@
 # encoding=utf-8
 import argparse
+import configparser
 import tornado.ioloop
 
 from terroroftinytown.tracker.app import Application
@@ -8,19 +9,26 @@ from terroroftinytown.tracker.database import Database
 
 def main():
     arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument('--port', default=8888, type=int)
+    arg_parser.add_argument('config')
     arg_parser.add_argument('--debug', action='store_true')
     args = arg_parser.parse_args()
 
-    database = Database()
+    config_parser = configparser.ConfigParser()
+    config_parser.read([args.config])
+
+    database = Database(
+        host=config_parser['redis']['host'],
+        port=int(config_parser['redis']['port']),
+        db=int(config_parser['redis']['database']),
+    )
 
     application = Application(
         database,
         debug=args.debug,
-        cookie_secret='asdf',
+        cookie_secret=config_parser['web']['cookie_secret'],
     )
 
-    application.listen(args.port)
+    application.listen(int(config_parser['web']['port']))
     tornado.ioloop.IOLoop.instance().start()
 
 if __name__ == '__main__':
