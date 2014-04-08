@@ -11,6 +11,7 @@ import unittest
 from terroroftinytown.tracker.app import Application
 from terroroftinytown.tracker.database import Database
 from selenium.webdriver.common.by import By
+import string
 
 
 class IOLoopThread(threading.Thread):
@@ -74,6 +75,7 @@ class TestTracker(unittest.TestCase):
         self.sign_out()
         self.sign_in()
         self.create_project()
+        self.config_project_settings()
 
     def sign_in(self):
         self.driver.get(self.get_url('/'))
@@ -179,3 +181,50 @@ class TestTracker(unittest.TestCase):
         element.send_keys('test_project')
 
         element.submit()
+
+    def config_project_settings(self):
+        element = self.driver.find_element_by_link_text('Projects')
+        element.click()
+
+        WebDriverWait(self.driver, 2).until(
+            expected_conditions.title_is('Projects')
+        )
+
+        element = self.driver.find_element_by_link_text('test_project')
+        element.click()
+
+        element = self.driver.find_element_by_link_text('Settings')
+        element.click()
+
+        element = self.driver.find_element_by_name('alphabet')
+        element.send_keys(string.ascii_lowercase)
+        element.send_keys(string.ascii_uppercase)
+        element.send_keys(string.digits)
+
+        element = self.driver.find_element_by_name('url_template')
+        element.send_keys('http://www.example.com/{shortcode}')
+
+        element = self.driver.find_element_by_name('rate_limit')
+        element.send_keys('1.0')
+
+        element = self.driver.find_element_by_name('redirect_codes')
+        element.send_keys('301 302')
+
+        element = self.driver.find_element_by_name('no_redirect_codes')
+        element.send_keys('404')
+
+        element = self.driver.find_element_by_name('unavailable_codes')
+        element.send_keys('200')
+
+        element = self.driver.find_element_by_name('banned_codes')
+        element.send_keys('420')
+
+        element = self.driver.find_element_by_name('body_regex')
+        element.send_keys('<a id="redir_link" href="[^"]+">')
+
+        element = self.driver.find_element_by_name('max_items')
+        element.send_keys('1000')
+
+        element.submit()
+
+
