@@ -40,7 +40,6 @@ class Project(Model):
     banned_codes = Json()
     body_regex = Text()
     custom_code_required = Boolean()
-    max_items = Integer()
 
     def to_dict(self):
         return {
@@ -56,7 +55,6 @@ class Project(Model):
             'banned_codes': self.banned_codes,
             'body_regex': self.body_regex,
             'custom_code_required': self.custom_code_required,
-            'max_items': self.max_items,
         }
 
 

@@ -183,6 +183,8 @@ class TestTracker(unittest.TestCase):
         element.submit()
 
     def config_project_settings(self):
+        self.driver.get(self.get_url('/admin/'))
+
         element = self.driver.find_element_by_link_text('Projects')
         element.click()
 
@@ -197,33 +199,38 @@ class TestTracker(unittest.TestCase):
         element.click()
 
         element = self.driver.find_element_by_name('alphabet')
+        element.clear()
         element.send_keys(string.ascii_lowercase)
         element.send_keys(string.ascii_uppercase)
         element.send_keys(string.digits)
 
         element = self.driver.find_element_by_name('url_template')
+        element.clear()
         element.send_keys('http://www.example.com/{shortcode}')
 
         element = self.driver.find_element_by_name('rate_limit')
+        element.clear()
         element.send_keys('1.0')
 
         element = self.driver.find_element_by_name('redirect_codes')
+        element.clear()
         element.send_keys('301 302')
 
         element = self.driver.find_element_by_name('no_redirect_codes')
+        element.clear()
         element.send_keys('404')
 
         element = self.driver.find_element_by_name('unavailable_codes')
+        element.clear()
         element.send_keys('200')
 
         element = self.driver.find_element_by_name('banned_codes')
+        element.clear()
         element.send_keys('420')
 
         element = self.driver.find_element_by_name('body_regex')
+        element.clear()
         element.send_keys('<a id="redir_link" href="[^"]+">')
-
-        element = self.driver.find_element_by_name('max_items')
-        element.send_keys('1000')
 
         element.submit()
 

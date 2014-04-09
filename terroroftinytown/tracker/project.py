@@ -3,7 +3,7 @@ from tornado.web import HTTPError
 import tornado.web
 
 from terroroftinytown.tracker.base import BaseHandler
-from terroroftinytown.tracker.form import AddProjectForm
+from terroroftinytown.tracker.form import AddProjectForm, ProjectSettingsForm
 from terroroftinytown.tracker.model import Project
 
 
@@ -76,7 +76,11 @@ class BlockedHandler(BaseHandler):
 
 class SettingsHandler(BaseHandler):
     def get(self, name):
-        self.render('admin/project_overview.html', project_name=name)
+        form = ProjectSettingsForm()
+        self.render(
+            'admin/project_settings.html',
+            project_name=name, form=form,
+        )
 
 
 class DeleteHandler(BaseHandler):
