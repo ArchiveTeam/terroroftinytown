@@ -239,7 +239,7 @@ class TestTracker(unittest.TestCase):
     def claim_and_return_an_item(self):
         response = requests.post(
             self.get_url('/api/get'),
-            payload={'username': 'SMAUG'}
+            data={'username': 'SMAUG'}
         )
         self.assertEqual(200, response.status_code)
         item = response.json()
@@ -248,7 +248,7 @@ class TestTracker(unittest.TestCase):
 
         response = requests.post(
             self.get_url('/api/done'),
-            params={
+            data={
                 'claim_id': item['claim_id'],
                 'tamper_key': item['tamper_key'],
                 'results': {

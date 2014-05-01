@@ -54,17 +54,13 @@ class LogoutHandler(BaseHandler):
 
 
 class AllUsersHandler(BaseHandler):
-    def _get_all_usernames(self):
-        users = User.query.startswith(username='').all()
-        return [user.username for user in users]
-
     @tornado.web.authenticated
     def get(self):
         add_user_form = AddUserForm()
 
         self.render(
             'admin/all_users.html',
-            usernames=self._get_all_usernames(),
+            usernames=User.all_usernames(),
             add_user_form=add_user_form
         )
 
@@ -96,7 +92,7 @@ class AllUsersHandler(BaseHandler):
         self.render(
             'admin/all_users.html',
             add_user_form=add_user_form,
-            usernames=self._get_all_usernames(),
+            usernames=User.all_usernames(),
             message=message
         )
 

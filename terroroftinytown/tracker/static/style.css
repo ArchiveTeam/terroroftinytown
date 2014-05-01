@@ -55,3 +55,7 @@ h1 {
 .leaderboard-table {
 	width: 100%;
 }
+
+.form-error {
+	font-weight: bold;
+}

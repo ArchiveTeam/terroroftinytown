@@ -3,6 +3,7 @@ import base64
 import datetime
 import hmac
 import os
+
 from rom import Model
 from rom.columns import Text, Float, Json, Boolean, ManyToOne, DateTime, Integer
 
@@ -20,11 +21,25 @@ class User(Model):
     def check_password(self, password):
         test_hash = make_hash(password, self.salt)
 
-        return all([a == b for a, b in zip(self.hash, test_hash)])
+        if len(self.hash) != len(test_hash):
+            return False
+
+        iterable = [a == b for a, b in zip(self.hash, test_hash)]
+        ok = True
+
+        for result in iterable:
+            ok &= result
+
+        return ok
 
     @classmethod
     def no_users_exist(cls):
         return User.query.startswith(username='').count() == 0
+
+    @classmethod
+    def all_usernames(cls):
+        users = cls.query.startswith(username='').all()
+        return [user.username for user in users]
 
 
 class Project(Model):
@@ -59,6 +74,11 @@ class Project(Model):
             'method': self.method,
         }
 
+    @classmethod
+    def all_project_names(cls):
+        projects = cls.query.startswith(name='').all()
+        return [project.name for project in projects]
+
 
 class Queue(Model):
     '''The lower and upper bounds on the current sequence numbers.'''
@@ -92,6 +112,9 @@ class Claim(Model):
 
 TODO_SET_KEY = 'TODO:{project_id}'
 '''A set containing sequence numbers. Used for atomic checkouts.'''
+
+BLOCKED_USERNAMES_SET_KEY = 'blocked_usernames'
+'''A set containing strings of IP addresses or usernames.'''
 
 
 def make_hash(plaintext, salt):

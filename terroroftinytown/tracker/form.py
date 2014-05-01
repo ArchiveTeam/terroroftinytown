@@ -1,8 +1,25 @@
 # encoding=utf-8
 from wtforms import validators
-from wtforms.fields.core import StringField, BooleanField, FloatField
+from wtforms.fields.core import StringField, BooleanField, FloatField, Field
 from wtforms.fields.simple import PasswordField
+from wtforms.widgets.core import TextInput, TextArea
 from wtforms_tornado import Form
+
+
+class NumListField(Field):
+    widget = TextInput()
+
+    def _value(self):
+        if self.data:
+            return ' '.join([str(data) for data in self.data])
+        else:
+            return ''
+
+    def process_formdata(self, valuelist):
+        if valuelist:
+            self.data = [int(x.strip()) for x in valuelist[0].split()]
+        else:
+            self.data = []
 
 
 class LoginForm(Form):
@@ -64,25 +81,29 @@ class ProjectSettingsForm(Form):
         [validators.InputRequired()],
         default='head',
     )
-    redirect_codes = StringField(
+    redirect_codes = NumListField(
         'Redirect status codes:',
         [validators.InputRequired()],
-        default='301 302 303 307'
+        default=[301, 302, 303, 307],
     )
-    no_redirect_codes = StringField(
+    no_redirect_codes = NumListField(
         'No redirect status codes:',
         [validators.InputRequired()],
-        default='404'
+        default=[404]
     )
-    unavailable_codes = StringField(
+    unavailable_codes = NumListField(
         'Unavailable status codes:',
-        [validators.InputRequired()],
-        default='200'
+        default=[200]
     )
-    banned_codes = StringField(
+    banned_codes = NumListField(
         'Banned status codes:',
-        [validators.InputRequired()],
-        default='420'
+        default=[420]
     )
     body_regex = StringField('Content body regular expression:')
     custom_code_required = BooleanField('Custom script code required')
+
+
+class BlockUsernameForm(Form):
+    username = StringField(
+        'Usernames or IP addresses:', [validators.InputRequired()]
+    )

@@ -53,6 +53,10 @@ class Application(tornado.web.Application):
         )
 
     def checkout_item(self, username, ip_address=None, version=None):
+        if self.db.is_username_blocked(username) \
+        or ip_address and self.db.is_username_blocked(ip_address):
+            return None
+
         # TODO: return Claim
         pass
 

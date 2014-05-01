@@ -23,7 +23,7 @@ class TrackerClient(object):
 
         response = requests.post(
             'http://{host}/api/get',
-            payload={
+            data={
                 'username': self.username,
                 'ip_address': self.bind_address,
                 'version': self.version,
@@ -40,7 +40,7 @@ class TrackerClient(object):
 
         response = requests.post(
             'http://{host}/api/done',
-            payload={
+            data={
                 'claim_id': claim_id,
                 'tamper_key': tamper_key,
                 'results': results,

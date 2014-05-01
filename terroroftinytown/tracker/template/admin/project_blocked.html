@@ -1,0 +1,18 @@
+{% extends 'base_project.html' %}
+
+{% block title %} Blocked Users {% end %}
+
+{% block main %}
+
+<h1>Blocked Users</h1>
+
+{% module Form(form, action='?action=add', submit='Add') %}
+
+<ul>
+{% for username in usernames %}
+	<li>{{ username }} </li>
+{% end %}
+</ul>
+
+
+{% end %}
