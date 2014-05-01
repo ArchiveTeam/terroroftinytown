@@ -1,10 +1,15 @@
 # encoding=utf-8
+import logging
 import re
 import requests
+import time
 
 from terroroftinytown.client import alphabet
 from terroroftinytown.client.errors import (UnhandledStatusCode,
     UnexpectedNoResult, ScraperError, PleaseRetry)
+
+
+_logger = logging.getLogger(__name__)
 
 
 class Scraper(object):
@@ -30,16 +35,28 @@ class Scraper(object):
         self.current_shortcode = None
         self.results = {}
 
+    def run(self):
+        while self.todo_list:
+            self.scrape_one()
+            sleep_time = self.params['request_delay']
+            time.sleep(sleep_time)
+
     def scrape_one(self):
         sequence_number = self.todo_list.pop()
         self.current_shortcode = shortcode = alphabet.int_to_str(
             sequence_number, self.params['alphabet']
         )
         url = self.params['url_template'].format(shortcode=shortcode)
+
+        _logger.info('Requesting %s', url)
+
         response = self.fetch_url(url)
         result_url = self.process_response(response)
 
         if result_url is not None:
+            _logger.info('Got a result.')
+            _logger.debug('%s %s', result_url, response.encoding)
+
             self.results[shortcode] = {
                 'url': result_url,
                 'encoding': response.encoding

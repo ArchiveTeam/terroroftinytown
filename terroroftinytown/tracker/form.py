@@ -54,10 +54,15 @@ class ProjectSettingsForm(Form):
         [validators.InputRequired()],
         default='http://example.com/{shortcode}'
     )
-    rate_limit = FloatField(
+    request_delay = FloatField(
         'Time between requests (seconds)',
         [validators.InputRequired()],
         default=0.5
+    )
+    method = StringField(
+        'HTTP method (get/head):',
+        [validators.InputRequired()],
+        default='head',
     )
     redirect_codes = StringField(
         'Redirect status codes:',

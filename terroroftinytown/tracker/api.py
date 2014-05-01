@@ -33,12 +33,13 @@ class LiveStatsHandler(tornado.websocket.WebSocketHandler):
 
 class GetHandler(BaseHandler):
     def post(self):
-        preferred_projects = self.get_arguments('prefer')
+        ip_address = self.get_arguments('ip_address', None)
+        version = self.get_arguments('version', None)
         username = self.get_argument('username')
 
         try:
             claim = self.application.checkout_item(
-                username, preferred_projects
+                username, ip_address=ip_address, version=version,
             )
         except NoItemAvailable:
             raise HTTPError(404, 'No items available')
@@ -50,7 +51,7 @@ class GetHandler(BaseHandler):
 
 class DoneHandler(BaseHandler):
     def post(self):
-        claim_id = self.get_argument('id')
+        claim_id = self.get_argument('claim_id')
         tamper_key = self.get_argument('tamper_key')
         results_str = self.get_argument('results')
         results = json.loads(results_str)

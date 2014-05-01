@@ -12,6 +12,7 @@ from terroroftinytown.tracker.app import Application
 from terroroftinytown.tracker.database import Database
 from selenium.webdriver.common.by import By
 import string
+import requests
 
 
 class IOLoopThread(threading.Thread):
@@ -76,6 +77,7 @@ class TestTracker(unittest.TestCase):
         self.sign_in()
         self.create_project()
         self.config_project_settings()
+        self.claim_and_return_an_item()
 
     def sign_in(self):
         self.driver.get(self.get_url('/'))
@@ -208,7 +210,7 @@ class TestTracker(unittest.TestCase):
         element.clear()
         element.send_keys('http://www.example.com/{shortcode}')
 
-        element = self.driver.find_element_by_name('rate_limit')
+        element = self.driver.find_element_by_name('request_delay')
         element.clear()
         element.send_keys('1.0')
 
@@ -234,4 +236,28 @@ class TestTracker(unittest.TestCase):
 
         element.submit()
 
+    def claim_and_return_an_item(self):
+        response = requests.post(
+            self.get_url('/api/get'),
+            payload={'username': 'SMAUG'}
+        )
+        self.assertEqual(200, response.status_code)
+        item = response.json()
 
+        item['shortener_params']
+
+        response = requests.post(
+            self.get_url('/api/done'),
+            params={
+                'claim_id': item['claim_id'],
+                'tamper_key': item['tamper_key'],
+                'results': {
+                    'abcd': {
+                        'url': 'http://ultraarchive.org',
+                        'encoding': 'ascii',
+                    }
+                }
+            }
+        )
+
+        self.assertEqual(200, response.status_code)

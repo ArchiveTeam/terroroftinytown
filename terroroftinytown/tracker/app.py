@@ -52,7 +52,7 @@ class Application(tornado.web.Application):
             **kwargs
         )
 
-    def checkout_item(self, username, prefered_projects=None):
+    def checkout_item(self, username, ip_address=None, version=None):
         # TODO: return Claim
         pass
 

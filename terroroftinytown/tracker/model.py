@@ -33,13 +33,14 @@ class Project(Model):
     min_version = Text()
     alphabet = Text()
     url_template = Text()
-    rate_limit = Float()
+    request_delay = Float()
     redirect_codes = Json()
     no_redirect_codes = Json()
     unavailable_codes = Json()
     banned_codes = Json()
     body_regex = Text()
     custom_code_required = Boolean()
+    method = Text(default='head')
 
     def to_dict(self):
         return {
@@ -48,13 +49,14 @@ class Project(Model):
             'min_version': self.min_version,
             'alphabet': self.alphabet,
             'url_template': self.url_template,
-            'rate_limit': self.rate_limit,
+            'request_delay': self.request_delay,
             'redirect_codes': self.redirect_codes,
             'no_redirect_codes': self.no_redirect_codes,
             'unavailable_codes': self.unavailable_codes,
             'banned_codes': self.banned_codes,
             'body_regex': self.body_regex,
             'custom_code_required': self.custom_code_required,
+            'method': self.method,
         }
 
 
