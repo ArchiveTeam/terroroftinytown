@@ -6,6 +6,7 @@ import tornado.web
 from terroroftinytown.tracker import account, admin, project, api
 from terroroftinytown.tracker.base import BaseHandler
 from terroroftinytown.tracker.ui import FormUIModule
+from terroroftinytown.tracker.model import BlockedUsers
 
 
 class Application(tornado.web.Application):
@@ -53,8 +54,8 @@ class Application(tornado.web.Application):
         )
 
     def checkout_item(self, username, ip_address=None, version=None):
-        if self.db.is_username_blocked(username) \
-        or ip_address and self.db.is_username_blocked(ip_address):
+        if BlockedUsers.is_username_blocked(username) \
+        or ip_address and BlockedUsers.is_username_blocked(ip_address):
             return None
 
         # TODO: return Claim

@@ -4,8 +4,8 @@ import tornado.web
 
 from terroroftinytown.tracker.base import BaseHandler
 from terroroftinytown.tracker.form import AddProjectForm, ProjectSettingsForm, \
-    BlockUsernameForm
-from terroroftinytown.tracker.model import Project
+    BlockUsernameForm, UnblockUsernameForm
+from terroroftinytown.tracker.model import Project, BlockedUsers
 
 
 class AllProjectsHandler(BaseHandler):
@@ -70,23 +70,36 @@ class BlockedHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self, name):
         form = BlockUsernameForm()
+        unblock_form = UnblockUsernameForm(self.request.arguments)
+
         self.render(
             'admin/project_blocked.html',
-            project_name=name, form=form,
-            usernames=self.application.db.all_blocked_usernames()
+            project_name=name, form=form, unblock_form=unblock_form,
+            usernames=BlockedUsers.all_blocked_usernames()
         )
 
     @tornado.web.authenticated
     def post(self, name):
+        action = self.get_argument('action', None)
         form = BlockUsernameForm(self.request.arguments)
+        unblock_form = UnblockUsernameForm(self.request.arguments)
+        message = None
 
-        if form.validate():
-            self.application.db.block_username(form.username.data)
-            self.redirect(self.reverse_url('project.overview', name))
+        if action == 'remove':
+            if unblock_form.validate():
+                BlockedUsers.unblock_username(self.get_argument('username'))
+                message = 'User unblocked.'
+
+        else:
+            if form.validate():
+                BlockedUsers.block_username(form.username.data)
+                message = 'User blocked.'
 
         self.render(
-            'admin/project_blocked.html', project_name=name, form=form,
-            usernames=self.application.db.all_blocked_usernames()
+            'admin/project_blocked.html',
+            message=message,
+            project_name=name, form=form, unblock_form=unblock_form,
+            usernames=BlockedUsers.all_blocked_usernames(),
         )
 
 

@@ -3,6 +3,7 @@
 {% block title %} Blocked Users {% end %}
 
 {% block main %}
+{% from tornado.httputil import url_concat %}
 
 <h1>Blocked Users</h1>
 
@@ -10,7 +11,14 @@
 
 <ul>
 {% for username in usernames %}
-	<li>{{ username }} </li>
+	<li>
+		{{ username }}
+		{% module Form(
+			unblock_form, 
+			action=url_concat('?', {'action': 'remove', 'username': username}),
+			submit='Unblock'
+		) %}
+	</li>
 {% end %}
 </ul>
 

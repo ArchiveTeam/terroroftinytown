@@ -107,3 +107,7 @@ class BlockUsernameForm(Form):
     username = StringField(
         'Usernames or IP addresses:', [validators.InputRequired()]
     )
+
+
+class UnblockUsernameForm(Form):
+    pass

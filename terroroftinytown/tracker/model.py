@@ -6,6 +6,7 @@ import os
 
 from rom import Model
 from rom.columns import Text, Float, Json, Boolean, ManyToOne, DateTime, Integer
+import rom.util
 
 
 class User(Model):
@@ -57,6 +58,10 @@ class Project(Model):
     custom_code_required = Boolean()
     method = Text(default='head')
 
+    autoqueue = Boolean()
+    lower_sequence_num = Integer()
+    upper_sequence_num = Integer()
+
     def to_dict(self):
         return {
             'id': self.id,
@@ -78,13 +83,6 @@ class Project(Model):
     def all_project_names(cls):
         projects = cls.query.startswith(name='').all()
         return [project.name for project in projects]
-
-
-class Queue(Model):
-    '''The lower and upper bounds on the current sequence numbers.'''
-    project = ManyToOne('Project', required=True)
-    lower_sequence_num = Integer(required=True)
-    upper_sequence_num = Integer(required=True)
 
 
 class Claim(Model):
@@ -110,11 +108,34 @@ class Claim(Model):
         }
 
 
-TODO_SET_KEY = 'TODO:{project_id}'
-'''A set containing sequence numbers. Used for atomic checkouts.'''
+class TodoQueue(object):
+    '''A set containing sequence numbers. Used for atomic checkouts.'''
+    SET_KEY = 'TODO:{project_id}'
 
-BLOCKED_USERNAMES_SET_KEY = 'blocked_usernames'
-'''A set containing strings of IP addresses or usernames.'''
+
+class BlockedUsers(object):
+    '''A set containing strings of IP addresses or usernames.'''
+    SET_KEY = 'blocked_usernames'
+
+    @classmethod
+    def block_username(cls, username):
+        connection = rom.util.get_connection()
+        connection.sadd(cls.SET_KEY, username)
+
+    @classmethod
+    def unblock_username(cls, username):
+        connection = rom.util.get_connection()
+        connection.srem(cls.SET_KEY, username)
+
+    @classmethod
+    def is_username_blocked(cls, username):
+        connection = rom.util.get_connection()
+        return connection.sismember(cls.SET_KEY, username)
+
+    @classmethod
+    def all_blocked_usernames(cls):
+        connection = rom.util.get_connection()
+        return connection.smembers(cls.SET_KEY)
 
 
 def make_hash(plaintext, salt):
