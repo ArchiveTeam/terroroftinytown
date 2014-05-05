@@ -4,7 +4,7 @@ import tornado.web
 
 from terroroftinytown.tracker.base import BaseHandler
 from terroroftinytown.tracker.form import AddProjectForm, ProjectSettingsForm, \
-    BlockUsernameForm, UnblockUsernameForm
+    BlockUsernameForm, UnblockUsernameForm, QueueSettingsForm
 from terroroftinytown.tracker.model import Project, BlockedUsers
 
 
@@ -52,16 +52,49 @@ class AllProjectsHandler(BaseHandler):
 
 
 class ProjectHandler(BaseHandler):
+    @tornado.web.authenticated
     def get(self, name):
         self.render('admin/project_overview.html', project_name=name)
 
 
 class QueueHandler(BaseHandler):
+    @tornado.web.authenticated
     def get(self, name):
-        self.render('admin/project_overview.html', project_name=name)
+        project = Project.get_by(name=name)
+        form = QueueSettingsForm(
+            enabled=project.enabled,
+            autoqueue=project.autoqueue,
+            num_count_per_item=project.num_count_per_item,
+            max_num_items=project.max_num_items,
+            lower_sequence_num=project.lower_sequence_num
+        )
+        self.render('admin/project_queue.html', project_name=name, form=form)
+
+    @tornado.web.authenticated
+    def post(self, name):
+        form = QueueSettingsForm(self.request.arguments)
+        message = None
+
+        if form.validate():
+            project = Project.get_by(name=name)
+            project.enabled = form.enabled.data
+            project.autoqueue = form.autoqueue.data
+            project.num_count_per_item = form.num_count_per_item.data
+            project.max_num_items = form.max_num_items.data
+            project.lower_sequence_num = form.lower_sequence_num.data or 0
+            message = 'Settings saved.'
+        else:
+            message = 'Error.'
+
+        self.render(
+            'admin/project_queue.html',
+            project_name=name, form=form,
+            message=message
+        )
 
 
 class ClaimsHandler(BaseHandler):
+    @tornado.web.authenticated
     def get(self, name):
         self.render('admin/project_overview.html', project_name=name)
 
@@ -106,7 +139,21 @@ class BlockedHandler(BaseHandler):
 class SettingsHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self, name):
-        form = ProjectSettingsForm()
+        project = Project.get_by(name=name)
+        form = ProjectSettingsForm(
+            alphabet=project.alphabet,
+            banned_codes=project.banned_codes,
+            body_regex=project.body_regex,
+            custom_code_required=project.custom_code_required,
+            method=project.method,
+            min_version=project.min_version,
+            no_redirect_codes=project.no_redirect_codes,
+            redirect_codes=project.redirect_codes,
+            request_delay=project.request_delay,
+            url_template=project.url_template,
+            unavailable_codes=project.unavailable_codes,
+        )
+
         self.render(
             'admin/project_settings.html',
             project_name=name, form=form,
@@ -115,6 +162,7 @@ class SettingsHandler(BaseHandler):
     @tornado.web.authenticated
     def post(self, name):
         form = ProjectSettingsForm(self.request.arguments)
+        message = None
 
         if form.validate():
             project = Project.get_by(name=name)
@@ -130,14 +178,14 @@ class SettingsHandler(BaseHandler):
             project.custom_code_required = form.custom_code_required.data
             project.method = form.method.data
             project.save()
-
-            self.redirect(self.reverse_url('project.overview', name))
-            return
+            message = 'Settings saved.'
+        else:
+            message = 'Error.'
 
         self.render(
             'admin/project_settings.html',
             project_name=name, form=form,
-            message='Error.'
+            message=message
         )
 
 

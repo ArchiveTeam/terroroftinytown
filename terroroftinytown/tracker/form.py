@@ -1,6 +1,7 @@
 # encoding=utf-8
 from wtforms import validators
-from wtforms.fields.core import StringField, BooleanField, FloatField, Field
+from wtforms.fields.core import StringField, BooleanField, FloatField, Field, \
+    IntegerField
 from wtforms.fields.simple import PasswordField
 from wtforms.widgets.core import TextInput, TextArea
 from wtforms_tornado import Form
@@ -60,44 +61,29 @@ class AddProjectForm(Form):
 
 class ProjectSettingsForm(Form):
     min_version = StringField('Minimum script version:')
-    alphabet = StringField(
-        'Alphabet:',
-        [validators.InputRequired()],
-        default='0123456789abcdefghijklmnopqrstuvwxyz'
-            'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    )
-    url_template = StringField(
-        'URL template:',
-        [validators.InputRequired()],
-        default='http://example.com/{shortcode}'
-    )
+    alphabet = StringField('Alphabet:', [validators.InputRequired()])
+    url_template = StringField('URL template:', [validators.InputRequired()])
     request_delay = FloatField(
         'Time between requests (seconds)',
-        [validators.InputRequired()],
-        default=0.5
+        [validators.InputRequired()]
     )
     method = StringField(
         'HTTP method (get/head):',
-        [validators.InputRequired()],
-        default='head',
+        [validators.InputRequired()]
     )
     redirect_codes = NumListField(
         'Redirect status codes:',
-        [validators.InputRequired()],
-        default=[301, 302, 303, 307],
+        [validators.InputRequired()]
     )
     no_redirect_codes = NumListField(
         'No redirect status codes:',
-        [validators.InputRequired()],
-        default=[404]
+        [validators.InputRequired()]
     )
     unavailable_codes = NumListField(
         'Unavailable status codes:',
-        default=[200]
     )
     banned_codes = NumListField(
         'Banned status codes:',
-        default=[420]
     )
     body_regex = StringField('Content body regular expression:')
     custom_code_required = BooleanField('Custom script code required')
@@ -111,3 +97,13 @@ class BlockUsernameForm(Form):
 
 class UnblockUsernameForm(Form):
     pass
+
+
+class QueueSettingsForm(Form):
+    enabled = BooleanField('Enabled')
+    num_count_per_item = IntegerField('Number of URLs per item:')
+    max_num_items = IntegerField('Maximum number of items in todo queue:')
+    autoqueue = BooleanField('AutoQueue')
+    lower_sequence_num = IntegerField(
+        'Lower sequence number:', [validators.Optional()]
+    )

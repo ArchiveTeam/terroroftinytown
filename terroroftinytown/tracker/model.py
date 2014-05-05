@@ -47,20 +47,23 @@ class Project(Model):
     '''Project settings.'''
     name = Text(required=True, unique=True, index=True, prefix=True)
     min_version = Text()
-    alphabet = Text()
-    url_template = Text()
-    request_delay = Float()
-    redirect_codes = Json()
-    no_redirect_codes = Json()
-    unavailable_codes = Json()
-    banned_codes = Json()
+    alphabet = Text(default='0123456789abcdefghijklmnopqrstuvwxyz'
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+    url_template = Text(default='http://example.com/{shortcode}')
+    request_delay = Float(default=0.5)
+    redirect_codes = Json(default=[301, 302, 303, 307])
+    no_redirect_codes = Json(default=[404])
+    unavailable_codes = Json(default=[200])
+    banned_codes = Json(default=[420])
     body_regex = Text()
     custom_code_required = Boolean()
     method = Text(default='head')
 
+    enabled = Boolean(default=True)
     autoqueue = Boolean()
-    lower_sequence_num = Integer()
-    upper_sequence_num = Integer()
+    num_count_per_item = Integer(default=50, required=True)
+    max_num_items = Integer(default=1000, required=True)
+    lower_sequence_num = Integer(default=0, required=True)
 
     def to_dict(self):
         return {
@@ -88,7 +91,8 @@ class Project(Model):
 class Claim(Model):
     '''A item checked out by a user.'''
     project = ManyToOne('Project', required=True)
-    sequence_num = Integer(required=True)
+    lower_sequence_num = Integer(required=True)
+    upper_sequence_num = Integer(required=True)
     datetime_claimed = DateTime(
         default=datetime.datetime.utcnow()
     )
@@ -100,7 +104,8 @@ class Claim(Model):
         return {
             'id': self.id,
             'project': self.project.to_dict(),
-            'sequence_num': self.sequence_num,
+            'lower_sequence_num': self.lower_sequence_num,
+            'upper_sequence_num': self.upper_sequence_num,
             'datetime_claimed': self.datetime_claimed,
             'tamper_key': self.tamper_key,
             'username': self.username,
@@ -109,8 +114,33 @@ class Claim(Model):
 
 
 class TodoQueue(object):
-    '''A set containing sequence numbers. Used for atomic checkouts.'''
+    '''A set containing strings of sequence number ranges.
+
+    Used for atomic checkouts. Each member is formatted like NN-MM
+    (ie: string representation of an integer, ascii hyphen, string
+    representation of an integer.
+    '''
     SET_KEY = 'TODO:{project_id}'
+
+    @classmethod
+    def clear(cls, project_id):
+        connection = rom.util.get_connection()
+        connection.delete(cls.SET_KEY.format(project_id=project_id))
+
+    @classmethod
+    def add_one(cls, project_id, lower_sequence_num, upper_sequence_num):
+        connection = rom.util.get_connection()
+        connection.sadd(
+            cls.SET_KEY.format(project_id, project_id),
+            '{0}-{1}'.format(lower_sequence_num, upper_sequence_num)
+        )
+
+    @classmethod
+    def get_one(cls, project_id):
+        connection = rom.util.get_connection()
+        member = connection.spop(cls.SET_KEY.format(project_id=project_id))
+        lower_num, upper_num = member.split('-')
+        return lower_num, upper_num
 
 
 class BlockedUsers(object):
