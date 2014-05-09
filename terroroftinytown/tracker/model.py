@@ -100,6 +100,12 @@ class Claim(Model):
     username = Text()
     ip_address = Text()
 
+    def __init__(self, conn=None, **kwargs):
+        Model.__init__(self, **kwargs)
+
+        if conn:
+            self._conn = conn
+
     def to_dict(self):
         return {
             'id': self.id,
@@ -136,11 +142,14 @@ class TodoQueue(object):
         )
 
     @classmethod
-    def get_one(cls, project_id):
-        connection = rom.util.get_connection()
+    def get_one(cls, project_id, connection=None):
+        connection = connection or rom.util.get_connection()
         member = connection.spop(cls.SET_KEY.format(project_id=project_id))
         lower_num, upper_num = member.split('-')
         return lower_num, upper_num
+
+
+
 
 
 class BlockedUsers(object):
@@ -178,3 +187,25 @@ def make_hash(plaintext, salt):
 def new_salt():
     salt = os.urandom(16)
     return base64.b16encode(salt).decode('ascii').lower()
+
+
+def checkout_item(project_id, username, ip_address):
+    connection = rom.util.get_connection()
+    pipe = connection.pipeline()
+    lower_num, upper_num = TodoQueue.get_one(project_id, connection=pipe)
+
+    claim = Claim(
+        conn=pipe,
+        project=project_id,
+        username=username,
+        ip_address=ip_address,
+        lower_sequence_num=lower_num,
+        upper_sequence_num=upper_num,
+    )
+
+    claim.save()
+    del claim._conn
+
+    pipe.execute()
+
+    return claim

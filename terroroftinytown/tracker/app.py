@@ -1,12 +1,14 @@
 # encoding=utf-8
 import os.path
+
 from tornado.web import URLSpec as U
 import tornado.web
 
 from terroroftinytown.tracker import account, admin, project, api
+from terroroftinytown.tracker import model
 from terroroftinytown.tracker.base import BaseHandler
-from terroroftinytown.tracker.ui import FormUIModule
 from terroroftinytown.tracker.model import BlockedUsers
+from terroroftinytown.tracker.ui import FormUIModule
 
 
 class Application(tornado.web.Application):
@@ -58,8 +60,7 @@ class Application(tornado.web.Application):
         or ip_address and BlockedUsers.is_username_blocked(ip_address):
             return None
 
-        # TODO: return Claim
-        pass
+        return model.checkout_item(project_id, username, ip_address)
 
     def checkin_item(self, claim_id, tamper_key, results):
         # TODO:
