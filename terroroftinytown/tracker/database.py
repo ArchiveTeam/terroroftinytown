@@ -1,19 +1,29 @@
 # encoding=utf-8
-import redis
-import rom.util
+import sqlalchemy
+from sqlalchemy.engine import create_engine
+from sqlalchemy.pool import SingletonThreadPool
 
-from terroroftinytown.tracker.model import User, Project
+from terroroftinytown.tracker.model import Session, Base
 
 
 class Database(object):
-    def __init__(self, host='localhost', port=6379, db=0):
-        self._connection = redis.StrictRedis(
-            host=host, port=port, db=db, decode_responses=True
-        )
-        rom.util.set_connection_settings(host=host, port=port, db=db)
-        rom.util.refresh_indices(User)
-        rom.util.refresh_indices(Project)
+    def __init__(self, path):
+        if path.startswith('sqlite:'):
+            self.engine = create_engine(path, poolclass=SingletonThreadPool)
+            sqlalchemy.event.listen(
+                self.engine, 'connect', self._apply_pragmas_callback)
+        else:
+            self.engine = create_engine(path)
 
-    @property
-    def connection(self):
-        return self._connection
+        Session.configure(bind=self.engine)
+
+        Base.metadata.create_all(self.engine)
+
+    @classmethod
+    def _apply_pragmas_callback(cls, connection, record):
+        connection.execute('PRAGMA journal_mode=WAL')
+
+    def delete_everything(self):
+        meta = sqlalchemy.MetaData(self.engine)
+        for table in reversed(meta.sorted_tables):
+            self.engine.execute(table.delete())

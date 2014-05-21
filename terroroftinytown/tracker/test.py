@@ -39,12 +39,9 @@ class TestTracker(unittest.TestCase):
         config_parser.read([config_path])
 
         database = Database(
-            host=config_parser['redis']['host'],
-            port=int(config_parser['redis']['port']),
-            db=int(config_parser['redis']['database']),
+            path=config_parser['database']['path'],
         )
-
-        database.connection.flushdb()
+        database.delete_everything()
 
         self.io_loop_thread = IOLoopThread()
         app = Application(database, debug=True, cookie_secret='TEST')

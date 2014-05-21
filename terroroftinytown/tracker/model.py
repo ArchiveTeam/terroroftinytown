@@ -1,19 +1,59 @@
 # encoding=utf-8
 import base64
+import contextlib
 import datetime
 import hmac
+import json
 import os
 
-from rom import Model
-from rom.columns import Text, Float, Json, Boolean, ManyToOne, DateTime, Integer
-import rom.util
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm.session import make_transient
+from sqlalchemy.sql.expression import insert
+from sqlalchemy.sql.schema import Column, ForeignKey
+from sqlalchemy.sql.sqltypes import String, Binary, Float, Boolean, Integer, \
+    DateTime
+from sqlalchemy.sql.type_api import TypeDecorator
+from terroroftinytown.tracker.errors import NoItemAvailable
 
 
-class User(Model):
+Base = declarative_base()
+Session = sessionmaker()
+
+
+@contextlib.contextmanager
+def new_session():
+    session = Session()
+    try:
+        yield session
+        session.commit()
+    except:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+
+
+class JsonType(TypeDecorator):
+    impl = String
+
+    def process_bind_param(self, value, engine):
+        return json.dumps(value)
+
+    def process_result_value(self, value, engine):
+        if value:
+            return json.loads(value)
+        else:
+            return None
+
+
+class User(Base):
     '''User accounts that manager the tracker.'''
-    username = Text(required=True, unique=True, index=True, prefix=True)
-    salt = Text()
-    hash = Text()
+    __tablename__ = 'users'
+
+    username = Column(String, primary_key=True)
+    salt = Column(Binary, nullable=False)
+    hash = Column(Binary, nullable=False)
 
     def set_password(self, password):
         self.salt = new_salt()
@@ -35,39 +75,76 @@ class User(Model):
 
     @classmethod
     def no_users_exist(cls):
-        return User.query.startswith(username='').count() == 0
+        with new_session() as session:
+            user = session.query(User).first()
+
+            return user is None
+
+    @classmethod
+    def is_user_exists(cls, username):
+        with new_session() as session:
+            user = session.query(User).filter_by(username=username).first()
+
+            return user is not None
 
     @classmethod
     def all_usernames(cls):
-        users = cls.query.startswith(username='').all()
-        return [user.username for user in users]
+        with new_session() as session:
+            users = session.query(User.username)
+
+            return list([user.username for user in users])
+
+    @classmethod
+    def save_new_user(cls, username, password):
+        with new_session() as session:
+            user = User(username=username)
+            user.set_password(password)
+            session.add(user)
+
+    @classmethod
+    def check_account(cls, username, password):
+        with new_session() as session:
+            user = session.query(User).filter_by(username=username).first()
+            return user.check_password(password)
+
+    @classmethod
+    def update_password(cls, username, password):
+        with new_session() as session:
+            user = session.query(User).filter_by(username=username).first()
+            user.set_password(password)
+
+    @classmethod
+    def delete_user(cls, username):
+        with new_session() as session:
+            session.query(User).filter_by(username=username).delete()
 
 
-class Project(Model):
+class Project(Base):
     '''Project settings.'''
-    name = Text(required=True, unique=True, index=True, prefix=True)
-    min_version = Text()
-    alphabet = Text(default='0123456789abcdefghijklmnopqrstuvwxyz'
-        'ABCDEFGHIJKLMNOPQRSTUVWXYZ')
-    url_template = Text(default='http://example.com/{shortcode}')
-    request_delay = Float(default=0.5)
-    redirect_codes = Json(default=[301, 302, 303, 307])
-    no_redirect_codes = Json(default=[404])
-    unavailable_codes = Json(default=[200])
-    banned_codes = Json(default=[420])
-    body_regex = Text()
-    custom_code_required = Boolean()
-    method = Text(default='head')
+    __tablename__ = 'projects'
 
-    enabled = Boolean(default=True)
-    autoqueue = Boolean()
-    num_count_per_item = Integer(default=50, required=True)
-    max_num_items = Integer(default=1000, required=True)
-    lower_sequence_num = Integer(default=0, required=True)
+    name = Column(String, primary_key=True)
+    min_version = Column(String)
+    alphabet = Column(String, default='0123456789abcdefghijklmnopqrstuvwxyz'
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+    url_template = Column(String, default='http://example.com/{shortcode}')
+    request_delay = Column(Float, default=0.5)
+    redirect_codes = Column(JsonType, default=[301, 302, 303, 307])
+    no_redirect_codes = Column(JsonType, default=[404])
+    unavailable_codes = Column(JsonType, default=[200])
+    banned_codes = Column(JsonType, default=[420])
+    body_regex = Column(String)
+    custom_code_required = Column(Boolean)
+    method = Column(String, default='head')
+
+    enabled = Column(Boolean, default=True)
+    autoqueue = Column(Boolean)
+    num_count_per_item = Column(Integer, default=50, nullable=False)
+    max_num_items = Column(Integer, default=1000, nullable=False)
+    lower_sequence_num = Column(Integer, default=0, nullable=False)
 
     def to_dict(self):
         return {
-            'id': self.id,
             'name': self.name,
             'min_version': self.min_version,
             'alphabet': self.alphabet,
@@ -84,27 +161,46 @@ class Project(Model):
 
     @classmethod
     def all_project_names(cls):
-        projects = cls.query.startswith(name='').all()
-        return [project.name for project in projects]
+        with new_session() as session:
+            projects = session.query(Project.name)
+
+            return list([project.name for project in projects])
+
+    @classmethod
+    def new_project(cls, name):
+        with new_session() as session:
+            project = Project(name=name)
+            session.add(project)
+
+    @classmethod
+    def get_plain(cls, name):
+        with new_session() as session:
+            project = session.query(Project).filter_by(name=name).first()
+
+            make_transient(project)
+            return project
+
+    @classmethod
+    @contextlib.contextmanager
+    def get_session_object(cls, name):
+        with new_session() as session:
+            project = session.query(Project).filter_by(name=name).first()
+            yield project
 
 
-class Claim(Model):
-    '''A item checked out by a user.'''
-    project = ManyToOne('Project', required=True)
-    lower_sequence_num = Integer(required=True)
-    upper_sequence_num = Integer(required=True)
-    datetime_claimed = DateTime(
-        default=datetime.datetime.utcnow()
-    )
-    tamper_key = Text()
-    username = Text()
-    ip_address = Text()
+class Item(Base):
+    __tablename__ = 'items'
+    id = Column(Integer, primary_key=True)
 
-    def __init__(self, conn=None, **kwargs):
-        Model.__init__(self, **kwargs)
+    project_id = Column(Integer, ForeignKey('projects.name'), nullable=False)
+    project = relationship('Project')
 
-        if conn:
-            self._conn = conn
+    lower_sequence_num = Column(Integer, nullable=False)
+    upper_sequence_num = Column(Integer, nullable=False)
+    datetime_claimed = Column(DateTime)
+    tamper_key = Column(String)
+    username = Column(String)
+    ip_address = Column(String)
 
     def to_dict(self):
         return {
@@ -119,93 +215,98 @@ class Claim(Model):
         }
 
 
-class TodoQueue(object):
-    '''A set containing strings of sequence number ranges.
+class BlockedUser(Base):
+    '''Blocked IP addresses or usernames.'''
+    __tablename__ = 'blocked_users'
 
-    Used for atomic checkouts. Each member is formatted like NN-MM
-    (ie: string representation of an integer, ascii hyphen, string
-    representation of an integer.
-    '''
-    SET_KEY = 'TODO:{project_id}'
+    username = Column(String, primary_key=True)
+    note = Column(String)
 
     @classmethod
-    def clear(cls, project_id):
-        connection = rom.util.get_connection()
-        connection.delete(cls.SET_KEY.format(project_id=project_id))
-
-    @classmethod
-    def add_one(cls, project_id, lower_sequence_num, upper_sequence_num):
-        connection = rom.util.get_connection()
-        connection.sadd(
-            cls.SET_KEY.format(project_id, project_id),
-            '{0}-{1}'.format(lower_sequence_num, upper_sequence_num)
-        )
-
-    @classmethod
-    def get_one(cls, project_id, connection=None):
-        connection = connection or rom.util.get_connection()
-        member = connection.spop(cls.SET_KEY.format(project_id=project_id))
-        lower_num, upper_num = member.split('-')
-        return lower_num, upper_num
-
-
-
-
-
-class BlockedUsers(object):
-    '''A set containing strings of IP addresses or usernames.'''
-    SET_KEY = 'blocked_usernames'
-
-    @classmethod
-    def block_username(cls, username):
-        connection = rom.util.get_connection()
-        connection.sadd(cls.SET_KEY, username)
+    def block_username(cls, username, note=None):
+        with new_session() as session:
+            session.add(BlockedUser(username=username, note=note))
 
     @classmethod
     def unblock_username(cls, username):
-        connection = rom.util.get_connection()
-        connection.srem(cls.SET_KEY, username)
+        with new_session() as session:
+            session.query(BlockedUser).filter_by(username=username).delete()
 
     @classmethod
     def is_username_blocked(cls, username):
-        connection = rom.util.get_connection()
-        return connection.sismember(cls.SET_KEY, username)
+        with new_session() as session:
+            result = session.query(BlockedUser).filter_by(username=username).first()
+            if result:
+                return True
 
     @classmethod
     def all_blocked_usernames(cls):
-        connection = rom.util.get_connection()
-        return connection.smembers(cls.SET_KEY)
+        with new_session() as session:
+            names = session.query(BlockedUser.username)
+
+            return list(names)
+
+
+class Result(object):
+    '''Unshortend URL.'''
+    __tablename__ = 'results'
+
+    id = Column(Integer, primary_key=True)
+
+    project_id = Column(Integer, ForeignKey('projects.name'), nullable=False)
+    project = relationship('Project')
+
+    shortcode = Column(String, nullable=False)
+    url = Column(String, nullable=False)
+    encoding = Column(String, nullable=False)
 
 
 def make_hash(plaintext, salt):
-    key = salt.encode('ascii')
+    key = salt
     msg = plaintext.encode('ascii')
 
-    return hmac.new(key, msg).hexdigest().lower()
+    return hmac.new(key, msg).digest()
 
 
 def new_salt():
-    salt = os.urandom(16)
-    return base64.b16encode(salt).decode('ascii').lower()
+    return os.urandom(16)
 
 
-def checkout_item(project_id, username, ip_address):
-    connection = rom.util.get_connection()
-    pipe = connection.pipeline()
-    lower_num, upper_num = TodoQueue.get_one(project_id, connection=pipe)
+def new_tamper_key():
+    return base64.b16encode(os.urandom(16)).decode('ascii')
 
-    claim = Claim(
-        conn=pipe,
-        project=project_id,
-        username=username,
-        ip_address=ip_address,
-        lower_sequence_num=lower_num,
-        upper_sequence_num=upper_num,
-    )
 
-    claim.save()
-    del claim._conn
+def checkout_item(username, ip_address):
+    with new_session() as session:
+        item = session.query(Item).filter_by(username=None).first()
 
-    pipe.execute()
+        if not item:
+            raise NoItemAvailable()
 
-    return claim
+        item.datetime_claimed = datetime.datetime.utcnow()
+        item.tamper_key = new_tamper_key()
+        item.username = username
+        item.ip_address = ip_address
+
+        return item.to_dict()
+
+
+def checkin_item(item_id, tamper_key, results):
+    with new_session() as session:
+        item = session.query(Item).filter_by(id=item_id, tamper_key=tamper_key).first()
+
+        query_args = []
+
+        for shortcode in results.keys():
+            url = results[shortcode]['url']
+            encoding = results[shortcode]['encoding']
+            query_args.append({
+                'shortcode': shortcode,
+                'url': url,
+                'encoding': encoding,
+            })
+
+        query = insert(Result)
+        session.execute(query, query_args)
+
+        session.delete(item)

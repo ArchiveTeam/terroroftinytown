@@ -1,4 +1,5 @@
 # encoding=utf-8
+from sqlalchemy.exc import IntegrityError
 import tornado.gen
 from tornado.web import HTTPError
 import tornado.web
@@ -6,7 +7,7 @@ import tornado.web
 from terroroftinytown.tracker.base import BaseHandler
 from terroroftinytown.tracker.form import (LoginForm, AddUserForm, ConfirmForm,
     ChangePasswordForm)
-from terroroftinytown.tracker.model import User
+from terroroftinytown.tracker.model import User, Session
 import terroroftinytown.tracker.util
 
 
@@ -34,13 +35,9 @@ class LoginHandler(BaseHandler):
 
     def _login(self, username, password):
         if User.no_users_exist():
-            user = User(username=username)
-            user.set_password(password)
-            user.save()
+            User.save_new_user(username, password)
 
-        user = User.get_by(username=username)
-
-        if user and user.check_password(password):
+        if User.check_account(username, password):
             self.set_secure_cookie(
                 ACCOUNT_COOKIE_NAME, username, expires_days=None
             )
@@ -78,16 +75,13 @@ class AllUsersHandler(BaseHandler):
             username = add_user_form.username.data
             password = add_user_form.password.data
 
-            user = User.get_by(username=username)
-
-            if not user:
-                user = User(username=username)
-                user.set_password(password)
-                user.save()
+            try:
+                User.save_new_user(username, password)
+            except IntegrityError:
+                message = 'User already exists.'
+            else:
                 self.redirect(self.reverse_url('user.overview', username))
                 return
-            else:
-                message = 'User already exists.'
 
         self.render(
             'admin/all_users.html',
@@ -130,13 +124,10 @@ class UserHandler(BaseHandler):
 
     def _delete(self, username, form):
         if form.validate():
-            user = User.get_by(username=username)
-            user.delete()
+            User.delete_user(username)
             self.redirect(self.reverse_url('users.overview'))
 
     def _password(self, username, form):
         if form.validate():
-            user = User.get_by(username=username)
-            user.set_password(form.password.data)
-            user.save()
+            User.update_password(username, form.password.data)
             self.redirect(self.reverse_url('users.overview'))

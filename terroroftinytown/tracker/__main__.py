@@ -17,9 +17,7 @@ def main():
     config_parser.read([args.config])
 
     database = Database(
-        host=config_parser['redis']['host'],
-        port=int(config_parser['redis']['port']),
-        db=int(config_parser['redis']['database']),
+        path=config_parser['database']['path'],
     )
 
     application = Application(
