@@ -1,0 +1,31 @@
+{% extends 'base_project.html' %}
+
+{% block title %} Items {% end %}
+
+{% block main %}
+
+<h1>Items</h1>
+
+<table>
+	<tr>
+		<th>ID</th>
+		<th>Lower Seq Num</th>
+		<th>Upper Seq Num</th>
+		<th>Username</th>
+		<th>IP</th>
+		<th>Action</th>
+	</tr>
+	
+	
+
+</table>
+
+
+
+{% module Form(release_form, action='?action=release', submit='Release Claims') %}
+
+{% module Form(delete_form, action='?action=delete', submit='Delete Queue') %}
+
+{% module Form(manual_add_form, action='?action=manual_add', submit='Add to Queue') %}
+
+{% end %}

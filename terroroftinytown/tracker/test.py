@@ -40,8 +40,8 @@ class TestTracker(unittest.TestCase):
 
         database = Database(
             path=config_parser['database']['path'],
+            delete_everything='yes-really!'
         )
-        database.delete_everything()
 
         self.io_loop_thread = IOLoopThread()
         app = Application(database, debug=True, cookie_secret='TEST')
@@ -74,6 +74,8 @@ class TestTracker(unittest.TestCase):
         self.sign_in()
         self.create_project()
         self.config_project_settings()
+        self.populate_queue()
+        self.get_project_settings()
         self.claim_and_return_an_item()
 
     def sign_in(self):
@@ -232,6 +234,22 @@ class TestTracker(unittest.TestCase):
         element.send_keys('<a id="redir_link" href="[^"]+">')
 
         element.submit()
+
+    def populate_queue(self):
+        # TODO:
+        pass
+
+    def get_project_settings(self):
+        response = requests.post(
+            self.get_url('/api/get'),
+            data={'name': 'test_project'}
+        )
+
+        self.assertEqual(200, response.status_code)
+
+        settings = response.json()
+
+        self.assertEqual('test_project', settings['name'])
 
     def claim_and_return_an_item(self):
         response = requests.post(

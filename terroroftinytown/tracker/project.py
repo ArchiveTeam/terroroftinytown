@@ -5,8 +5,9 @@ import tornado.web
 
 from terroroftinytown.tracker.base import BaseHandler
 from terroroftinytown.tracker.form import AddProjectForm, ProjectSettingsForm, \
-    BlockUsernameForm, UnblockUsernameForm, QueueSettingsForm
-from terroroftinytown.tracker.model import Project, BlockedUser
+    BlockUsernameForm, UnblockUsernameForm, QueueSettingsForm, ConfirmForm, \
+    AddItemsForm, ReleaseClaimForm
+from terroroftinytown.tracker.model import Project, BlockedUser, Item
 
 
 class AllProjectsHandler(BaseHandler):
@@ -65,7 +66,8 @@ class QueueHandler(BaseHandler):
             autoqueue=project.autoqueue,
             num_count_per_item=project.num_count_per_item,
             max_num_items=project.max_num_items,
-            lower_sequence_num=project.lower_sequence_num
+            lower_sequence_num=project.lower_sequence_num,
+            autorelease_time=project.autorelease_time // 3600,
         )
         self.render('admin/project_queue.html', project_name=name, form=form)
 
@@ -81,6 +83,7 @@ class QueueHandler(BaseHandler):
                 project.num_count_per_item = form.num_count_per_item.data
                 project.max_num_items = form.max_num_items.data
                 project.lower_sequence_num = form.lower_sequence_num.data or 0
+                project.autorelease_time = form.autorelease_time.data * 3600 or 0
 
             message = 'Settings saved.'
         else:
@@ -96,7 +99,18 @@ class QueueHandler(BaseHandler):
 class ClaimsHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self, name):
-        self.render('admin/project_overview.html', project_name=name)
+        delete_form = ConfirmForm()
+        manual_add_form = AddItemsForm()
+        release_form = ReleaseClaimForm()
+        items = Item.get_items(name)
+
+        self.render(
+            'admin/project_claims.html', project_name=name,
+            delete_form=delete_form,
+            manual_add_form=manual_add_form,
+            release_form=release_form,
+            items=items,
+        )
 
 
 class BlockedHandler(BaseHandler):
@@ -189,5 +203,16 @@ class SettingsHandler(BaseHandler):
 
 
 class DeleteHandler(BaseHandler):
+    @tornado.web.authenticated
     def get(self, name):
-        self.render('admin/project_overview.html', project_name=name)
+        form = ConfirmForm()
+        self.render('admin/project_delete.html', project_name=name, form=form)
+
+    def post(self, name):
+        form = ConfirmForm(self.request.arguments)
+
+        if form.validate():
+            Project.delete_project(name)
+            self.redirect(self.reverse_url('admin.overview'))
+        else:
+            self.render('admin/project_delete.html', project_name=name, form=form)

@@ -3,9 +3,9 @@
 {% block menu %}
 <a href="{{ reverse_url('admin.overview') }}">Global Admin</a><br>
 <a href="{{ reverse_url('project.overview', project_name) }}">Overview</a><br>
-<a href="{{ reverse_url('project.queue', project_name) }}">Queue</a><br>
 <a href="{{ reverse_url('project.claims', project_name) }}">Claims</a><br>
 <a href="{{ reverse_url('project.blocked', project_name) }}">Blocked</a><br>
-<a href="{{ reverse_url('project.settings', project_name) }}">Settings</a><br>
+<a href="{{ reverse_url('project.queue', project_name) }}">Queue Settings</a><br>
+<a href="{{ reverse_url('project.settings', project_name) }}">Shortener Settings</a><br>
 <a href="{{ reverse_url('project.delete', project_name) }}">Delete</a><br>
 {% end %}

@@ -2,8 +2,8 @@
 from wtforms import validators
 from wtforms.fields.core import StringField, BooleanField, FloatField, Field, \
     IntegerField
-from wtforms.fields.simple import PasswordField
-from wtforms.widgets.core import TextInput, TextArea
+from wtforms.fields.simple import PasswordField, TextAreaField
+from wtforms.widgets.core import TextInput
 from wtforms_tornado import Form
 
 
@@ -107,3 +107,14 @@ class QueueSettingsForm(Form):
     lower_sequence_num = IntegerField(
         'Lower sequence number:', [validators.Optional()]
     )
+    autorelease_time = IntegerField(
+        'AutoRelease items after hours:', [validators.Optional()]
+    )
+
+
+class AddItemsForm(Form):
+    items = TextAreaField('Sequence numbers:')
+
+
+class ReleaseClaimForm(Form):
+    hours = IntegerField('Release claims older than hours:')

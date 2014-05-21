@@ -142,6 +142,7 @@ class Project(Base):
     num_count_per_item = Column(Integer, default=50, nullable=False)
     max_num_items = Column(Integer, default=1000, nullable=False)
     lower_sequence_num = Column(Integer, default=0, nullable=False)
+    autorelease_time = Column(Integer, default=3600 * 6)
 
     def to_dict(self):
         return {
@@ -187,6 +188,11 @@ class Project(Base):
             project = session.query(Project).filter_by(name=name).first()
             yield project
 
+    @classmethod
+    def delete_project(cls, name):
+        with new_session() as session:
+            session.query(Project).filter_by(name=name).delete()
+
 
 class Item(Base):
     __tablename__ = 'items'
@@ -213,6 +219,15 @@ class Item(Base):
             'username': self.username,
             'ip_address': self.ip_address,
         }
+
+    @classmethod
+    def get_items(cls, project_name):
+        with new_session() as session:
+            query = session.query(Item).filter_by(project_id=project_name).order_by(Item.datetime_claimed)
+
+            rows = session.execute(query)
+
+            return [make_transient(item) for item in rows]
 
 
 class BlockedUser(Base):

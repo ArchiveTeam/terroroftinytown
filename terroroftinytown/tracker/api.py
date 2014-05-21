@@ -12,7 +12,7 @@ from terroroftinytown.tracker.model import Project
 class ProjectSettingsHandler(BaseHandler):
     def get(self):
         name = self.get_argument('name')
-        project = Project.query.filter(name=name).first()
+        project = Project.get_plain(name)
 
         if project:
             self.write(project.to_dict())
