@@ -33,8 +33,8 @@ class LiveStatsHandler(tornado.websocket.WebSocketHandler):
 
 class GetHandler(BaseHandler):
     def post(self):
-        ip_address = self.get_arguments('ip_address', None)
-        version = self.get_arguments('version', None)
+        ip_address = self.get_argument('ip_address', None)
+        version = self.get_argument('version', None)
         username = self.get_argument('username')
 
         try:
@@ -46,7 +46,7 @@ class GetHandler(BaseHandler):
         except UserIsBanned:
             raise HTTPError(403, 'You are banned')
         else:
-            self.write(claim.to_dict())
+            self.write(claim)
 
 
 class DoneHandler(BaseHandler):

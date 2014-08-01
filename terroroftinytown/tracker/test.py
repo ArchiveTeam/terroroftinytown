@@ -1,18 +1,20 @@
 import configparser
+import json
 import os.path
+import requests
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
+import string
 import threading
+import unittest
+
 import tornado.httpserver
 import tornado.testing
-import unittest
 
 from terroroftinytown.tracker.app import Application
 from terroroftinytown.tracker.database import Database
-from selenium.webdriver.common.by import By
-import string
-import requests
 
 
 class IOLoopThread(threading.Thread):
@@ -196,7 +198,7 @@ class TestTracker(unittest.TestCase):
         element = self.driver.find_element_by_link_text('test_project')
         element.click()
 
-        element = self.driver.find_element_by_link_text('Settings')
+        element = self.driver.find_element_by_link_text('Shortener Settings')
         element.click()
 
         element = self.driver.find_element_by_name('alphabet')
@@ -236,13 +238,21 @@ class TestTracker(unittest.TestCase):
         element.submit()
 
     def populate_queue(self):
-        # TODO:
-        pass
+        element = self.driver.find_element_by_link_text('Claims')
+        element.click()
+
+        WebDriverWait(self.driver, 2).until(
+            expected_conditions.title_is('Items')
+        )
+
+        element = self.driver.find_element_by_name('items')
+        element.send_keys('0-20\n21-40')
+
+        element.submit()
 
     def get_project_settings(self):
-        response = requests.post(
-            self.get_url('/api/get'),
-            data={'name': 'test_project'}
+        response = requests.get(
+            self.get_url('/api/project_settings?name=test_project'),
         )
 
         self.assertEqual(200, response.status_code)
@@ -259,20 +269,26 @@ class TestTracker(unittest.TestCase):
         self.assertEqual(200, response.status_code)
         item = response.json()
 
-        item['shortener_params']
+        print(item)
+
+        item['project']
 
         response = requests.post(
             self.get_url('/api/done'),
             data={
-                'claim_id': item['claim_id'],
+                'claim_id': item['id'],
                 'tamper_key': item['tamper_key'],
-                'results': {
+                'results': json.dumps({
                     'abcd': {
                         'url': 'http://ultraarchive.org',
                         'encoding': 'ascii',
                     }
-                }
+                })
             }
         )
 
         self.assertEqual(200, response.status_code)
+
+        doc = response.json()
+
+        print(doc)

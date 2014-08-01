@@ -1,5 +1,6 @@
 # encoding=utf-8
 import base64
+import calendar
 import contextlib
 import datetime
 import hmac
@@ -14,6 +15,7 @@ from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import String, Binary, Float, Boolean, Integer, \
     DateTime
 from sqlalchemy.sql.type_api import TypeDecorator
+
 from terroroftinytown.tracker.errors import NoItemAvailable
 
 
@@ -214,7 +216,7 @@ class Item(Base):
             'project': self.project.to_dict(),
             'lower_sequence_num': self.lower_sequence_num,
             'upper_sequence_num': self.upper_sequence_num,
-            'datetime_claimed': self.datetime_claimed,
+            'datetime_claimed': calendar.timegm(self.datetime_claimed.utctimetuple()) if self.datetime_claimed else None,
             'tamper_key': self.tamper_key,
             'username': self.username,
             'ip_address': self.ip_address,
@@ -275,7 +277,7 @@ class BlockedUser(Base):
             return list(names)
 
 
-class Result(object):
+class Result(Base):
     '''Unshortend URL.'''
     __tablename__ = 'results'
 
@@ -329,6 +331,7 @@ def checkin_item(item_id, tamper_key, results):
             url = results[shortcode]['url']
             encoding = results[shortcode]['encoding']
             query_args.append({
+                'project_id': item.project_id,
                 'shortcode': shortcode,
                 'url': url,
                 'encoding': encoding,

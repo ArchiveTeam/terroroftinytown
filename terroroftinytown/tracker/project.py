@@ -122,7 +122,8 @@ class ClaimsHandler(BaseHandler):
 
         if action == 'manual_add':
             self._add_items(name)
-            self.redirect(self.reverse_url('project.claims'), name)
+            self.redirect(self.reverse_url('project.claims', name))
+            return
 
         self.render(
             'admin/project_claims.html', project_name=name,
