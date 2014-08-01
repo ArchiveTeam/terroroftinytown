@@ -112,6 +112,38 @@ class ClaimsHandler(BaseHandler):
             items=items,
         )
 
+    @tornado.web.authenticated
+    def post(self, name):
+        delete_form = ConfirmForm(self.request.arguments)
+        manual_add_form = AddItemsForm(self.request.arguments)
+        release_form = ReleaseClaimForm(self.request.arguments)
+        items = Item.get_items(name)
+        action = self.get_argument('action')
+
+        if action == 'manual_add':
+            self._add_items(name)
+            self.redirect(self.reverse_url('project.claims'), name)
+
+        self.render(
+            'admin/project_claims.html', project_name=name,
+            delete_form=delete_form,
+            manual_add_form=manual_add_form,
+            release_form=release_form,
+            items=items,
+        )
+
+    def _add_items(self, name):
+        items = self.get_argument('items').split()
+        seq_list = []
+
+        for item in items:
+            lower_seq_num, upper_seq_num = item.split('-')
+            lower_seq_num = int(lower_seq_num)
+            upper_seq_num = int(upper_seq_num)
+            seq_list.append((lower_seq_num, upper_seq_num))
+
+        Item.add_items(name, seq_list)
+
 
 class BlockedHandler(BaseHandler):
     @tornado.web.authenticated

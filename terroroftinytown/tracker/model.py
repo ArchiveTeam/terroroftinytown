@@ -223,11 +223,24 @@ class Item(Base):
     @classmethod
     def get_items(cls, project_name):
         with new_session() as session:
-            query = session.query(Item).filter_by(project_id=project_name).order_by(Item.datetime_claimed)
+            rows = session.query(Item).filter_by(project_id=project_name).order_by(Item.datetime_claimed)
 
-            rows = session.execute(query)
+            return list([item.to_dict() for item in rows])
 
-            return [make_transient(item) for item in rows]
+    @classmethod
+    def add_items(cls, project_name, sequence_list):
+        with new_session() as session:
+            query = insert(Item)
+            query_args = []
+
+            for lower_num, upper_num in sequence_list:
+                query_args.append({
+                    'project_id': project_name,
+                    'lower_sequence_num': lower_num,
+                    'upper_sequence_num': upper_num,
+                })
+
+            session.execute(query, query_args)
 
 
 class BlockedUser(Base):

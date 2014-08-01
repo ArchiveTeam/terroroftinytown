@@ -16,6 +16,15 @@
 		<th>Action</th>
 	</tr>
 	
+	{% for item in items %}
+	<tr>
+		<td>{{ item['id'] }}</td>
+		<td>{{ item['lower_sequence_num'] }}</td>
+		<td>{{ item['upper_sequence_num'] }}</td>
+		<td>{{ item['username'] }}</td>
+		<td>{{ item['ip_address'] }}</td>
+	</tr>
+	{% end %}
 	
 
 </table>
