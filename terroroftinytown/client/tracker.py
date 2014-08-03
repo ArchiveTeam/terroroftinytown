@@ -22,7 +22,7 @@ class TrackerClient(object):
         _logger.info('Contacting tracker.')
 
         response = requests.post(
-            'http://{host}/api/get',
+            'http://{host}/api/get'.format(host=self.host),
             data={
                 'username': self.username,
                 'ip_address': self.bind_address,
@@ -39,7 +39,7 @@ class TrackerClient(object):
         _logger.info('Uploading to tracker.')
 
         response = requests.post(
-            'http://{host}/api/done',
+            'http://{host}/api/done'.format(host=self.host),
             data={
                 'claim_id': claim_id,
                 'tamper_key': tamper_key,

@@ -41,6 +41,8 @@ class Scraper(object):
             sleep_time = self.params['request_delay']
             time.sleep(sleep_time)
 
+        return self.results
+
     def scrape_one(self):
         sequence_number = self.todo_list.pop()
         self.current_shortcode = shortcode = alphabet.int_to_str(
