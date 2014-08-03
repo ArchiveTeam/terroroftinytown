@@ -9,8 +9,17 @@ class ExampleHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         shortcode = self.path.split('/', 1)[-1]
 
-        self.send_response(500)
-        self.end_headers()
+        if shortcode:
+            self.send_response(301)
+            self.send_header('Location', 'http://www.archiveteam.org/')
+            self.end_headers()
+        elif self.path == '/':
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b'Example Server')
+        else:
+            self.send_response(404)
+            self.end_headers()
 
 
 class ExampleServer(socketserver.ThreadingMixIn, HTTPServer):
@@ -39,6 +48,6 @@ class ExampleServerThread(threading.Thread):
         return self._port
 
 if __name__ == '__main__':
-    server = ExampleServerThread(8059)
+    server = ExampleServerThread(8060)
     server.start()
     server.join()
