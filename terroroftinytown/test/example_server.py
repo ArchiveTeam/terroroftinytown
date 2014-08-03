@@ -32,7 +32,7 @@ class ExampleServerThread(threading.Thread):
         threading.Thread.__init__(self)
         self.daemon = True
         self._port = port
-        self._server = ExampleServer(('localhost', self._port))
+        self._server = ExampleServer(('0.0.0.0', self._port))
         self._port = self._server.server_address[1]
         self.started_event = threading.Event()
 

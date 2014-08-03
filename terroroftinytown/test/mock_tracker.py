@@ -34,7 +34,7 @@ class TrackerHandler(BaseHTTPRequestHandler):
                     'min_version': '',
                     'custom_code_required': False,
                     'body_regex': '<a id="redir_link" href="[^"]+">',
-                    'method': 'head',
+                    'method': 'get',
                     'redirect_codes': [301, 302],
                     'alphabet':  'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
                     'no_redirect_codes': [404],
@@ -64,7 +64,7 @@ class MockTrackerThread(threading.Thread):
         threading.Thread.__init__(self)
         self.daemon = True
         self._port = port
-        self._server = MockTracker(('localhost', self._port))
+        self._server = MockTracker(('0.0.0.0', self._port))
         self._port = self._server.server_address[1]
         self.started_event = threading.Event()
 
