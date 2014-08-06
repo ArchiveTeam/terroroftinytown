@@ -17,7 +17,7 @@ ACCOUNT_COOKIE_NAME = 'tottu'
 class LoginHandler(BaseHandler):
     def get(self):
         form = LoginForm()
-        self.render('admin/login.html', form=form)
+        self.render('admin/account/login.html', form=form)
 
     @tornado.gen.coroutine
     def post(self):
@@ -31,7 +31,7 @@ class LoginHandler(BaseHandler):
             return
 
         yield terroroftinytown.tracker.util.sleep(1)
-        self.render('admin/login.html', form=form, message='Log in failed.')
+        self.render('admin/account/login.html', form=form, message='Log in failed.')
 
     def _login(self, username, password):
         if User.no_users_exist():
@@ -98,7 +98,7 @@ class UserHandler(BaseHandler):
         password_form = ChangePasswordForm()
 
         self.render(
-            'admin/user.html',
+            'admin/account/user.html',
             username=username, delete_form=delete_form,
             password_form=password_form
         )
@@ -117,7 +117,7 @@ class UserHandler(BaseHandler):
             raise HTTPError(400, 'Unknown action')
 
         self.render(
-            'admin/user.html',
+            'admin/account/user.html',
             username=username, delete_form=delete_form,
             password_form=password_form
         )

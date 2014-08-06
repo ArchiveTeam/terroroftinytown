@@ -17,7 +17,7 @@ class AllProjectsHandler(BaseHandler):
         projects = Project.all_project_names()
 
         self.render(
-            'admin/all_projects.html',
+            'admin/overview/all_projects.html',
             projects=projects,
             add_project_form=add_project_form,
         )
@@ -44,7 +44,7 @@ class AllProjectsHandler(BaseHandler):
                 return
 
         self.render(
-            'admin/all_projects.html',
+            'admin/overview/all_projects.html',
             add_project_form=add_project_form,
             projects=Project.all_project_names(),
             message=message
@@ -54,7 +54,7 @@ class AllProjectsHandler(BaseHandler):
 class ProjectHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self, name):
-        self.render('admin/project_overview.html', project_name=name)
+        self.render('admin/project/overview.html', project_name=name)
 
 
 class QueueHandler(BaseHandler):
@@ -69,7 +69,7 @@ class QueueHandler(BaseHandler):
             lower_sequence_num=project.lower_sequence_num,
             autorelease_time=project.autorelease_time // 3600,
         )
-        self.render('admin/project_queue.html', project_name=name, form=form)
+        self.render('admin/project/queue_settings.html', project_name=name, form=form)
 
     @tornado.web.authenticated
     def post(self, name):
@@ -90,7 +90,7 @@ class QueueHandler(BaseHandler):
             message = 'Error.'
 
         self.render(
-            'admin/project_queue.html',
+            'admin/project/queue_settings.html',
             project_name=name, form=form,
             message=message
         )
@@ -105,7 +105,7 @@ class ClaimsHandler(BaseHandler):
         items = Item.get_items(name)
 
         self.render(
-            'admin/project_claims.html', project_name=name,
+            'admin/project/claims.html', project_name=name,
             delete_form=delete_form,
             manual_add_form=manual_add_form,
             release_form=release_form,
@@ -126,7 +126,7 @@ class ClaimsHandler(BaseHandler):
             return
 
         self.render(
-            'admin/project_claims.html', project_name=name,
+            'admin/project/claims.html', project_name=name,
             delete_form=delete_form,
             manual_add_form=manual_add_form,
             release_form=release_form,
@@ -153,7 +153,7 @@ class BlockedHandler(BaseHandler):
         unblock_form = UnblockUsernameForm(self.request.arguments)
 
         self.render(
-            'admin/project_blocked.html',
+            'admin/overview/blocked.html',
             project_name=name, form=form, unblock_form=unblock_form,
             usernames=BlockedUser.all_blocked_usernames()
         )
@@ -176,7 +176,7 @@ class BlockedHandler(BaseHandler):
                 message = 'User blocked.'
 
         self.render(
-            'admin/project_blocked.html',
+            'admin/overview/blocked.html',
             message=message,
             project_name=name, form=form, unblock_form=unblock_form,
             usernames=BlockedUser.all_blocked_usernames(),
@@ -202,7 +202,7 @@ class SettingsHandler(BaseHandler):
         )
 
         self.render(
-            'admin/project_settings.html',
+            'admin/project/shortener_settings.html',
             project_name=name, form=form,
         )
 
@@ -229,7 +229,7 @@ class SettingsHandler(BaseHandler):
             message = 'Error.'
 
         self.render(
-            'admin/project_settings.html',
+            'admin/project/shortener_settings.html',
             project_name=name, form=form,
             message=message
         )
@@ -239,7 +239,7 @@ class DeleteHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self, name):
         form = ConfirmForm()
-        self.render('admin/project_delete.html', project_name=name, form=form)
+        self.render('admin/project/delete.html', project_name=name, form=form)
 
     def post(self, name):
         form = ConfirmForm(self.request.arguments)
@@ -248,4 +248,4 @@ class DeleteHandler(BaseHandler):
             Project.delete_project(name)
             self.redirect(self.reverse_url('admin.overview'))
         else:
-            self.render('admin/project_delete.html', project_name=name, form=form)
+            self.render('admin/project/delete.html', project_name=name, form=form)
