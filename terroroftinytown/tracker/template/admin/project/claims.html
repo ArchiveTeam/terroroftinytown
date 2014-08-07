@@ -4,8 +4,9 @@
 
 {% block main %}
 
-<h1>Items</h1>
+<h1>Claims</h1>
 
+<h2>All Items</h2>
 <table>
 	<tr>
 		<th>ID</th>
@@ -29,12 +30,21 @@
 
 </table>
 
-
+<h2>Queue Management</h2>
 
 {% module Form(release_form, action='?action=release', submit='Release Claims') %}
 
+<p>Release any claimed items and make them available again.</p>
+<hr>
+
 {% module Form(delete_form, action='?action=delete', submit='Delete Queue') %}
+<p>Completely obliterate the queue including any claims.</p>
+<hr>
 
 {% module Form(manual_add_form, action='?action=manual_add', submit='Add to Queue') %}
+<p>Add some items.</p>
+<p>Each item is seperated by whitespace (a new line or a space). 
+Each item is a range of sequence numbers (A number, a ASCII hyphen, a number).</p>
+<p>For example: <code>0-9 10-19 20-21</code></p>
 
 {% end %}

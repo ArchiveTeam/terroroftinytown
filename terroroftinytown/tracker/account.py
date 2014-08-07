@@ -56,7 +56,7 @@ class AllUsersHandler(BaseHandler):
         add_user_form = AddUserForm()
 
         self.render(
-            'admin/all_users.html',
+            'admin/account/all.html',
             usernames=User.all_usernames(),
             add_user_form=add_user_form
         )
@@ -84,7 +84,7 @@ class AllUsersHandler(BaseHandler):
                 return
 
         self.render(
-            'admin/all_users.html',
+            'admin/account/all.html',
             add_user_form=add_user_form,
             usernames=User.all_usernames(),
             message=message

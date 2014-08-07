@@ -1,4 +1,4 @@
-{% extends '../base.html' %}
+{% extends '../overview/base.html' %}
 
 {% block title %} {{ username }} {% end %}
 
@@ -6,8 +6,10 @@
 
 <h1>{{ username }}</h1>
 
+<h2>Change password</h2>
 {% module Form(password_form, action='?action=password', submit='Apply') %}
 
+<h2>Delete user account</h2>
 {% module Form(delete_form, action='?action=delete', submit='Delete') %}
 
 

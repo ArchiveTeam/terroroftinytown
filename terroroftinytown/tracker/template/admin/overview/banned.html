@@ -1,14 +1,20 @@
 {% extends 'base.html' %}
 
-{% block title %} Blocked Users {% end %}
+{% block title %} Banned Clients {% end %}
 
 {% block main %}
 {% from tornado.httputil import url_concat %}
 
-<h1>Blocked Users</h1>
+<h1>Banned Clients</h1>
 
+<p>Deny jobs to any clients specified.</p>
+
+<h2>Ban a client</h2>
 {% module Form(form, action='?action=add', submit='Add') %}
 
+<p>You can specify a nickname provided by the user or an IP address.</p>
+
+<h2>All banned</h2>
 <ul>
 {% for username in usernames %}
 	<li>

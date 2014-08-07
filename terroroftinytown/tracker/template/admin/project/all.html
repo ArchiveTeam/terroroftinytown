@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends '../overview/base.html' %}
 
 {% block title %} Projects {% end %}
 
@@ -10,7 +10,7 @@
 
 {% module Form(add_project_form, action='?action=add_project', submit='Add') %}
 
-<h2>All</h2>
+<h2>All projects</h2>
 <ul>
 {% for project in projects %}
 	<li>

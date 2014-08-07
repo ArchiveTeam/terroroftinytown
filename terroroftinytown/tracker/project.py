@@ -17,7 +17,7 @@ class AllProjectsHandler(BaseHandler):
         projects = Project.all_project_names()
 
         self.render(
-            'admin/overview/all_projects.html',
+            'admin/project/all.html',
             projects=projects,
             add_project_form=add_project_form,
         )
@@ -44,7 +44,7 @@ class AllProjectsHandler(BaseHandler):
                 return
 
         self.render(
-            'admin/overview/all_projects.html',
+            'admin/project/all.html',
             add_project_form=add_project_form,
             projects=Project.all_project_names(),
             message=message
@@ -144,43 +144,6 @@ class ClaimsHandler(BaseHandler):
             seq_list.append((lower_seq_num, upper_seq_num))
 
         Item.add_items(name, seq_list)
-
-
-class BlockedHandler(BaseHandler):
-    @tornado.web.authenticated
-    def get(self, name):
-        form = BlockUsernameForm()
-        unblock_form = UnblockUsernameForm(self.request.arguments)
-
-        self.render(
-            'admin/overview/blocked.html',
-            project_name=name, form=form, unblock_form=unblock_form,
-            usernames=BlockedUser.all_blocked_usernames()
-        )
-
-    @tornado.web.authenticated
-    def post(self, name):
-        action = self.get_argument('action', None)
-        form = BlockUsernameForm(self.request.arguments)
-        unblock_form = UnblockUsernameForm(self.request.arguments)
-        message = None
-
-        if action == 'remove':
-            if unblock_form.validate():
-                BlockedUser.unblock_username(self.get_argument('username'))
-                message = 'User unblocked.'
-
-        else:
-            if form.validate():
-                BlockedUser.block_username(form.username.data)
-                message = 'User blocked.'
-
-        self.render(
-            'admin/overview/blocked.html',
-            message=message,
-            project_name=name, form=form, unblock_form=unblock_form,
-            usernames=BlockedUser.all_blocked_usernames(),
-        )
 
 
 class SettingsHandler(BaseHandler):

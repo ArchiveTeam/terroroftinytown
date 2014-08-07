@@ -6,6 +6,31 @@
 
 <h1>Shortener Settings</h1>
 
+<p>Customize how the scraper will operate.</p>
+
 {% module Form(form, submit='Apply') %}
+
+<p>Alphabet: How to turn the sequence numbers into letters. Some common examples:</p>
+<ul>
+	<li>01234567890abcdef</li>
+	<li>0123456789abcdefghijklmnopqrstuvwxyz</li>
+	<li>0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</li>
+	<li>0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_</li>
+	<li>0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_</li>
+</ul>
+
+<p>The boxes with HTTP status codes are whitespace seperated lists.</p>
+
+<p>A redirect status code means there is a unshortened URL. A no redirect 
+status code means that there is no shortened URL. A unavailable status
+code means that the shortener has content issues (like a DCMA notice) with 
+unshortened URL. Banned status codes means that the scraper client
+has been banned.</p>
+
+<p>Body regex is a space for a Python regex if the shortener only serves
+the unshortened URL in the HTML.</p>
+
+<p>Tick the "custom code required box" if these settings are not adequate
+and additional logic is required in the client code.</p> 
 
 {% end %}
