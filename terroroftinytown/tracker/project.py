@@ -9,7 +9,7 @@ import tornado.web
 from terroroftinytown.tracker.base import BaseHandler
 from terroroftinytown.tracker.form import AddProjectForm, ProjectSettingsForm, \
     BlockUsernameForm, UnblockUsernameForm, QueueSettingsForm, ConfirmForm, \
-    AddItemsForm, ReleaseClaimForm, ItemActionForm
+    AddItemsForm, ReleaseClaimForm, ItemActionForm, QueueEnableForm
 from terroroftinytown.tracker.model import Project, BlockedUser, Item
 
 
@@ -64,24 +64,36 @@ class QueueHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self, name):
         project = Project.get_plain(name)
-        form = QueueSettingsForm(
+        enable_form = QueueEnableForm(
             enabled=project.enabled,
+        )
+        form = QueueSettingsForm(
             autoqueue=project.autoqueue,
             num_count_per_item=project.num_count_per_item,
             max_num_items=project.max_num_items,
             lower_sequence_num=project.lower_sequence_num,
             autorelease_time=project.autorelease_time // 3600,
         )
-        self.render('admin/project/queue_settings.html', project_name=name, form=form)
+        self.render(
+            'admin/project/queue_settings.html',
+            project_name=name,
+            form=form,
+            enable_form=enable_form
+        )
 
     @tornado.web.authenticated
     def post(self, name):
+        enable_form = QueueEnableForm(self.request.arguments)
         form = QueueSettingsForm(self.request.arguments)
         message = None
+        action = self.get_argument('action', None)
 
-        if form.validate():
+        if action == 'enable' and enable_form.validate():
             with Project.get_session_object(name) as project:
-                project.enabled = form.enabled.data
+                project.enabled = enable_form.enabled.data
+
+        elif action == 'autoqueue' and form.validate():
+            with Project.get_session_object(name) as project:
                 project.autoqueue = form.autoqueue.data
                 project.num_count_per_item = form.num_count_per_item.data
                 project.max_num_items = form.max_num_items.data
@@ -94,7 +106,9 @@ class QueueHandler(BaseHandler):
 
         self.render(
             'admin/project/queue_settings.html',
-            project_name=name, form=form,
+            project_name=name,
+            form=form,
+            enable_form=enable_form,
             message=message
         )
 

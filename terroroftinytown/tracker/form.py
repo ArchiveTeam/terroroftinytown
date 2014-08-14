@@ -99,11 +99,14 @@ class UnblockUsernameForm(Form):
     pass
 
 
-class QueueSettingsForm(Form):
+class QueueEnableForm(Form):
     enabled = BooleanField('Enabled')
+
+
+class QueueSettingsForm(Form):
+    autoqueue = BooleanField('AutoQueue')
     num_count_per_item = IntegerField('Number of URLs per item:')
     max_num_items = IntegerField('Maximum number of items in todo queue:')
-    autoqueue = BooleanField('AutoQueue')
     lower_sequence_num = IntegerField(
         'Lower sequence number:', [validators.Optional()]
     )
