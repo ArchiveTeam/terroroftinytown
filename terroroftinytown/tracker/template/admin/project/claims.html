@@ -12,21 +12,51 @@
 		<th>ID</th>
 		<th>Lower Seq Num</th>
 		<th>Upper Seq Num</th>
+		<th>Date</th>
 		<th>Username</th>
 		<th>IP</th>
 		<th>Action</th>
 	</tr>
 	
-	{% for item in items %}
+	{% for item in (item for item in items if not item['datetime_claimed']) %}
 	<tr>
 		<td>{{ item['id'] }}</td>
 		<td>{{ item['lower_sequence_num'] }}</td>
 		<td>{{ item['upper_sequence_num'] }}</td>
+		<td>{{ item['datetime_claimed'] }}</td>
 		<td>{{ item['username'] }}</td>
 		<td>{{ item['ip_address'] }}</td>
+		<td>
+			{% module Form(
+				item_action_form, 
+				action='?action=delete_one&id={}'.format(item['id']), 
+				submit='Delete') %}
+		</td>
 	</tr>
 	{% end %}
 	
+	<tr>
+		<td colspan="7">
+			<hr>
+		</td>
+	</tr> 
+	
+	{% for item in (item for item in items if item['datetime_claimed']) %}
+	<tr>
+		<td>{{ item['id'] }}</td>
+		<td>{{ item['lower_sequence_num'] }}</td>
+		<td>{{ item['upper_sequence_num'] }}</td>
+		<td>{{ item['datetime_claimed'] }}</td>
+		<td>{{ item['username'] }}</td>
+		<td>{{ item['ip_address'] }}</td>
+		<td>
+			{% module Form(
+				item_action_form,
+				action='?action=release_one&id={}'.format(item['id']), 
+				submit='Release') %}
+		</td>
+	</tr>
+	{% end %}
 
 </table>
 

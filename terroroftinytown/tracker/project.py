@@ -1,4 +1,7 @@
 # encoding=utf-8
+import datetime
+import time
+
 from sqlalchemy.exc import IntegrityError
 from tornado.web import HTTPError
 import tornado.web
@@ -6,7 +9,7 @@ import tornado.web
 from terroroftinytown.tracker.base import BaseHandler
 from terroroftinytown.tracker.form import AddProjectForm, ProjectSettingsForm, \
     BlockUsernameForm, UnblockUsernameForm, QueueSettingsForm, ConfirmForm, \
-    AddItemsForm, ReleaseClaimForm
+    AddItemsForm, ReleaseClaimForm, ItemActionForm
 from terroroftinytown.tracker.model import Project, BlockedUser, Item
 
 
@@ -102,6 +105,7 @@ class ClaimsHandler(BaseHandler):
         delete_form = ConfirmForm()
         manual_add_form = AddItemsForm()
         release_form = ReleaseClaimForm()
+        item_action_form = ItemActionForm()
         items = Item.get_items(name)
 
         self.render(
@@ -109,6 +113,7 @@ class ClaimsHandler(BaseHandler):
             delete_form=delete_form,
             manual_add_form=manual_add_form,
             release_form=release_form,
+            item_action_form=item_action_form,
             items=items,
         )
 
@@ -117,11 +122,27 @@ class ClaimsHandler(BaseHandler):
         delete_form = ConfirmForm(self.request.arguments)
         manual_add_form = AddItemsForm(self.request.arguments)
         release_form = ReleaseClaimForm(self.request.arguments)
+        item_action_form = ItemActionForm(self.request.arguments)
         items = Item.get_items(name)
         action = self.get_argument('action')
 
-        if action == 'manual_add':
+        if action == 'manual_add' and manual_add_form.validate():
             self._add_items(name)
+            self.redirect(self.reverse_url('project.claims', name))
+            return
+        elif action == 'delete_one' and item_action_form.validate():
+            self._delete_one()
+            self.redirect(self.reverse_url('project.claims', name))
+            return
+        elif action == 'release_one' and item_action_form.validate():
+            self._release_one()
+            self.redirect(self.reverse_url('project.claims', name))
+            return
+        elif action == 'release' and release_form.validate():
+            self._release_all(name, release_form)
+            self.redirect(self.reverse_url('project.claims', name))
+        elif action == 'delete' and delete_form.validate():
+            self._delete_all(name)
             self.redirect(self.reverse_url('project.claims', name))
             return
 
@@ -130,6 +151,7 @@ class ClaimsHandler(BaseHandler):
             delete_form=delete_form,
             manual_add_form=manual_add_form,
             release_form=release_form,
+            item_action_form=item_action_form,
             items=items,
         )
 
@@ -144,6 +166,21 @@ class ClaimsHandler(BaseHandler):
             seq_list.append((lower_seq_num, upper_seq_num))
 
         Item.add_items(name, seq_list)
+
+    def _delete_one(self):
+        item_id = int(self.get_argument('id'))
+        Item.delete(item_id)
+
+    def _release_one(self):
+        item_id = int(self.get_argument('id'))
+        Item.release(item_id)
+
+    def _release_all(self, project_name, release_form):
+        time_ago = time.time() - release_form.hours.data * 3600
+        Item.release_all(project_name, datetime.datetime.utcfromtimestamp(time_ago))
+
+    def _delete_all(self, project_name):
+        Item.delete_all(project_name)
 
 
 class SettingsHandler(BaseHandler):

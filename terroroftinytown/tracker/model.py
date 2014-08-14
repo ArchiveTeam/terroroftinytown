@@ -10,7 +10,7 @@ import os
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.orm.session import make_transient
-from sqlalchemy.sql.expression import insert
+from sqlalchemy.sql.expression import insert, delete, update
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import String, Binary, Float, Boolean, Integer, \
     DateTime
@@ -192,6 +192,7 @@ class Project(Base):
 
     @classmethod
     def delete_project(cls, name):
+        # FIXME: need to cascade the deletes
         with new_session() as session:
             session.query(Project).filter_by(name=name).delete()
 
@@ -243,6 +244,34 @@ class Item(Base):
                 })
 
             session.execute(query, query_args)
+
+    @classmethod
+    def delete(cls, item_id):
+        with new_session() as session:
+            session.execute(delete(Item), {'id': item_id})
+
+    @classmethod
+    def release(cls, item_id):
+        with new_session() as session:
+            item = session.query(Item).filter_by(id=item_id).first()
+            item.datetime_claimed = None
+            item.ip_address = None
+            item.username = None
+
+    @classmethod
+    def release_all(cls, project_name, old_date):
+        with new_session() as session:
+            session.query(Item).filter_by(project_id=project_name)\
+                .filter(Item.datetime_claimed <= old_date).update({
+                    'datetime_claimed': None,
+                    'ip_address': None,
+                    'username': None,
+                })
+
+    @classmethod
+    def delete_all(cls, project_name):
+        with new_session() as session:
+            session.query(Item).filter_by(project_id=project_name).delete()
 
 
 class BlockedUser(Base):

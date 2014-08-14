@@ -118,3 +118,7 @@ class AddItemsForm(Form):
 
 class ReleaseClaimForm(Form):
     hours = IntegerField('Release claims older than hours:')
+
+
+class ItemActionForm(Form):
+    pass
