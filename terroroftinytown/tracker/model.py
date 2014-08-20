@@ -7,6 +7,7 @@ import hmac
 import json
 import os
 
+from sqlalchemy import func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.orm.session import make_transient
@@ -334,18 +335,58 @@ def new_salt():
 def new_tamper_key():
     return base64.b16encode(os.urandom(16)).decode('ascii')
 
+def generate_item(session):
+    num_queue = session.query(
+        Item.project_id,
+        func.count(Item.id).label('queue_size')
+    ) \
+        .group_by(Item.project_id) \
+        .subquery()
+
+    query = session.query(Project, num_queue.c.queue_size) \
+        .filter_by(enabled=True, autoqueue=True) \
+        .outerjoin(num_queue, Project.name == num_queue.c.project_id) \
+        .filter(num_queue.c.queue_size < Project.max_num_items) \
+        .first()
+    # XXX: Should the project be randomized?
+
+    if not query:
+        raise NoItemAvailable()
+
+    project, queue_size = query
+
+    item_count = project.num_count_per_item
+    upper_sequence_num = project.lower_sequence_num + item_count - 1
+
+    item = Item(
+        project=project,
+        lower_sequence_num=project.lower_sequence_num,
+        upper_sequence_num=upper_sequence_num,
+    )
+
+    project.lower_sequence_num = upper_sequence_num + 1
+
+    session.add(item)
+    return item
 
 def checkout_item(username, ip_address):
     with new_session() as session:
-        item = session.query(Item).filter_by(username=None).first()
+        item = session.query(Item) \
+            .filter_by(username=None) \
+            .join(Item.project) \
+            .filter_by(enabled=True).first()
 
         if not item:
-            raise NoItemAvailable()
+            item = generate_item(session)
 
         item.datetime_claimed = datetime.datetime.utcnow()
         item.tamper_key = new_tamper_key()
         item.username = username
         item.ip_address = ip_address
+
+        # Item should be committed now to generate ID for
+        # newly generated items        
+        session.commit()
 
         return item.to_dict()
 
