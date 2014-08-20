@@ -346,7 +346,7 @@ def generate_item(session):
     query = session.query(Project, num_queue.c.queue_size) \
         .filter_by(enabled=True, autoqueue=True) \
         .outerjoin(num_queue, Project.name == num_queue.c.project_id) \
-        .filter(num_queue.c.queue_size < Project.max_num_items) \
+        .filter(func.coalesce(num_queue.c.queue_size, 0) < Project.max_num_items) \
         .first()
     # XXX: Should the project be randomized?
 
