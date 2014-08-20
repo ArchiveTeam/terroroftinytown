@@ -3,3 +3,4 @@ rom>=0.26
 six>=1.5
 tornado>=3.2
 wtforms-tornado
+SQLAlchemy>=0.9
