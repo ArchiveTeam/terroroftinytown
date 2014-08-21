@@ -343,6 +343,7 @@ def generate_item(session):
         .group_by(Item.project_id) \
         .subquery()
 
+    # TODO: Check for client minimum version
     query = session.query(Project, num_queue.c.queue_size) \
         .filter_by(enabled=True, autoqueue=True) \
         .outerjoin(num_queue, Project.name == num_queue.c.project_id) \

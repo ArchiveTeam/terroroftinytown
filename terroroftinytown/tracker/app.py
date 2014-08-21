@@ -10,7 +10,6 @@ from terroroftinytown.tracker.base import BaseHandler
 from terroroftinytown.tracker.model import BlockedUser
 from terroroftinytown.tracker.ui import FormUIModule
 
-
 class Application(tornado.web.Application):
     def __init__(self, database, **kwargs):
         self.db = database
