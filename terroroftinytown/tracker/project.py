@@ -64,16 +64,8 @@ class QueueHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self, name):
         project = Project.get_plain(name)
-        enable_form = QueueEnableForm(
-            enabled=project.enabled,
-        )
-        form = QueueSettingsForm(
-            autoqueue=project.autoqueue,
-            num_count_per_item=project.num_count_per_item,
-            max_num_items=project.max_num_items,
-            lower_sequence_num=project.lower_sequence_num,
-            autorelease_time=project.autorelease_time // 3600,
-        )
+        enable_form = QueueEnableForm(data=self.get_enable_form(project))
+        form = QueueSettingsForm(data=self.get_queue_settings_form(project))
         self.render(
             'admin/project/queue_settings.html',
             project_name=name,
@@ -83,24 +75,34 @@ class QueueHandler(BaseHandler):
 
     @tornado.web.authenticated
     def post(self, name):
-        enable_form = QueueEnableForm(self.request.arguments)
-        form = QueueSettingsForm(self.request.arguments)
+        project = Project.get_plain(name)
+        enable_form = QueueEnableForm(data=self.get_enable_form(project))
+        form = QueueSettingsForm(data=self.get_queue_settings_form(project))
+
         message = None
         action = self.get_argument('action', None)
 
-        if action == 'enable' and enable_form.validate():
-            with Project.get_session_object(name) as project:
-                project.enabled = enable_form.enabled.data
+        if action == 'enable':
+            enable_form = QueueEnableForm(self.request.arguments)
+            if enable_form.validate():
+                with Project.get_session_object(name) as project:
+                    project.enabled = enable_form.enabled.data
+            else:
+                message = 'Error.'
 
-        elif action == 'autoqueue' and form.validate():
-            with Project.get_session_object(name) as project:
-                project.autoqueue = form.autoqueue.data
-                project.num_count_per_item = form.num_count_per_item.data
-                project.max_num_items = form.max_num_items.data
-                project.lower_sequence_num = form.lower_sequence_num.data or 0
-                project.autorelease_time = form.autorelease_time.data * 3600 or 0
+        elif action == 'autoqueue':
+            form = QueueSettingsForm(self.request.arguments)
+            if form.validate():
+                with Project.get_session_object(name) as project:
+                    project.autoqueue = form.autoqueue.data
+                    project.num_count_per_item = form.num_count_per_item.data
+                    project.max_num_items = form.max_num_items.data
+                    project.lower_sequence_num = form.lower_sequence_num.data or 0
+                    project.autorelease_time = form.autorelease_time.data * 3600 or 0
 
-            message = 'Settings saved.'
+                message = 'Settings saved.'
+            else:
+                message = 'Error.'
         else:
             message = 'Error.'
 
@@ -111,6 +113,20 @@ class QueueHandler(BaseHandler):
             enable_form=enable_form,
             message=message
         )
+
+    def get_enable_form(self, project):
+        return {
+            'enabled': project.enabled,
+        }
+
+    def get_queue_settings_form(self, project):
+        return {
+            'autoqueue': project.autoqueue,
+            'num_count_per_item': project.num_count_per_item,
+            'max_num_items': project.max_num_items,
+            'lower_sequence_num': project.lower_sequence_num,
+            'autorelease_time': project.autorelease_time // 3600
+        }
 
 
 class ClaimsHandler(BaseHandler):
