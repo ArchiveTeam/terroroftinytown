@@ -11,7 +11,7 @@ from sqlalchemy import func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.orm.session import make_transient
-from sqlalchemy.sql.expression import insert, delete, update
+from sqlalchemy.sql.expression import insert, update
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import String, Binary, Float, Boolean, Integer, \
     DateTime
@@ -249,7 +249,7 @@ class Item(Base):
     @classmethod
     def delete(cls, item_id):
         with new_session() as session:
-            session.execute(delete(Item), {'id': item_id})
+            session.query(Item).filter_by(id=item_id).delete()
 
     @classmethod
     def release(cls, item_id):
