@@ -319,6 +319,7 @@ class Result(Base):
     shortcode = Column(String, nullable=False)
     url = Column(String, nullable=False)
     encoding = Column(String, nullable=False)
+    datetime = Column(DateTime)
 
 
 def make_hash(plaintext, salt):
@@ -397,6 +398,7 @@ def checkin_item(item_id, tamper_key, results):
         item = session.query(Item).filter_by(id=item_id, tamper_key=tamper_key).first()
 
         query_args = []
+        time = datetime.datetime.now()
 
         for shortcode in results.keys():
             url = results[shortcode]['url']
@@ -406,6 +408,7 @@ def checkin_item(item_id, tamper_key, results):
                 'shortcode': shortcode,
                 'url': url,
                 'encoding': encoding,
+                'datetime': time
             })
 
         query = insert(Result)
