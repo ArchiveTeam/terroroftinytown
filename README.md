@@ -20,6 +20,12 @@ How to run the tracker:
 
 Use `--debug` when developing.
 
+Export
+-------
+
+        python3 -m terroroftinytown.tracker.export THE_CONFIG_FILE.conf output_dir
+
+The output directory will be created if it does not exists. Specify `--format urlteam` to export in old URLTeam format (no BEACON headers)
 
 Test
 ----

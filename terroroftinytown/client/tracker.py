@@ -1,6 +1,7 @@
 # encoding-utf8
 '''Tracker communication.'''
 import logging
+import json
 import requests
 
 
@@ -43,7 +44,7 @@ class TrackerClient(object):
             data={
                 'claim_id': claim_id,
                 'tamper_key': tamper_key,
-                'results': results,
+                'results': json.dumps(results),
             },
         )
         response.raise_for_status()

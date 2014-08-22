@@ -411,7 +411,8 @@ def checkin_item(item_id, tamper_key, results):
                 'datetime': time
             })
 
-        query = insert(Result)
-        session.execute(query, query_args)
+        if len(query_args) > 0:
+            query = insert(Result)
+            session.execute(query, query_args)
 
         session.delete(item)
