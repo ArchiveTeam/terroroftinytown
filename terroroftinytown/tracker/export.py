@@ -57,7 +57,7 @@ class Exporter:
         with new_session() as session:
             query = session.query(Result) \
                 .filter_by(project=project) \
-                .order_by(func.length(Result.shortcode), Result.shortcode)
+                .order_by(func.char_length(Result.shortcode), Result.shortcode)
 
             if self.settings['after']:
                 query = query.filter(Result.datetime > self.settings['after'])

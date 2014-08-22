@@ -260,10 +260,39 @@ class Item(Base):
             item.username = None
 
     @classmethod
-    def release_all(cls, project_name, old_date):
+    def release_all(cls, project_name=None, old_date=None):
         with new_session() as session:
-            session.query(Item).filter_by(project_id=project_name)\
-                .filter(Item.datetime_claimed <= old_date).update({
+            query = session.query(Item)
+
+            if project_name:
+                query = query.filter_by(project_id=project_name)
+
+            if old_date:
+                query = query.filter(Item.datetime_claimed <= old_date)
+
+            query.update({
+                'datetime_claimed': None,
+                'ip_address': None,
+                'username': None,
+            })
+
+    @classmethod
+    def release_old(cls, project_name=None):
+        with new_session() as session:
+            # we could probably write this in one query
+            # but it would be non-portable across SQL dialects
+
+            projects = session.query(Project) \
+                .filter(Project.autorelease_time > 0)
+
+            if project_name:
+                projects = projects.filter_by(name=project_name)
+
+            for project in projects:
+                min_time = datetime.datetime.now() - datetime.timedelta(seconds=project.autorelease_time)
+                query = session.query(Item) \
+                    .filter(Item.datetime_claimed <= min_time, Item.project == project)
+                query.update({
                     'datetime_claimed': None,
                     'ip_address': None,
                     'username': None,
