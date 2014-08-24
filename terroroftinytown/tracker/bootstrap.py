@@ -5,13 +5,14 @@ import tornado.ioloop
 import redis
 
 from terroroftinytown.tracker.database import Database
+from terroroftinytown.tracker.stats import *
 from terroroftinytown.tracker.app import Application
 
 class Bootstrap:
     arg_parser = argparse.ArgumentParser()
     config = configparser.ConfigParser()
 
-    def __init__(self):
+    def start(self):
         self.setup_args()
         self.parse_args()
         self.load_config()
@@ -44,12 +45,21 @@ class Bootstrap:
             kwargs['host'] = self.config.get('redis', 'host', fallback='localhost')
             kwargs['port'] = self.config.getint('redis', 'port', fallback=6379)
 
-        self.redis = redis.StrictRedis(**kwargs)
+        self.redis = redis.Redis(**kwargs)
+
+    def setup_stats(self):
+        self.stats = Stats(
+            self.redis,
+            self.config.get('redis', 'prefix', fallback=''),
+            self.config.getint('redis', 'max_stats', fallback=30)
+        )
+
 
 class ApplicationBootstrap(Bootstrap):
-    def __init__(self):
-        super().__init__()
+    def start(self):
+        super().start()
         self.setup_redis()
+        self.setup_stats()
         self.setup_application()
         self.boot()
 

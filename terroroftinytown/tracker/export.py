@@ -145,8 +145,8 @@ class Exporter:
         return path
 
 class ExporterBootstrap(Bootstrap):
-    def __init__(self):
-        super().__init__()
+    def start(self):
+        super().start()
 
         self.exporter = Exporter(self.args.output_dir, self.args.format, vars(self.args))
         self.exporter.dump()
@@ -167,4 +167,4 @@ class ExporterBootstrap(Bootstrap):
     
 
 if __name__ == '__main__':
-    ExporterBootstrap()
+    ExporterBootstrap().start()

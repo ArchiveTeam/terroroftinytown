@@ -60,12 +60,13 @@ class Application(tornado.web.Application):
         or ip_address and BlockedUser.is_username_blocked(ip_address):
             return None
 
-        model.Item.release_old()
+        # model.Item.release_old()
 
         return model.checkout_item(username, ip_address)
 
     def checkin_item(self, item_id, tamper_key, results):
         model.checkin_item(item_id, tamper_key, results)
+
 
 
 class IndexHandler(BaseHandler):

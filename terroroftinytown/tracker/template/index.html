@@ -12,7 +12,7 @@
 	<div id="index-banner-byline">The Terror of Tiny Town</div>
 </div>
 
-<div id="index-main" role="main">
+<div id="index-main" role="main" ng-app="stats">
 	<nav id="index-nav">
 		<a class="index-nav-item"
 			href="http://archiveteam.org/index.php?title=Warrior">How to help</a>
@@ -24,28 +24,54 @@
 			href="https://github.com/ArchiveTeam/terroroftinytown">
 			Source code</a>
 	</nav>
-	<div id="leaderboard" class="row clearfix">
-		<div id="leaderboard-totals" class="column half">
-			<h1>Totals</h1>
-			<table class="leaderboard-table">
-				<tr>
-					<th>Username</th>
-					<th>Found</th>
-					<th>Scanned</th>
-				</tr>
-			</table>
+	<div id="stats" ng-controller="StatsController">
+		<div id="globalstats">
+			<strong ng-bind="stats.global[1]">0</strong> URLs scanned, <strong ng-bind="stats.global[0]">0</strong> saved
 		</div>
-		<div id="leaderboard-recent" class="column half">
-			<h1>Recent</h1>
-			<table class="leaderboard-table">
-				<tr>
-					<th>Username</th>
-					<th>Found</th>
-					<th>Scanned</th>
-					<th>Service</th>
-				</tr>
-			</table>
+		<div id="leaderboard" class="row clearfix">
+			<div id="leaderboard-totals" class="column half">
+				<h1>Totals</h1>
+				<table class="leaderboard-table">
+					<thead>
+						<tr>
+							<th>Username</th>
+							<th>Found</th>
+							<th>Scanned</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="item in lifetime|orderBy:getScanned:true">
+							<td ng-bind="item[0]"></td>
+							<td ng-bind="item[1][0]"></td>
+							<td ng-bind="item[1][1]"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div id="leaderboard-recent" class="column half">
+				<h1>Recent</h1>
+				<table class="leaderboard-table">
+					<thead>
+						<tr>
+							<th>Username</th>
+							<th>Found</th>
+							<th>Scanned</th>
+							<th>Service</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="item in stats.live">
+							<td ng-bind="item.username"></td>
+							<td ng-bind="item.found"></td>
+							<td ng-bind="item.scanned"></td>
+							<td ng-bind="item.project"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
 		</div>
 	</div>
 </div>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.19/angular.min.js"></script>
+<script src="{{ static_url('stats.js') }}"></script>
 {% end %}

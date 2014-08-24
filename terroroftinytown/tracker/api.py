@@ -7,6 +7,7 @@ from terroroftinytown.tracker.base import BaseHandler
 from terroroftinytown.tracker.errors import (NoItemAvailable, UserIsBanned,
     InvalidClaim)
 from terroroftinytown.tracker.model import Project
+from terroroftinytown.tracker.stats import Stats, stats_bus
 
 
 class ProjectSettingsHandler(BaseHandler):
@@ -22,13 +23,22 @@ class ProjectSettingsHandler(BaseHandler):
 
 class LiveStatsHandler(tornado.websocket.WebSocketHandler):
     def open(self):
-        pass
+        global stats_bus
+        self.write_message({
+            'live': Stats.instance.get_live(),
+            'lifetime': Stats.instance.get_lifetime(),
+            'global': Stats.instance.get_global()
+        })
 
-    def on_message(self, message):
-        pass
+        stats_bus += self.on_stats
+
+    def on_stats(self, **stats):
+        self.write_message({
+            'live_new': stats
+        })
 
     def on_close(self):
-        pass
+        stats_bus.clear_handlers(self)
 
 
 class GetHandler(BaseHandler):

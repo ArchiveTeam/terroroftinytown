@@ -18,11 +18,11 @@ from sqlalchemy.sql.sqltypes import String, Binary, Float, Boolean, Integer, \
 from sqlalchemy.sql.type_api import TypeDecorator
 
 from terroroftinytown.tracker.errors import NoItemAvailable
+from terroroftinytown.tracker.stats import Stats
 
 
 Base = declarative_base()
 Session = sessionmaker()
-
 
 @contextlib.contextmanager
 def new_session():
@@ -423,8 +423,19 @@ def checkout_item(username, ip_address):
 
 
 def checkin_item(item_id, tamper_key, results):
+    item_stat = {
+        'project': '',
+        'username': '',
+        'scanned': 0,
+        'found': len(results)
+    }
+
     with new_session() as session:
         item = session.query(Item).filter_by(id=item_id, tamper_key=tamper_key).first()
+
+        item_stat['project'] = item.project_id
+        item_stat['username'] = item.username
+        item_stat['scanned'] = item.upper_sequence_num - item.lower_sequence_num + 1
 
         query_args = []
         time = datetime.datetime.now()
@@ -445,3 +456,8 @@ def checkin_item(item_id, tamper_key, results):
             session.execute(query, query_args)
 
         session.delete(item)
+
+    if Stats.instance:
+        Stats.instance.update(item_stat)
+
+    return item_stat
