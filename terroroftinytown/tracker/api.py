@@ -33,7 +33,7 @@ class LiveStatsHandler(tornado.websocket.WebSocketHandler):
 
 class GetHandler(BaseHandler):
     def post(self):
-        ip_address = self.get_argument('ip_address', None)
+        ip_address = self.request.remote_ip
         version = self.get_argument('version', None)
         username = self.get_argument('username')
 
