@@ -27,7 +27,7 @@ class MockResult(Bootstrap):
                     'shortcode': self.generate_shortcode(),
                     'url': self.generate_url(),
                     'encoding': 'ascii',
-                    'datetime': datetime.datetime.now()
+                    'datetime': datetime.datetime.utcnow()
                 })
             
             print('Running insertion')

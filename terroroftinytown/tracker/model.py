@@ -289,7 +289,7 @@ class Item(Base):
                 projects = projects.filter_by(name=project_name)
 
             for project in projects:
-                min_time = datetime.datetime.now() - datetime.timedelta(seconds=project.autorelease_time)
+                min_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=project.autorelease_time)
                 query = session.query(Item) \
                     .filter(Item.datetime_claimed <= min_time, Item.project == project)
                 query.update({
@@ -438,7 +438,7 @@ def checkin_item(item_id, tamper_key, results):
         item_stat['scanned'] = item.upper_sequence_num - item.lower_sequence_num + 1
 
         query_args = []
-        time = datetime.datetime.now()
+        time = datetime.datetime.utcnow()
 
         for shortcode in results.keys():
             url = results[shortcode]['url']

@@ -16,7 +16,7 @@ class BEACONWriter(BaseWriter):
         if self.homepage:
             self.fp.write(('#HOMEPAGE: %s\n' % (self.homepage)).encode('ascii'))
 
-        timestamp = datetime.now()
+        timestamp = datetime.utcnow()
         if 'timestamp' in kwargs:
             assert isinstance('timestamp', datetime), \
                 'timestamp argument must be datetime instance'
