@@ -11,8 +11,9 @@ from terroroftinytown.tracker.model import BlockedUser
 from terroroftinytown.tracker.ui import FormUIModule
 
 class Application(tornado.web.Application):
-    def __init__(self, database, **kwargs):
+    def __init__(self, database, redis=None, redisPrefix='', **kwargs):
         self.db = database
+        self.redis = redis
 
         handlers = [
             U(r'/', IndexHandler),
