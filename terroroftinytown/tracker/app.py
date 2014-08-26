@@ -33,6 +33,7 @@ class Application(tornado.web.Application):
             U(r'/api/project_settings', api.ProjectSettingsHandler, name='api.project_settings'),
             U(r'/api/get', api.GetHandler, name='api.get'),
             U(r'/api/done', api.DoneHandler, name='api.done'),
+            U(r'/status', StatusHandler, name='index.status'),
         ]
 
         static_path = os.path.join(
@@ -68,7 +69,15 @@ class Application(tornado.web.Application):
         model.checkin_item(item_id, tamper_key, results)
 
 
-
 class IndexHandler(BaseHandler):
     def get(self):
         self.render('index.html')
+
+
+class StatusHandler(BaseHandler):
+    def get(self):
+        projects = list([
+            model.Project.get_plain(name)
+            for name in model.Project.all_project_names()])
+
+        self.render('status.html', projects=projects)
