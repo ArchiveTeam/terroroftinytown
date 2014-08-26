@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %} URLTeam Status {% end %}
+
+{% block body %}
+{% import json %}
+
+{% for project in projects %}
+	<pre>{{ json.dumps(project.to_dict(), indent=2) }}</pre>
+{% end %}
+
+{% end %}
