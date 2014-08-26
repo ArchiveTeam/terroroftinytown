@@ -9,6 +9,7 @@ from terroroftinytown.tracker import model
 from terroroftinytown.tracker.base import BaseHandler
 from terroroftinytown.tracker.model import BlockedUser
 from terroroftinytown.tracker.ui import FormUIModule
+from terroroftinytown.tracker.errors import UserIsBanned
 
 class Application(tornado.web.Application):
     def __init__(self, database, redis=None, redisPrefix='', **kwargs):
@@ -59,7 +60,7 @@ class Application(tornado.web.Application):
     def checkout_item(self, username, ip_address=None, version=None):
         if BlockedUser.is_username_blocked(username) \
         or ip_address and BlockedUser.is_username_blocked(ip_address):
-            return None
+            raise UserIsBanned()
 
         model.Item.release_old()
 
