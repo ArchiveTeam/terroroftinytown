@@ -9,7 +9,7 @@ class ExampleHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         shortcode = self.path.split('/', 1)[-1]
 
-        if shortcode:
+        if shortcode and hash(shortcode) % 2 == 0:
             self.send_response(301)
             self.send_header('Location', 'http://www.archiveteam.org/')
             self.end_headers()
