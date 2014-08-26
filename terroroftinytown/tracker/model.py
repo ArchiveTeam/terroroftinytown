@@ -333,7 +333,7 @@ class BlockedUser(Base):
         with new_session() as session:
             names = session.query(BlockedUser.username)
 
-            return list(names)
+            return list([row[0] for row in names])
 
 
 class Result(Base):
