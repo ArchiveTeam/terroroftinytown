@@ -61,7 +61,7 @@ class Scraper(object):
 
             self.results[shortcode] = {
                 'url': result_url,
-                'encoding': response.encoding
+                'encoding': response.encoding or 'latin-1'
             }
 
     def fetch_url(self, url):
