@@ -1,5 +1,6 @@
 # encoding=utf-8
 import datetime
+import logging
 import time
 
 from sqlalchemy.exc import IntegrityError
@@ -11,6 +12,9 @@ from terroroftinytown.tracker.form import AddProjectForm, ProjectSettingsForm, \
     BlockUsernameForm, UnblockUsernameForm, QueueSettingsForm, ConfirmForm, \
     AddItemsForm, ReleaseClaimForm, ItemActionForm, QueueEnableForm
 from terroroftinytown.tracker.model import Project, BlockedUser, Item
+
+
+logger = logging.getLogger(__name__)
 
 
 class AllProjectsHandler(BaseHandler):
@@ -43,6 +47,7 @@ class AllProjectsHandler(BaseHandler):
             except IntegrityError:
                 message = 'Project already exists.'
             else:
+                logger.info('Created project %s', name)
                 self.redirect(self.reverse_url('project.overview', name))
                 return
 
@@ -87,6 +92,8 @@ class QueueHandler(BaseHandler):
             if enable_form.validate():
                 with Project.get_session_object(name) as project:
                     project.enabled = enable_form.enabled.data
+                    logger.info('Project %s enabled=%s',
+                                name, project.enabled)
             else:
                 message = 'Error.'
 
@@ -100,6 +107,7 @@ class QueueHandler(BaseHandler):
                     project.lower_sequence_num = form.lower_sequence_num.data or 0
                     project.autorelease_time = form.autorelease_time.data * 3600 or 0
 
+                logger.debug('Project %s queue settings changed.', name)
                 message = 'Settings saved.'
             else:
                 message = 'Error.'
@@ -190,6 +198,7 @@ class ClaimsHandler(BaseHandler):
         seq_list = []
 
         for item in items:
+            logger.info('Adding to project %s item', name)
             lower_seq_num, upper_seq_num = item.split('-')
             lower_seq_num = int(lower_seq_num)
             upper_seq_num = int(upper_seq_num)
@@ -200,17 +209,21 @@ class ClaimsHandler(BaseHandler):
     def _delete_one(self):
         item_id = int(self.get_argument('id'))
         Item.delete(item_id)
+        logger.info('Deleted item %s', item_id)
 
     def _release_one(self):
         item_id = int(self.get_argument('id'))
         Item.release(item_id)
+        logger.info('Released item %s', item_id)
 
     def _release_all(self, project_name, release_form):
         time_ago = time.time() - release_form.hours.data * 3600
         Item.release_all(project_name, datetime.datetime.utcfromtimestamp(time_ago))
+        logger.info('Released items for %s', project_name)
 
     def _delete_all(self, project_name):
         Item.delete_all(project_name)
+        logger.info('Delete all items for %s', project_name)
 
 
 class SettingsHandler(BaseHandler):
@@ -254,6 +267,8 @@ class SettingsHandler(BaseHandler):
                 project.body_regex = form.body_regex.data
                 project.custom_code_required = form.custom_code_required.data
                 project.method = form.method.data
+
+            logger.info('Changed project %s shortener settings', name)
             message = 'Settings saved.'
         else:
             message = 'Error.'
@@ -276,6 +291,7 @@ class DeleteHandler(BaseHandler):
 
         if form.validate():
             Project.delete_project(name)
+            logger.info('Deleted project %s', name)
             self.redirect(self.reverse_url('admin.overview'))
         else:
             self.render('admin/project/delete.html', project_name=name, form=form)

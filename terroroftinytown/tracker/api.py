@@ -1,5 +1,7 @@
 # encoding=utf-8
 import json
+import logging
+
 from tornado.web import HTTPError
 import tornado.websocket
 
@@ -8,6 +10,9 @@ from terroroftinytown.tracker.errors import (NoItemAvailable, UserIsBanned,
     InvalidClaim)
 from terroroftinytown.tracker.model import Project
 from terroroftinytown.tracker.stats import Stats, stats_bus
+
+
+logger = logging.getLogger(__name__)
 
 
 class ProjectSettingsHandler(BaseHandler):
@@ -56,6 +61,7 @@ class GetHandler(BaseHandler):
         except UserIsBanned:
             raise HTTPError(403, 'You are banned')
         else:
+            logger.info('Checked out claim %s', claim)
             self.write(claim)
 
 
@@ -71,4 +77,5 @@ class DoneHandler(BaseHandler):
         except InvalidClaim:
             raise HTTPError(409, 'Invalid item claimed')
         else:
+            logger.info('Checked in claim %s %s', claim_id, results)
             self.write({'status': 'OK'})

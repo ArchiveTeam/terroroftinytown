@@ -1,12 +1,19 @@
 # encoding=utf-8
 import argparse
 import configparser
-import tornado.ioloop
-import redis
+import logging
+import logging.handlers
 
+import redis
+import tornado.ioloop
+
+from terroroftinytown.tracker.app import Application
 from terroroftinytown.tracker.database import Database
 from terroroftinytown.tracker.stats import *
-from terroroftinytown.tracker.app import Application
+
+
+logger = logging.getLogger(__name__)
+
 
 class Bootstrap:
     arg_parser = argparse.ArgumentParser()
@@ -54,6 +61,24 @@ class Bootstrap:
             self.config.getint('redis', 'max_stats', fallback=30)
         )
 
+    def setup_logging(self):
+        log_path = self.config.get('logging', 'path', fallback=None)
+
+        if not log_path:
+            return
+
+        if self.args.debug:
+            logging.basicConfig(level=logging.DEBUG)
+        else:
+            logging.basicConfig(level=logging.INFO)
+
+        handler = logging.handlers.RotatingFileHandler(
+            filename=log_path, maxBytes=1048576, backupCount=100,
+            encoding='utf-8')
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logging.getLogger().addHandler(handler)
+
 
 class ApplicationBootstrap(Bootstrap):
     def start(self):
@@ -61,6 +86,7 @@ class ApplicationBootstrap(Bootstrap):
         self.setup_redis()
         self.setup_stats()
         self.setup_application()
+        self.setup_logging()
         self.boot()
 
     def setup_application(self):
@@ -73,5 +99,7 @@ class ApplicationBootstrap(Bootstrap):
         )
 
     def boot(self):
+        logger.info('Application booting. Listen on %s',
+                    self.config['web']['port'])
         self.application.listen(int(self.config['web']['port']))
         tornado.ioloop.IOLoop.instance().start()

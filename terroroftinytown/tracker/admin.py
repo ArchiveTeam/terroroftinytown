@@ -1,9 +1,14 @@
 # encoding=utf-8
+import logging
+
 import tornado.web
 
 from terroroftinytown.tracker.base import BaseHandler
 from terroroftinytown.tracker.form import BlockUsernameForm, UnblockUsernameForm
 from terroroftinytown.tracker.model import BlockedUser
+
+
+logger = logging.getLogger(__name__)
 
 
 class AdminHandler(BaseHandler):
@@ -33,12 +38,16 @@ class BannedHandler(BaseHandler):
 
         if action == 'remove':
             if unblock_form.validate():
-                BlockedUser.unblock_username(self.get_argument('username'))
+                username = self.get_argument('username')
+                logger.info('Unblocked "%s"', username)
+                BlockedUser.unblock_username(username)
                 message = 'User unblocked.'
 
         else:
             if form.validate():
-                BlockedUser.block_username(form.username.data)
+                username = form.username.data
+                logger.info('Blocked "%s"', username)
+                BlockedUser.block_username(username)
                 message = 'User blocked.'
 
         self.render(

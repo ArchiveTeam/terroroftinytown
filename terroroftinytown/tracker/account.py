@@ -1,4 +1,6 @@
 # encoding=utf-8
+import logging
+
 from sqlalchemy.exc import IntegrityError
 import tornado.gen
 from tornado.web import HTTPError
@@ -12,6 +14,7 @@ import terroroftinytown.tracker.util
 
 
 ACCOUNT_COOKIE_NAME = 'tottu'
+logger = logging.getLogger(__name__)
 
 
 class LoginHandler(BaseHandler):
@@ -25,6 +28,7 @@ class LoginHandler(BaseHandler):
 
         if form.validate() \
         and self._login(form.username.data, form.password.data):
+            logger.info('User %s logged in.', form.username.data)
             self.redirect(
                 self.get_argument('next', self.reverse_url('admin.overview'))
             )
@@ -80,6 +84,7 @@ class AllUsersHandler(BaseHandler):
             except IntegrityError:
                 message = 'User already exists.'
             else:
+                logger.info('Added new user %s', username)
                 self.redirect(self.reverse_url('user.overview', username))
                 return
 
@@ -124,10 +129,12 @@ class UserHandler(BaseHandler):
 
     def _delete(self, username, form):
         if form.validate():
+            logger.info('Deleted user %s', username)
             User.delete_user(username)
             self.redirect(self.reverse_url('users.overview'))
 
     def _password(self, username, form):
         if form.validate():
+            logger.info('Updated user %s password', username)
             User.update_password(username, form.password.data)
             self.redirect(self.reverse_url('users.overview'))
