@@ -234,9 +234,9 @@ class SettingsHandler(BaseHandler):
             alphabet=project.alphabet,
             banned_codes=project.banned_codes,
             body_regex=project.body_regex,
-            custom_code_required=project.custom_code_required,
             method=project.method,
             min_version=project.min_version,
+            min_client_version=project.min_client_version,
             no_redirect_codes=project.no_redirect_codes,
             redirect_codes=project.redirect_codes,
             request_delay=project.request_delay,
@@ -258,6 +258,7 @@ class SettingsHandler(BaseHandler):
             with Project.get_session_object(name) as project:
                 project.alphabet = form.alphabet.data
                 project.min_version = form.min_version.data
+                project.min_client_version = form.min_client_version.data
                 project.url_template = form.url_template.data
                 project.request_delay = form.request_delay.data
                 project.redirect_codes = form.redirect_codes.data
@@ -265,7 +266,6 @@ class SettingsHandler(BaseHandler):
                 project.unavailable_codes = form.unavailable_codes.data
                 project.banned_codes = form.banned_codes.data
                 project.body_regex = form.body_regex.data
-                project.custom_code_required = form.custom_code_required.data
                 project.method = form.method.data
 
             logger.info('Changed project %s shortener settings', name)

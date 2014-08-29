@@ -18,3 +18,11 @@ class InvalidClaim(TrackerError):
 
 class FullClaim(TrackerError):
     pass
+
+class UpdateClient(TrackerError):
+	def __init__(self, version, client_version, current_version, current_client_version):
+		super().__init__()
+		self.version = version
+		self.client_version = client_version
+		self.current_version = current_version
+		self.current_client_version = current_client_version

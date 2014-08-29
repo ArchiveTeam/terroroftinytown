@@ -60,7 +60,8 @@ class AddProjectForm(Form):
 
 
 class ProjectSettingsForm(Form):
-    min_version = StringField('Minimum script version:')
+    min_version = IntegerField('Minimum script (submodule) version:', [validators.Optional()])
+    min_client_version = IntegerField('Minimum client version:', [validators.Optional()])
     alphabet = StringField('Alphabet:', [validators.InputRequired()])
     url_template = StringField('URL template:', [validators.InputRequired()])
     request_delay = FloatField(
@@ -86,7 +87,6 @@ class ProjectSettingsForm(Form):
         'Banned status codes:',
     )
     body_regex = StringField('Content body regular expression:')
-    custom_code_required = BooleanField('Custom script code required')
 
 
 class BlockUsernameForm(Form):

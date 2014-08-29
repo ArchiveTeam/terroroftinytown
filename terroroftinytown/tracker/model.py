@@ -17,7 +17,7 @@ from sqlalchemy.sql.sqltypes import String, Binary, Float, Boolean, Integer, \
     DateTime
 from sqlalchemy.sql.type_api import TypeDecorator
 
-from terroroftinytown.tracker.errors import NoItemAvailable, FullClaim
+from terroroftinytown.tracker.errors import NoItemAvailable, FullClaim, UpdateClient
 from terroroftinytown.tracker.stats import Stats
 
 
@@ -127,7 +127,8 @@ class Project(Base):
     __tablename__ = 'projects'
 
     name = Column(String, primary_key=True)
-    min_version = Column(String)
+    min_version = Column(Integer)
+    min_client_version = Column(Integer)
     alphabet = Column(String, default='0123456789abcdefghijklmnopqrstuvwxyz'
         'ABCDEFGHIJKLMNOPQRSTUVWXYZ')
     url_template = Column(String, default='http://example.com/{shortcode}')
@@ -137,7 +138,6 @@ class Project(Base):
     unavailable_codes = Column(JsonType, default=[200])
     banned_codes = Column(JsonType, default=[420])
     body_regex = Column(String)
-    custom_code_required = Column(Boolean)
     method = Column(String, default='head')
 
     enabled = Column(Boolean, default=True)
@@ -151,6 +151,7 @@ class Project(Base):
         return {
             'name': self.name,
             'min_version': self.min_version,
+            'min_client_version': self.min_client_version,
             'alphabet': self.alphabet,
             'url_template': self.url_template,
             'request_delay': self.request_delay,
@@ -159,7 +160,6 @@ class Project(Base):
             'unavailable_codes': self.unavailable_codes,
             'banned_codes': self.banned_codes,
             'body_regex': self.body_regex,
-            'custom_code_required': self.custom_code_required,
             'method': self.method,
         }
 
@@ -365,7 +365,7 @@ def new_salt():
 def new_tamper_key():
     return base64.b16encode(os.urandom(16)).decode('ascii')
 
-def generate_item(session, username=None, ip_address=None):
+def generate_item(session, username=None, ip_address=None, version=-1, client_version=-1):
     num_queue = session.query(
         Item.project_id,
         func.count(Item.id).label('queue_size')
@@ -373,9 +373,12 @@ def generate_item(session, username=None, ip_address=None):
         .group_by(Item.project_id) \
         .subquery()
 
-    # TODO: Check for client minimum version
     query = session.query(Project, num_queue.c.queue_size) \
         .filter_by(enabled=True, autoqueue=True) \
+        .filter(
+            (Project.min_version <= version) | (Project.min_version == None),
+            (Project.min_client_version <= client_version) | (Project.min_client_version == None)
+        ) \
         .outerjoin(num_queue, Project.name == num_queue.c.project_id) \
         .filter(func.coalesce(num_queue.c.queue_size, 0) < Project.max_num_items)
 
@@ -395,6 +398,16 @@ def generate_item(session, username=None, ip_address=None):
         if session.query(ip_items.exists()).scalar():
             raise FullClaim()
 
+        max_version = session.query(func.max(Project.min_version), func.max(Project.min_client_version)).first()
+
+        if max_version[0] > version or max_version[1] > client_version:
+            raise UpdateClient(
+                version=version,
+                client_version=client_version,
+                current_version=max_version[0],
+                current_client_version=max_version[1]
+            )
+
         raise NoItemAvailable()
 
     project, queue_size = query
@@ -413,7 +426,7 @@ def generate_item(session, username=None, ip_address=None):
     session.add(item)
     return item
 
-def checkout_item(username, ip_address):
+def checkout_item(username, ip_address, version=-1, client_version=-1):
     with new_session() as session:
         item_a = aliased(Item)
         no_same_ip_proj = session.query(item_a) \
@@ -425,10 +438,14 @@ def checkout_item(username, ip_address):
             .filter_by(username=None) \
             .filter(~(no_same_ip_proj.exists())) \
             .join(Item.project) \
-            .filter_by(enabled=True).first()
+            .filter(
+                Project.enabled == True,
+                (Project.min_version <= version) | (Project.min_version == None),
+                (Project.min_client_version <= client_version) | (Project.min_client_version == None)
+            ).first()
 
         if not item:
-            item = generate_item(session, username, ip_address)
+            item = generate_item(session, username, ip_address, version, client_version)
 
         item.datetime_claimed = datetime.datetime.utcnow()
         item.tamper_key = new_tamper_key()

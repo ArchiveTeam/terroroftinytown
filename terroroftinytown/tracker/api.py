@@ -7,7 +7,7 @@ import tornado.websocket
 
 from terroroftinytown.tracker.base import BaseHandler
 from terroroftinytown.tracker.errors import (NoItemAvailable, UserIsBanned,
-    InvalidClaim, FullClaim)
+    InvalidClaim, FullClaim, UpdateClient)
 from terroroftinytown.tracker.model import Project
 from terroroftinytown.tracker.stats import Stats, stats_bus
 
@@ -49,19 +49,27 @@ class LiveStatsHandler(tornado.websocket.WebSocketHandler):
 class GetHandler(BaseHandler):
     def post(self):
         ip_address = self.request.remote_ip
-        version = self.get_argument('version', None)
+        version = int(self.get_argument('version', -1))
+        client_version = int(self.get_argument('client_version', -1))
         username = self.get_argument('username')
 
         try:
             claim = self.application.checkout_item(
                 username, ip_address=ip_address, version=version,
+                client_version=client_version
             )
         except NoItemAvailable:
             raise HTTPError(404, 'No items available')
         except UserIsBanned:
             raise HTTPError(403, 'You are banned')
         except FullClaim:
-            raise HTTPError(429, '%s has pending claims in all eligible projects. Please check that your client is up to date and contact the administrator to release any pending claims.' % (ip_address))
+            raise HTTPError(429, '%s has pending claims in all eligible projects. Check that your client is up to date and contact the administrator to release any pending claims.' % (ip_address))
+        except UpdateClient as e:
+            raise HTTPError(412, 'Update your client. Script version: %s (current %s), Client version: %s (current %s -- must be manually upgraded)' % (
+                    e.version, e.current_version,
+                    e.client_version, e.current_client_version
+                )
+            )
         else:
             logger.info('Checked out claim %s', claim)
             self.write(claim)

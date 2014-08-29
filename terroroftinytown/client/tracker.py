@@ -5,6 +5,7 @@ import json
 import socket
 import requests
 
+from terroroftinytown.client import VERSION
 
 _logger = logging.getLogger(__name__)
 
@@ -14,14 +15,14 @@ class TrackerError(Exception):
 
 
 class TrackerClient(object):
-    def __init__(self, host, username, bind_address=None, version=None):
+    def __init__(self, host, username, version=None, bind_address=None):
         self.host = host
         self.username = username
 
+        self.client_version = version
+
         if bind_address:
             self.bind_address(bind_address)
-
-        self.version = version
 
     def get_item(self):
         _logger.info('Contacting tracker.')
@@ -30,7 +31,8 @@ class TrackerClient(object):
             'http://{host}/api/get'.format(host=self.host),
             data={
                 'username': self.username,
-                'version': self.version,
+                'version': VERSION,
+                'client_version': self.client_version,
             },
         )
 

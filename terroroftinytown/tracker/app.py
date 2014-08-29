@@ -57,14 +57,14 @@ class Application(tornado.web.Application):
             **kwargs
         )
 
-    def checkout_item(self, username, ip_address=None, version=None):
+    def checkout_item(self, username, ip_address=None, version=-1, client_version=-1):
         if BlockedUser.is_username_blocked(username) \
         or ip_address and BlockedUser.is_username_blocked(ip_address):
             raise UserIsBanned()
 
-        # model.Item.release_old()
+        model.Item.release_old()
 
-        return model.checkout_item(username, ip_address)
+        return model.checkout_item(username, ip_address, version, client_version)
 
     def checkin_item(self, item_id, tamper_key, results):
         model.checkin_item(item_id, tamper_key, results)
