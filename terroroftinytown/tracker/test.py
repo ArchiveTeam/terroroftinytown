@@ -141,7 +141,7 @@ class TestTracker(ApplicationBootstrap, unittest.TestCase):
         )
         self.assertEqual(
             self.driver.find_element_by_xpath('id("leaderboard-recent")//tbody/tr[1]/td[3]').text,
-            '21'
+            '20'
         )
         self.assertEqual(
             self.driver.find_element_by_xpath('id("leaderboard-totals")//tbody/tr[1]/td[2]').text,
@@ -149,11 +149,11 @@ class TestTracker(ApplicationBootstrap, unittest.TestCase):
         )
         self.assertEqual(
             self.driver.find_element_by_xpath('id("leaderboard-totals")//tbody/tr[1]/td[3]').text,
-            '41'
+            '40'
         )
         self.assertEqual(
             self.driver.find_element_by_xpath('id("globalstats")//strong[1]').text,
-            '41'
+            '40'
         )
         self.assertEqual(
             self.driver.find_element_by_xpath('id("globalstats")//strong[2]').text,
@@ -326,7 +326,7 @@ class TestTracker(ApplicationBootstrap, unittest.TestCase):
         )
 
         element = self.driver.find_element_by_name('items')
-        element.send_keys('0-20\n21-40')
+        element.send_keys('0-19\n20-39')
 
         element.submit()
 
