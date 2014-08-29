@@ -7,7 +7,7 @@ import tornado.websocket
 
 from terroroftinytown.tracker.base import BaseHandler
 from terroroftinytown.tracker.errors import (NoItemAvailable, UserIsBanned,
-    InvalidClaim)
+    InvalidClaim, FullClaim)
 from terroroftinytown.tracker.model import Project
 from terroroftinytown.tracker.stats import Stats, stats_bus
 
@@ -60,6 +60,8 @@ class GetHandler(BaseHandler):
             raise HTTPError(404, 'No items available')
         except UserIsBanned:
             raise HTTPError(403, 'You are banned')
+        except FullClaim:
+            raise HTTPError(429, '%s has pending claims in all eligible projects. Please check that your client is up to date and contact the administrator to release any pending claims.' % (ip_address))
         else:
             logger.info('Checked out claim %s', claim)
             self.write(claim)

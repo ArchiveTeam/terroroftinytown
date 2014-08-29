@@ -15,3 +15,6 @@ class UserIsBanned(TrackerError):
 
 class InvalidClaim(TrackerError):
     pass
+
+class FullClaim(TrackerError):
+    pass

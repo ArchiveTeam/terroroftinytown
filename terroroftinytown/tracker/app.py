@@ -62,7 +62,7 @@ class Application(tornado.web.Application):
         or ip_address and BlockedUser.is_username_blocked(ip_address):
             raise UserIsBanned()
 
-        model.Item.release_old()
+        # model.Item.release_old()
 
         return model.checkout_item(username, ip_address)
 

@@ -9,7 +9,7 @@ import os
 
 from sqlalchemy import func
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import sessionmaker, relationship, aliased
 from sqlalchemy.orm.session import make_transient
 from sqlalchemy.sql.expression import insert, update
 from sqlalchemy.sql.schema import Column, ForeignKey
@@ -17,7 +17,7 @@ from sqlalchemy.sql.sqltypes import String, Binary, Float, Boolean, Integer, \
     DateTime
 from sqlalchemy.sql.type_api import TypeDecorator
 
-from terroroftinytown.tracker.errors import NoItemAvailable
+from terroroftinytown.tracker.errors import NoItemAvailable, FullClaim
 from terroroftinytown.tracker.stats import Stats
 
 
@@ -365,7 +365,7 @@ def new_salt():
 def new_tamper_key():
     return base64.b16encode(os.urandom(16)).decode('ascii')
 
-def generate_item(session):
+def generate_item(session, username=None, ip_address=None):
     num_queue = session.query(
         Item.project_id,
         func.count(Item.id).label('queue_size')
@@ -377,11 +377,24 @@ def generate_item(session):
     query = session.query(Project, num_queue.c.queue_size) \
         .filter_by(enabled=True, autoqueue=True) \
         .outerjoin(num_queue, Project.name == num_queue.c.project_id) \
-        .filter(func.coalesce(num_queue.c.queue_size, 0) < Project.max_num_items) \
-        .first()
+        .filter(func.coalesce(num_queue.c.queue_size, 0) < Project.max_num_items)
+
+    if ip_address:
+        no_same_ip_proj = session.query(Item) \
+            .filter(Item.ip_address == ip_address) \
+
+        query = query.filter(~(no_same_ip_proj.exists()))
+
+    query = query.first()
     # XXX: Should the project be randomized?
 
     if not query:
+        ip_items = session.query(Item) \
+            .filter(Item.ip_address == ip_address)
+
+        if session.query(ip_items.exists()).scalar():
+            raise FullClaim()
+
         raise NoItemAvailable()
 
     project, queue_size = query
@@ -402,13 +415,20 @@ def generate_item(session):
 
 def checkout_item(username, ip_address):
     with new_session() as session:
+        item_a = aliased(Item)
+        no_same_ip_proj = session.query(item_a) \
+            .filter(Item.project_id == item_a.project_id) \
+            .filter(item_a.ip_address == ip_address) \
+            .correlate(None)
+
         item = session.query(Item) \
             .filter_by(username=None) \
+            .filter(~(no_same_ip_proj.exists())) \
             .join(Item.project) \
             .filter_by(enabled=True).first()
 
         if not item:
-            item = generate_item(session)
+            item = generate_item(session, username, ip_address)
 
         item.datetime_claimed = datetime.datetime.utcnow()
         item.tamper_key = new_tamper_key()
