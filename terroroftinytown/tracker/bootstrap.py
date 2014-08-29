@@ -2,14 +2,14 @@
 import argparse
 import configparser
 import logging
-import logging.handlers
 
 import redis
 import tornado.ioloop
 
 from terroroftinytown.tracker.app import Application
 from terroroftinytown.tracker.database import Database
-from terroroftinytown.tracker.stats import *
+from terroroftinytown.tracker.logging import GzipRotatingFileHandler
+from terroroftinytown.tracker.stats import Stats
 
 
 logger = logging.getLogger(__name__)
@@ -72,8 +72,8 @@ class Bootstrap:
         else:
             logging.basicConfig(level=logging.INFO)
 
-        handler = logging.handlers.RotatingFileHandler(
-            filename=log_path, maxBytes=1048576, backupCount=100,
+        handler = GzipRotatingFileHandler(
+            filename=log_path, maxBytes=10485760, backupCount=1000000,
             encoding='utf-8')
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         handler.setFormatter(formatter)
