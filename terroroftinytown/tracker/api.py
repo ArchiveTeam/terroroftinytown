@@ -23,7 +23,7 @@ class ProjectSettingsHandler(BaseHandler):
         if project:
             self.write(project.to_dict())
         else:
-            raise HTTPError(404, 'Project not found')
+            raise HTTPError(404, reason='Project not found')
 
 
 class LiveStatsHandler(tornado.websocket.WebSocketHandler):
@@ -59,13 +59,13 @@ class GetHandler(BaseHandler):
                 client_version=client_version
             )
         except NoItemAvailable:
-            raise HTTPError(404, 'No items available')
+            raise HTTPError(404, reason='No items available')
         except UserIsBanned:
-            raise HTTPError(403, 'You are banned')
+            raise HTTPError(403, reason='You are banned. Please contact an administrator.')
         except FullClaim:
-            raise HTTPError(429, '%s has pending claims in all eligible projects. Check that your client is up to date and contact the administrator to release any pending claims.' % (ip_address))
+            raise HTTPError(429, reason='%s has pending claims in all eligible projects. Check that your client is up to date and contact the administrator to release any pending claims.' % (ip_address))
         except UpdateClient as e:
-            raise HTTPError(412, 'Update your client. Script version: %s (current %s), Client version: %s (current %s -- must be manually upgraded)' % (
+            raise HTTPError(412, reason='Update your client. Script version: %s (current %s), Client version: %s (current %s -- must be manually upgraded)' % (
                     e.version, e.current_version,
                     e.client_version, e.current_client_version
                 )
@@ -85,7 +85,7 @@ class DoneHandler(BaseHandler):
         try:
             self.application.checkin_item(claim_id, tamper_key, results)
         except InvalidClaim:
-            raise HTTPError(409, 'Invalid item claimed')
+            raise HTTPError(409, reason='Invalid item claimed')
         else:
             logger.info('Checked in claim %s %s', claim_id, results)
             self.write({'status': 'OK'})
