@@ -1,17 +1,30 @@
 # encoding-utf8
 '''Tracker communication.'''
-import logging
+import functools
 import json
-import socket
+import logging
 import requests
+import socket
 
+from terroroftinytown import six
 from terroroftinytown.client import VERSION
+
 
 _logger = logging.getLogger(__name__)
 
 
 class TrackerError(Exception):
     pass
+
+
+def reraise_with_tracker_error(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            func(*args, **kwargs)
+        except requests.RequestException as error:
+            six.reraise(TrackerError, str(error))
+    return wrapper
 
 
 class TrackerClient(object):
@@ -24,6 +37,7 @@ class TrackerClient(object):
         if bind_address:
             self.bind_address(bind_address)
 
+    @reraise_with_tracker_error
     def get_item(self):
         _logger.info('Contacting tracker.')
 
@@ -41,6 +55,7 @@ class TrackerClient(object):
 
         return item
 
+    @reraise_with_tracker_error
     def upload_item(self, claim_id, tamper_key, results):
         _logger.info('Uploading to tracker.')
 
