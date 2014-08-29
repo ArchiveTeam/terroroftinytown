@@ -400,7 +400,8 @@ def generate_item(session, username=None, ip_address=None, version=-1, client_ve
 
         max_version = session.query(func.max(Project.min_version), func.max(Project.min_client_version)).first()
 
-        if max_version[0] > version or max_version[1] > client_version:
+        if max_version != (None, None) and \
+                (max_version[0] > version or max_version[1] > client_version):
             raise UpdateClient(
                 version=version,
                 client_version=client_version,
