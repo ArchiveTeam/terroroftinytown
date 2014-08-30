@@ -26,11 +26,29 @@
 	</nav>
 	<div id="stats" ng-controller="StatsController">
 		<div id="globalstats">
-			<strong ng-bind="stats.global[1]">0</strong> URLs scanned, <strong ng-bind="stats.global[0]">0</strong> saved
+			<strong ng-bind="stats.global[1]|number">0</strong> URLs scanned, <strong ng-bind="stats.global[0]|number">0</strong> saved
 		</div>
 		<div id="leaderboard" class="row clearfix">
 			<div id="leaderboard-totals" class="column half">
+				<h1>Projects</h1>
+				<table class="leaderboard-table">
+					<thead>
+						<tr>
+							<th>Project</th>
+							<th>Found</th>
+							<th>Scanned</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="item in stats.project|toArray">
+							<td ng-bind="item[0]"></td>
+							<td ng-bind="item[1][0]|number"></td>
+							<td ng-bind="item[1][1]|number"></td>
+						</tr>
+					</tbody>
+				</table>
 				<h1>Totals</h1>
+				Limit: <input type="number" ng-model="totalLimit">
 				<table class="leaderboard-table">
 					<thead>
 						<tr>
@@ -40,16 +58,17 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr ng-repeat="item in lifetime|orderBy:getScanned:true">
+						<tr ng-repeat="item in lifetime|orderBy:getScanned:true|limitTo:totalLimit">
 							<td ng-bind="item[0]"></td>
-							<td ng-bind="item[1][0]"></td>
-							<td ng-bind="item[1][1]"></td>
+							<td ng-bind="item[1][0]|number"></td>
+							<td ng-bind="item[1][1]|number"></td>
 						</tr>
 					</tbody>
 				</table>
 			</div>
 			<div id="leaderboard-recent" class="column half">
 				<h1>Recent</h1>
+				Limit: <input type="number" ng-model="recentLimit">
 				<table class="leaderboard-table">
 					<thead>
 						<tr>
@@ -62,8 +81,8 @@
 					<tbody>
 						<tr ng-repeat="item in stats.live">
 							<td ng-bind="item.username"></td>
-							<td ng-bind="item.found"></td>
-							<td ng-bind="item.scanned"></td>
+							<td ng-bind="item.found|number"></td>
+							<td ng-bind="item.scanned|number"></td>
 							<td ng-bind="item.project"></td>
 						</tr>
 					</tbody>

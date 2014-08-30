@@ -32,6 +32,10 @@ class Stats:
         self.redis.incrby(key+':ts', stats['scanned'])
         self.redis.incrby(key+':tf', stats['found'])
 
+        # project stats
+        self.redis.hincrby(key+':pf', stats['project'], stats['found'])
+        self.redis.hincrby(key+':ps', stats['project'], stats['scanned'])
+
         stats_bus.fire(**stats)
 
     def get_live(self):
@@ -67,11 +71,25 @@ class Stats:
             int(scanned) if scanned else 0
         ]
 
+    def get_project(self):
+        key = self.get_key()
+        scanned = self.redis.hgetall(key+':ps')
+        found = self.redis.hgetall(key+':pf')
+        out = {}
+
+        for project, count in scanned.items():
+            out[project.decode('utf-8')] = [int(found[project]), int(count)]
+
+        return out
+
     def get_key(self):
         return self.prefix + 'stats'
 
     def clear(self):
         key = self.get_key()
-        self.redis.delete(key, key + ':s', key + ':f', key + ':ts', key + ':tf')
+        self.redis.delete(
+            key, key + ':s', key + ':f', key + ':ts', key + ':tf',
+            key + ':pf', key + ':ps'
+        )
 
 Stats.instance = None

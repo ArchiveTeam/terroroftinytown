@@ -9,6 +9,7 @@ var WSController = function(endpoint){
 		'live': [],
 		'lifetime': {},
 		'global': [0, 0],
+		'project': {}
 	};
 };
 
@@ -27,6 +28,10 @@ WSController.prototype._onmessage = function(evt){
 		this.stats.global = message.global;
 	}
 
+	if(message.project){
+		this.stats.project = message.project;
+	}
+
 	if(message.live_new){
 		this.stats.live.unshift(message.live_new);
 
@@ -39,7 +44,15 @@ WSController.prototype._onmessage = function(evt){
 		lifetime[1] += message.live_new.scanned;
 
 		this.stats.global[0] += message.live_new.found;
-		this.stats.global[1] += message.live_new.scanned;		
+		this.stats.global[1] += message.live_new.scanned;
+
+		var project = this.stats.project[message.live_new.project];
+		if(lifetime === undefined){
+			project = [0, 0];
+			this.stats.project[message.live_new.project] = project;
+		}
+		project[0] += message.live_new.found;
+		project[1] += message.live_new.scanned;
 	}
 
 	this.onMessage(message);
@@ -69,11 +82,13 @@ app.filter("toArray", function(){
 
 app.controller("StatsController", ["$scope", "$filter", "ws", "max_display", function($scope, $filter, ws, max_display){
 	$scope.stats = ws.stats;
+	$scope.totalLimit = 20;
+	$scope.recentLimit = 30;
 	$scope.getScanned = function(item){
 		return item[1][1];
 	};
 	ws.onMessage = function(){
-		ws.stats.live.splice(29, ws.stats.live.length);
+		ws.stats.live.splice($scope.recentLimit - 1, ws.stats.live.length);
 		// somehow computing this in page cause infinite digest cycles
 		$scope.lifetime = $filter("toArray")(ws.stats.lifetime);
 		

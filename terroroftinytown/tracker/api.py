@@ -32,7 +32,8 @@ class LiveStatsHandler(tornado.websocket.WebSocketHandler):
         self.write_message({
             'live': Stats.instance.get_live(),
             'lifetime': Stats.instance.get_lifetime(),
-            'global': Stats.instance.get_global()
+            'global': Stats.instance.get_global(),
+            'project': Stats.instance.get_project()
         })
 
         stats_bus += self.on_stats
