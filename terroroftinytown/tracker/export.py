@@ -3,7 +3,6 @@
 import os, lzma
 
 from sqlalchemy import func
-from sqlalchemy.orm.session import make_transient
 
 from terroroftinytown.tracker.bootstrap import Bootstrap
 from terroroftinytown.format import registry
@@ -13,7 +12,7 @@ from terroroftinytown.tracker.model import new_session, Project, Result
 class Exporter:
     projects_count = 0
     items_count = 0
-    last_item = None
+    last_date = None
 
     output_dir = ''
     settings = {}
@@ -36,17 +35,23 @@ class Exporter:
     # file_length = 2
     # output: projectname/00/01/000100____.txt, projectname/01/01__.txt
 
+    after = None
+
     def __init__(self, output_dir, format="beacon", settings={}):
         self.setup_format(format)
         self.output_dir = output_dir
         self.settings = settings
+        self.after = self.settings['after']
 
     def setup_format(self, format):
         self.format = registry[format]
 
-    def dump(self):
+    def make_output_dir(self):
         if not os.path.isdir(self.output_dir):
             os.makedirs(self.output_dir)
+
+    def dump(self):
+        self.make_output_dir()
 
         with new_session() as session:
             for project in session.query(Project):
@@ -59,8 +64,8 @@ class Exporter:
                 .filter_by(project=project) \
                 .order_by(func.char_length(Result.shortcode), Result.shortcode)
 
-            if self.settings['after']:
-                query = query.filter(Result.datetime > self.settings['after'])
+            if self.after:
+                query = query.filter(Result.datetime > self.after)
 
             count = query.count()
             if count == 0:
@@ -71,8 +76,8 @@ class Exporter:
             # XXX: Use regex \{shortcode\}$ instead?
             site = project.url_template.replace('{shortcode}', '')
 
-            fp = None
-            writer = None
+            self.fp = None
+            self.writer = None
             last_filename = ''
             i = 0
 
@@ -88,30 +93,38 @@ class Exporter:
                 # would returned together
                 filename = self.get_filename(project, item)
                 if filename != last_filename:
-                    if fp and writer:
-                        writer.write_footer()
-                        fp.close()
+                    self.close_fp()
 
                     # assert not os.path.isfile(filename), 'Target file %s already exists' % (filename)
 
-                    if self.lzma:
-                        fp = lzma.open(filename, 'wb')
-                    else:
-                        fp = open(filename, 'wb')
-                    writer = self.format(fp)
-                    writer.write_header(site)
+                    self.fp = self.get_fp(filename)
+                    self.writer = self.format(self.fp)
+                    self.writer.write_header(site)
 
                     last_filename = filename
 
-                writer.write_shortcode(item.shortcode, item.url, item.encoding)
-                self.last_item = item
+                self.writer.write_shortcode(item.shortcode, item.url, item.encoding)
 
-            if fp and writer:
-                writer.write_footer()
-                fp.close()
+                if not self.last_date or item.datetime > self.last_date:
+                    self.last_date = item.datetime
 
-            make_transient(self.last_item)
+            self.close_fp()
 
+    def get_fp(self, filename):
+        dirname = os.path.dirname(filename)
+        if not os.path.isdir(dirname):
+            os.makedirs(dirname)
+
+        if self.lzma:
+            return lzma.open(filename, 'wb')
+        else:
+            return open(filename, 'wb')
+
+    def close_fp(self):
+        if not self.fp or not self.writer:
+            return
+        self.writer.write_footer()
+        self.fp.close()
 
     def get_filename(self, project, item):
         path = os.path.join(self.output_dir, project.name)
@@ -138,10 +151,6 @@ class Exporter:
             self.extension
         ))
 
-        dirname = os.path.dirname(path)
-        if not os.path.isdir(dirname):
-            os.makedirs(dirname)
-
         return path
 
 class ExporterBootstrap(Bootstrap):
@@ -163,7 +172,7 @@ class ExporterBootstrap(Bootstrap):
         print('Written %d items in %d projects' % (self.exporter.projects_count, self.exporter.items_count))
         if self.exporter.last_item:
             print('Last item timestamp (use --after to dump after this item):')
-            print(self.exporter.last_item.datetime.isoformat())
+            print(self.exporter.last_date.isoformat())
     
 
 if __name__ == '__main__':
