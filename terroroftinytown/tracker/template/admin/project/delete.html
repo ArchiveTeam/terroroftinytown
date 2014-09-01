@@ -6,12 +6,12 @@
 
 <h1>Delete</h1>
 
-{% module Form(form, submit='Delete') %}
-
 <p>Delete a project's settings, queues, and results.</p>
 
 <p>This is very dangerous as the project settings contains metadata needed
 to reconstruct the URLs. Please proceed only if you are sure the URLs are
 correctly published and archived.</p>
+
+{% module Form(form, submit='Delete') %}
 
 {% end %}

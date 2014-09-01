@@ -4,6 +4,7 @@ import os.path
 from tornado.web import URLSpec as U
 import tornado.web
 
+from terroroftinytown.services import registry
 from terroroftinytown.tracker import account, admin, project, api
 from terroroftinytown.tracker import model
 from terroroftinytown.tracker.base import BaseHandler
@@ -17,7 +18,7 @@ class Application(tornado.web.Application):
         self.redis = redis
 
         handlers = [
-            U(r'/', IndexHandler),
+            U(r'/', IndexHandler, name='index'),
             U(r'/admin/', admin.AdminHandler, name='admin.overview'),
             U(r'/admin/banned', admin.BannedHandler, name='admin.banned'),
             U(r'/admin/login', account.LoginHandler, name='admin.login'),
@@ -81,4 +82,4 @@ class StatusHandler(BaseHandler):
             model.Project.get_plain(name)
             for name in model.Project.all_project_names()])
 
-        self.render('status.html', projects=projects)
+        self.render('status.html', projects=projects, services=registry)

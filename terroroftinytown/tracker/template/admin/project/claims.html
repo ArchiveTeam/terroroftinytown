@@ -7,16 +7,18 @@
 <h1>Claims</h1>
 
 <h2>All Items</h2>
-<table>
-	<tr>
-		<th>ID</th>
-		<th>Lower Seq Num</th>
-		<th>Upper Seq Num</th>
-		<th>Date</th>
-		<th>Username</th>
-		<th>IP</th>
-		<th>Action</th>
-	</tr>
+<table class="table table-bordered table-striped">
+	<thead>
+		<tr>
+			<th>ID</th>
+			<th>Lower Seq Num</th>
+			<th>Upper Seq Num</th>
+			<th>Date</th>
+			<th>Username</th>
+			<th>IP</th>
+			<th>Action</th>
+		</tr>
+	</thead>
 	
 	{% for item in (item for item in items if not item['datetime_claimed']) %}
 	<tr>
@@ -35,14 +37,8 @@
 	</tr>
 	{% end %}
 	
-	<tr>
-		<td colspan="7">
-			<hr>
-		</td>
-	</tr> 
-	
 	{% for item in (item for item in items if item['datetime_claimed']) %}
-	<tr>
+	<tr class="success">
 		<td>{{ item['id'] }}</td>
 		<td>{{ item['lower_sequence_num'] }}</td>
 		<td>{{ item['upper_sequence_num'] }}</td>
@@ -53,7 +49,7 @@
 			{% module Form(
 				item_action_form,
 				action='?action=release_one&id={}'.format(item['id']), 
-				submit='Release') %}
+				submit='Release', submit_sm=True) %}
 		</td>
 	</tr>
 	{% end %}
@@ -62,19 +58,25 @@
 
 <h2>Queue Management</h2>
 
-{% module Form(release_form, action='?action=release', submit='Release Claims') %}
+<div class="well">
+	<h4>Release stall claims</h4>
+	<p class="help-block">Release any claimed items and make them available again.</p>
+	{% module Form(release_form, action='?action=release', submit='Release Claims') %}
+</div>
 
-<p>Release any claimed items and make them available again.</p>
-<hr>
+<div class="well">
+	<h4>Flush queue</h4>
+	<p class="help-block">Completely obliterate the queue including any claims.</p>
+	{% module Form(delete_form, action='?action=delete', submit='Delete Queue') %}
+</div>
 
-{% module Form(delete_form, action='?action=delete', submit='Delete Queue') %}
-<p>Completely obliterate the queue including any claims.</p>
-<hr>
+<div class="well">
+	<h4>Add items</h4>
+	<p>Each item is seperated by whitespace (a new line or a space). 
+	Each item is a range of sequence numbers (A number, a ASCII hyphen, a number).</p>
+	<p>For example: <code>0-9 10-19 20-21</code></p>
 
-{% module Form(manual_add_form, action='?action=manual_add', submit='Add to Queue') %}
-<p>Add some items.</p>
-<p>Each item is seperated by whitespace (a new line or a space). 
-Each item is a range of sequence numbers (A number, a ASCII hyphen, a number).</p>
-<p>For example: <code>0-9 10-19 20-21</code></p>
+	{% module Form(manual_add_form, action='?action=manual_add', submit='Add to Queue') %}
+</div>
 
 {% end %}

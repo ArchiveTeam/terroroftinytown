@@ -3,7 +3,7 @@
 "use strict";
 
 var WSController = function(endpoint){
-	this.ws = new WebSocket("ws://" + window.location.host + window.location.pathname + endpoint);
+	this.ws = new WebSocket("ws://" + window.location.host + endpoint);
 	this.ws.onmessage = this._onmessage.bind(this);
 	this.stats = {
 		'live': [],
@@ -63,7 +63,7 @@ WSController.prototype.onMessage = function(message){
 
 var app = angular.module("stats", []);
 
-app.constant("endpoint", "api/live_stats");
+app.constant("endpoint", "/api/live_stats");
 app.constant("max_display", 30);
 
 app.service("ws", ["endpoint", function(endpoint){
@@ -82,7 +82,7 @@ app.filter("toArray", function(){
 
 app.controller("StatsController", ["$scope", "$filter", "ws", "max_display", function($scope, $filter, ws, max_display){
 	$scope.stats = ws.stats;
-	$scope.totalLimit = 20;
+	$scope.totalLimit = 30;
 	$scope.recentLimit = 30;
 	$scope.getScanned = function(item){
 		return item[1][1];

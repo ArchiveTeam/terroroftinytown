@@ -3,7 +3,6 @@
 
 import logging
 import re
-import requests
 import time
 
 from terroroftinytown.client import alphabet
@@ -46,6 +45,10 @@ class BaseService:
             }
 
     def fetch_url(self, url):
+        # this import is moved here so that tracker can import
+        # registry without installing requests
+        import requests
+
         if self.params['method'] == 'get':
             response = requests.get(url, allow_redirects=False)
         else:

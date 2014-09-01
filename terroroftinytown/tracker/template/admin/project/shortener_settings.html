@@ -6,32 +6,43 @@
 
 <h1>Shortener Settings</h1>
 
-<p>Customize how the scraper will operate.</p>
+<p class="help-block">Customize how the scraper will operate.</p>
 
 {% module Form(form, submit='Apply') %}
 
-<p>Alphabet: How to turn the sequence numbers into letters. Some common examples:</p>
-<ul>
-	<li>01234567890abcdef</li>
-	<li>0123456789abcdefghijklmnopqrstuvwxyz</li>
-	<li>0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</li>
-	<li>0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_</li>
-	<li>0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_</li>
-</ul>
-
-<p>The boxes with HTTP status codes are whitespace seperated lists.</p>
-
-<p>A redirect status code means there is a unshortened URL. A no redirect 
-status code means that there is no shortened URL. A unavailable status
-code means that the shortener has content issues (like a DCMA notice) with 
-unshortened URL. Banned status codes means that the scraper client
-has been banned.</p>
-
-<p>Body regex is a space for a Python regex if the shortener only serves
-the unshortened URL in the HTML.</p>
-
-<p>Script version is the minimum version of terroroftinytown required to get work from this project. Note that the client automatically updates script automatically.</p>
-
-<p>Client version is the minimum version of terroroftinytown-client-grab which users must manually update.</p>
+<dl class="dl-horizontal">
+	<dt>Alphabet</dt>
+	<dd>
+		How to turn the sequence numbers into letters. Some common examples:
+		<ul>
+			<li>01234567890abcdef</li>
+			<li>0123456789abcdefghijklmnopqrstuvwxyz</li>
+			<li>0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</li>
+			<li>0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_</li>
+			<li>0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_</li>
+		</ul>
+	</dd>
+	<dt>HTTP Status codes</dt>
+	<dd>
+		<p>These boxes are whitespace seperated lists.</p>
+		<p>A redirect status code means there is a unshortened URL. A no redirect 
+		status code means that there is no shortened URL. A unavailable status
+		code means that the shortener has content issues (like a DCMA notice) with 
+		unshortened URL. Banned status codes means that the scraper client
+		has been banned.</p>
+	</dd>
+	<dt>Content body regex</dt>
+	<dd>
+		Python regex if the shortener only serves the unshortened URL in the HTML.
+	</dd>
+	<dt>Script version</dt>
+	<dd>
+		Minimum version of terroroftinytown required to get work from this project. Note that the client automatically updates script automatically.
+	</dd>
+	<dt>Client version</dt>
+	<dd>
+		Minimum version of terroroftinytown-client-grab required to get work from this project. Users must manually update the client.
+	</dd>
+</dl>
 
 {% end %}

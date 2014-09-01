@@ -1,12 +1,64 @@
-{% extends 'base.html' %}
+{% extends 'index.html' %}
 
 {% block title %} URLTeam Status {% end %}
 
-{% block body %}
-{% import json %}
-
-{% for project in projects %}
-	<pre>{{ json.dumps(project.to_dict(), indent=2) }}</pre>
-{% end %}
-
+{% block main %}
+<div ng-controller="StatsController">
+	<h2>Projects</h2>
+	{% for project in projects %}
+	<div class="col-md-6">
+		<div class="panel panel-default">
+			<div class="panel-heading" ng-click="body['{{project.name}}']=!body['{{project.name}}']">
+				{{project.name}}
+			</div>
+			<table class="table table-bordered">
+				<thead>
+					<tr>
+						<th>Found</th>
+						<th>Scanned</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td ng-bind="stats.project['{{project.name}}'][0]|number">0</td>
+						<td ng-bind="stats.project['{{project.name}}'][1]|number">0</td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="panel-body" ng-hide="body['{{project.name}}']">
+				Click on header to show project settings
+			</div>
+			<div class="panel-body" ng-show="body['{{project.name}}']">
+				{% if project.name in services %}
+				<p class="text-success">This service use custom script.</p>
+				{% end %}
+				<dl>
+					<dt>Minimum client version</dt>
+					<dd>{{project.min_client_version}}</dd>
+					<dt>Minimum script version</dt>
+					<dd>{{project.min_version}}</dd>
+					<dt>URL</dt>
+					<dd><code>{{project.url_template}}</code></dd>
+					<dt>Method</dt>
+					<dd>{{project.method}}</dd>
+					<dt>Alphabet set</dt>
+					<dd><code>{{project.alphabet}}</code></dd>
+					<dt>Delay</dt>
+					<dd>{{project.request_delay}}</dd>
+					<dt>Parse regex</dt>
+					<dd>{{project.body_regex}}</dd>
+					<dt>Redirect status</dt>
+					<dd>{{' '.join([str(x) for x in project.redirect_codes])}}</dd>
+					<dt>Error status</dt>
+					<dd>{{' '.join([str(x) for x in project.no_redirect_codes])}}</dd>
+					<dt>Unavailable status</dt>
+					<dd>{{' '.join([str(x) for x in project.unavailable_codes])}}</dd>
+					<dt>Banned status</dt>
+					<dd>{{' '.join([str(x) for x in project.banned_codes])}}</dd>
+				</dl>
+			</div>
+		</div>
+	</div>
+	{% end %}
+</div>
 {% end %}

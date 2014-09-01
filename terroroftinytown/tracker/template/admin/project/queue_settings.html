@@ -5,17 +5,15 @@
 {% block main %}
 
 <h1>Queue Settings</h1>
+<p>Tick the "enabled" box to allow jobs be issued for this project.</p>
 {% module Form(enable_form, action='?action=enable', submit='Apply') %}
 
-<p>Tick the "enabled" box to allow jobs be issued for this project.</p>
-
 <h2> Auto Queue</h2>
-
-{% module Form(form, action='?action=autoqueue', submit='Apply') %}
 
 <p>The auto queue automatically fills the queue when it becomes empty or jobs expire.</p>
 
 <p>"Lower sequence number" is automatically bumped up by the auto queue.</p>
-  
+
+{% module Form(form, action='?action=autoqueue', submit='Apply') %}  
 
 {% end %}

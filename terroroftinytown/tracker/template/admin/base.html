@@ -3,21 +3,23 @@
 {% block title %} Admin {% end %}
 
 {% block body %}
-<div id="index-admin_nav">
+<div class="pull-right">
 	<a href="{{ reverse_url('admin.logout') }}">Log out</a>
 </div>
 
-<div class="row">
-	<div id="admin-menu" class="column third">
-		{% block menu %}
-		{% end %}
-	</div>
-	<div id="admin-main" role="main" class="column two-thirds">
-		{% if 'message' in globals() %}
-			<div id="site-message">{{ message }}</div>
-		{% end %}
-		{% block main %}
-		{% end %}
+<div class="container admin">
+	<div class="row">
+		<div class="col-md-3">
+			{% block menu %}
+			{% end %}
+		</div>
+		<div class="col-md-9">
+			{% if 'message' in globals() %}
+				<div class="alert alert-info">{{ message }}</div>
+			{% end %}
+			{% block main %}
+			{% end %}
+		</div>
 	</div>
 </div>
 {% end %}
