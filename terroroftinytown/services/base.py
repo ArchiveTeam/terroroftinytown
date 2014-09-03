@@ -23,10 +23,13 @@ class BaseService:
         sleep_time = self.params['request_delay']
         time.sleep(sleep_time)
 
-    def scrape_one(self, sequence_number):
-        self.current_shortcode = shortcode = alphabet.int_to_str(
+    def transform_sequence_num(self, sequence_number):
+        return alphabet.int_to_str(
             sequence_number, self.params['alphabet']
         )
+
+    def scrape_one(self, sequence_number):
+        self.current_shortcode = shortcode = self.transform_sequence_num(sequence_number)
         url = self.params['url_template'].format(shortcode=shortcode)
 
         self.logger.info('Requesting %s', url)
