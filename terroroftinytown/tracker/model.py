@@ -127,18 +127,21 @@ class Project(Base):
     __tablename__ = 'projects'
 
     name = Column(String, primary_key=True)
-    min_version = Column(Integer)
-    min_client_version = Column(Integer)
+    min_version = Column(Integer, default=0)
+    min_client_version = Column(Integer, default=0)
     alphabet = Column(String, default='0123456789abcdefghijklmnopqrstuvwxyz'
-        'ABCDEFGHIJKLMNOPQRSTUVWXYZ')
-    url_template = Column(String, default='http://example.com/{shortcode}')
-    request_delay = Column(Float, default=0.5)
-    redirect_codes = Column(JsonType, default=[301, 302, 303, 307])
-    no_redirect_codes = Column(JsonType, default=[404])
+                                      'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+                      nullable=False)
+    url_template = Column(String, default='http://example.com/{shortcode}',
+                          nullable=False)
+    request_delay = Column(Float, default=0.5, nullable=False)
+    redirect_codes = Column(JsonType, default=[301, 302, 303, 307],
+                            nullable=False)
+    no_redirect_codes = Column(JsonType, default=[404], nullable=False)
     unavailable_codes = Column(JsonType, default=[200])
     banned_codes = Column(JsonType, default=[420])
     body_regex = Column(String)
-    method = Column(String, default='head')
+    method = Column(String, default='head', nullable=False)
 
     enabled = Column(Boolean, default=True)
     autoqueue = Column(Boolean)
