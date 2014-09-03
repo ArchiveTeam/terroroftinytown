@@ -1,0 +1,24 @@
+## Standard tests
+# example.org test
+gmYZc|http://www.example.org/
+# Not found
+oycsuls|notfound
+
+## Link Disabled
+# Normal
+mBAh|http://pocketexpress.com/assets/img/channels/icn-extras.jpg
+# Properly encoded UTF-8 code points
+8KlSw|http://mediapolitics.co.cc/o’reilly-tells-conservatives-to-stop-‘bashing’-obama-‘does-obama-bashing-accomplish-anything’/
+# Unencoded UTF-8 code points
+5McdG|http://analyzerads.com/CPCredairector.aspx?userId=ranencarmel&url=http://svibe.mynusystem.com/lc2.php&cid=200911111643301&aid=15&q=עבודה
+# Blank -> Treat as blocked
+6Anxm|blocked
+
+# Forced preview
+bpXbb|https://docs.google.com/a/alexos.org/viewer?a=v&pid=gmail&attid=0.1&thid=127f1ae78507cddc&mt=application%2Fpdf&url=https%3A%2F%2Fmail.google.com%2Fa%2Falexos.org%2F%3Fui%3D2%26ik%3Df62927ba14%26view%3Datt%26th%3D127f1ae78507cddc%26attid%3D0.1%26disp%3Dattd%26realattid%3Df_g7v61n2n2%26zw&sig=AHIEtbTHqMRwmRu9hjeh-pJu-ATtOKxn6Q
+
+## 502 Error
+meIw|blocked
+
+## is.gd is too stupid to do input checking
+ms7x|blocked
