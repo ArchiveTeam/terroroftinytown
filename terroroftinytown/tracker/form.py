@@ -1,7 +1,7 @@
 # encoding=utf-8
 from wtforms import validators
 from wtforms.fields.core import StringField, BooleanField, FloatField, Field, \
-    IntegerField
+    IntegerField, RadioField
 from wtforms.fields.simple import PasswordField, TextAreaField
 from wtforms.widgets.core import TextInput
 from wtforms_tornado import Form
@@ -68,9 +68,10 @@ class ProjectSettingsForm(Form):
         'Time between requests (seconds)',
         [validators.InputRequired()]
     )
-    method = StringField(
+    method = RadioField(
         'HTTP method (get/head):',
-        [validators.InputRequired()]
+        [validators.InputRequired()],
+        choices=[('head', 'head'), ('get', 'get')]
     )
     redirect_codes = NumListField(
         'Redirect status codes:',
