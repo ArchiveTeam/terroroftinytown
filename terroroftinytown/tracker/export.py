@@ -73,6 +73,9 @@ class Exporter:
 
             self.projects_count += 1
 
+            assert project.url_template.endswith('{shortcode}'), \
+                'Writer only supports URL with prefix'
+
             # XXX: Use regex \{shortcode\}$ instead?
             site = project.url_template.replace('{shortcode}', '')
 

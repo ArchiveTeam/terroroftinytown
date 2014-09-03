@@ -63,7 +63,15 @@ class ProjectSettingsForm(Form):
     min_version = IntegerField('Minimum script (submodule) version:', [validators.Optional()])
     min_client_version = IntegerField('Minimum client version:', [validators.Optional()])
     alphabet = StringField('Alphabet:', [validators.InputRequired()])
-    url_template = StringField('URL template:', [validators.InputRequired()])
+    url_template = StringField(
+        'URL template:',
+        [
+            validators.InputRequired(),
+            validators.Regexp(
+                '^https?://.+/{shortcode}$',
+                message='Template does not look like a URL prefix.'),
+        ]
+    )
     request_delay = FloatField(
         'Time between requests (seconds)',
         [validators.InputRequired()]
