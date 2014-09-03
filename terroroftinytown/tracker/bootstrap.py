@@ -16,12 +16,13 @@ logger = logging.getLogger(__name__)
 
 
 class Bootstrap:
-    arg_parser = argparse.ArgumentParser()
-    config = configparser.ConfigParser()
+    def __init__(self):
+        self.arg_parser = argparse.ArgumentParser()
+        self.config = configparser.ConfigParser()
 
-    def start(self):
+    def start(self, args=None):
         self.setup_args()
-        self.parse_args()
+        self.parse_args(args=args)
         self.load_config()
         self.setup_database()
 
@@ -29,8 +30,8 @@ class Bootstrap:
         self.arg_parser.add_argument('config')
         self.arg_parser.add_argument('--debug', action='store_true')
 
-    def parse_args(self):
-        self.args = self.arg_parser.parse_args()
+    def parse_args(self, args=None):
+        self.args = self.arg_parser.parse_args(args=args)
 
     def load_config(self):
         self.config.read([self.args.config])

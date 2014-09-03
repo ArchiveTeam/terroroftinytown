@@ -4,10 +4,11 @@ import os, lzma
 
 from sqlalchemy import func
 
-from terroroftinytown.tracker.bootstrap import Bootstrap
 from terroroftinytown.format import registry
 from terroroftinytown.format.urlformat import quote
+from terroroftinytown.tracker.bootstrap import Bootstrap
 from terroroftinytown.tracker.model import new_session, Project, Result
+
 
 class Exporter:
     projects_count = 0
@@ -38,6 +39,7 @@ class Exporter:
     after = None
 
     def __init__(self, output_dir, format="beacon", settings={}):
+        super().__init__()
         self.setup_format(format)
         self.output_dir = output_dir
         self.settings = settings
@@ -132,7 +134,7 @@ class Exporter:
     def get_filename(self, project, item):
         path = os.path.join(self.output_dir, project.name)
 
-        #0001asdf
+        # 0001asdf
         # dir_length max_right file_length
         shortcode = item.shortcode
 
@@ -156,9 +158,10 @@ class Exporter:
 
         return path
 
+
 class ExporterBootstrap(Bootstrap):
-    def start(self):
-        super().start()
+    def start(self, *args):
+        super().start(*args)
 
         self.exporter = Exporter(self.args.output_dir, self.args.format, vars(self.args))
         self.exporter.dump()
@@ -173,10 +176,10 @@ class ExporterBootstrap(Bootstrap):
 
     def write_stats(self):
         print('Written %d items in %d projects' % (self.exporter.projects_count, self.exporter.items_count))
-        if self.exporter.last_item:
+        if self.exporter.last_date:
             print('Last item timestamp (use --after to dump after this item):')
             print(self.exporter.last_date.isoformat())
-    
+
 
 if __name__ == '__main__':
     ExporterBootstrap().start()

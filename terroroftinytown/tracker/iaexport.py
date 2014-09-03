@@ -19,6 +19,7 @@ class IAExporter(Exporter):
     _fp = None
 
     def __init__(self, config):
+        super().__init__()
         self.config = config
         self.setup_format(self.config.get('iaexporter', 'format'))
         self.after = self.get_last_export()
