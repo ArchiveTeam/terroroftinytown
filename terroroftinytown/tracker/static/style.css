@@ -11,8 +11,8 @@
 
 body{
 	font-family: "pixelmix";
-	background-color: #4D1948;
-	color: white;
+	background-color: #F2EEF2;
+	color: black;
 	-webkit-font-smoothing: none;;
 }
 
@@ -20,19 +20,19 @@ a{
 	color: #A15DBA;
 }
 a:hover{
-	color: #D4ACE3;
+	color: #AF5FCD;
 	text-decoration: none;
-	text-shadow: black 0px 1px 0.1em;
+	text-shadow: #D2D2D2 1px 1px 0.1em;
 }
 
 h2{
-	text-shadow: black 0px 1px 0.1em;
+	text-shadow: gray 1px 1px 0.1em;
 }
 
 .hero{
 	margin: 20px 0px;
 	text-align: center;
-	text-shadow: black 0px 1px 0.1em;
+	text-shadow: gray 1px 1px 0.1em;
 }
 .hero h1{
 	margin: 0;
@@ -53,7 +53,7 @@ nav a{
 #globalstats{
 	text-align: center;
 	font-size: 20pt;
-	text-shadow: black 0px 1px 0.1em;
+	text-shadow: gray 1px 1px 0.1em;
 	margin-bottom: 20px;
 }
 
@@ -63,7 +63,7 @@ nav a{
 	-webkit-border-radius: 0;
 	-moz-border-radius: 0;
 	border: none;
-	box-shadow: black 0px 1px 0.1em;
+	box-shadow: gray 1px 1px 0.1em;
 }
 .panel-default .panel-heading{
 	background-color: #482680;
@@ -72,7 +72,7 @@ nav a{
 	-webkit-border-radius: 0;
 	-moz-border-radius: 0;
 	font-weight: bold;
-	text-shadow: black 0px 1px 0.1em;
+	text-shadow: gray 1px 1px 0.1em;
 }
 .panel-heading .pull-right{
 	margin-top: -3px;
