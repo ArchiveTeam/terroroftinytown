@@ -2,16 +2,16 @@
 
 
 class ScraperError(Exception):
-    pass
+    '''Generic scraper error.'''
 
 
 class UnhandledStatusCode(ScraperError):
-    pass
+    '''The current code does not know what to do with the status code.'''
 
 
 class UnexpectedNoResult(ScraperError):
-    pass
+    '''The code definately expected a URL but didn't find one.'''
 
 
 class PleaseRetry(ScraperError):
-    pass
+    '''We are banned and should try again later.'''

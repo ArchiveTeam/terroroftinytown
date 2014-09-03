@@ -8,10 +8,12 @@ import time
 from terroroftinytown.client import alphabet
 from terroroftinytown.client.errors import (UnhandledStatusCode,
     UnexpectedNoResult, ScraperError, PleaseRetry)
+from terroroftinytown.services.status import URLStatus
 
 __all__ = ['BaseService', 'registry']
 
 registry = {}
+
 
 class BaseService:
     def __init__(self, params):
@@ -35,9 +37,10 @@ class BaseService:
         self.logger.info('Requesting %s', url)
 
         response = self.fetch_url(url)
-        result_url = self.process_response(response)
+        url_status, result_url = self.process_response(response)
 
-        if result_url is not None:
+        if url_status == URLStatus.ok:
+            assert result_url is not None
             self.logger.info('Got a result.')
             self.logger.debug('%s %s', result_url, response.encoding)
 
@@ -76,7 +79,7 @@ class BaseService:
     def process_redirect(self, response):
         if 'Location' in response.headers:
             result_url = response.headers['Location']
-            return result_url
+            return (URLStatus.ok, result_url)
         else:
             return self.process_redirect_body(response)
 
@@ -85,18 +88,18 @@ class BaseService:
         match = re.search(pattern, response.text)
 
         if match:
-            return match.group(1)
+            return (URLStatus.ok, match.group(1))
         else:
             raise UnexpectedNoResult()
 
     def process_no_redirect(self, response):
-        return None
+        return (URLStatus.not_found, None)
 
     def process_unavailable(self, response):
-        raise ScraperError('Not implemented.')
+        return (URLStatus.unavailable, None)
 
     def process_banned(self, response):
-        raise PleaseRetry()
+        raise PleaseRetry('Server said: {}'.format(repr(response.reason)))
 
     def process_unknown_code(self, response):
         raise UnhandledStatusCode(
