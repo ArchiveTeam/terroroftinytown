@@ -139,7 +139,7 @@ class Project(Base):
                             nullable=False)
     no_redirect_codes = Column(JsonType, default=[404], nullable=False)
     unavailable_codes = Column(JsonType, default=[200])
-    banned_codes = Column(JsonType, default=[420])
+    banned_codes = Column(JsonType, default=[403, 420, 429])
     body_regex = Column(String)
     method = Column(String, default='head', nullable=False)
 
