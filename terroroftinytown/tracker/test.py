@@ -49,6 +49,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         self.config.read([config_path])
 
     def setup_database(self):
+        print('Set up database')
         self.database = Database(
             path=self.config['database']['path'],
             delete_everything='yes-really!'
@@ -198,7 +199,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
 
         element.submit()
 
-        WebDriverWait(self.driver, 2).until(
+        WebDriverWait(self.driver, 4).until(
             expected_conditions.text_to_be_present_in_element(
                 (By.TAG_NAME, 'body'), 'Log in failed'
             )
@@ -339,6 +340,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
             self.get_url('/api/project_settings?name=test_project'),
         )
 
+        print(response.reason)
         self.assertEqual(200, response.status_code)
 
         settings = response.json()
@@ -348,8 +350,9 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
     def claim_and_return_an_item(self):
         response = requests.post(
             self.get_url('/api/get'),
-            data={'username': 'SMAUG'}
+            data={'username': 'SMAUG', 'version': 0, 'client_version': 0}
         )
+        print(response.reason)
         self.assertEqual(200, response.status_code)
         item = response.json()
 
@@ -371,6 +374,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
             }
         )
 
+        print(response.reason)
         self.assertEqual(200, response.status_code)
 
         doc = response.json()

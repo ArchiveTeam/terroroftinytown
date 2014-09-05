@@ -24,6 +24,7 @@ from terroroftinytown.tracker.stats import Stats
 Base = declarative_base()
 Session = sessionmaker()
 
+
 @contextlib.contextmanager
 def new_session():
     session = Session()
@@ -108,7 +109,8 @@ class User(Base):
     def check_account(cls, username, password):
         with new_session() as session:
             user = session.query(User).filter_by(username=username).first()
-            return user.check_password(password)
+            if user:
+                return user.check_password(password)
 
     @classmethod
     def update_password(cls, username, password):
@@ -437,7 +439,11 @@ def generate_item(session, username=None, ip_address=None, version=-1, client_ve
     session.add(item)
     return item
 
+
 def checkout_item(username, ip_address, version=-1, client_version=-1):
+    assert version is not None
+    assert client_version is not None
+
     with new_session() as session:
         item_a = aliased(Item)
         no_same_ip_proj = session.query(item_a) \
@@ -451,8 +457,8 @@ def checkout_item(username, ip_address, version=-1, client_version=-1):
             .join(Item.project) \
             .filter(
                 Project.enabled == True,
-                (Project.min_version <= version) | (Project.min_version == None),
-                (Project.min_client_version <= client_version) | (Project.min_client_version == None)
+                (Project.min_version <= version),
+                (Project.min_client_version <= client_version),
             ).first()
 
         if not item:
