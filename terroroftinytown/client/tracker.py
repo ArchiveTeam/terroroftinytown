@@ -10,6 +10,9 @@ from terroroftinytown import six
 from terroroftinytown.client import VERSION
 
 
+DEFAULT_USER_AGENT = 'Terroroftinytown/{0} (standalone library)'.format(VERSION)
+
+
 _logger = logging.getLogger(__name__)
 
 
@@ -28,7 +31,8 @@ def reraise_with_tracker_error(func):
 
 
 class TrackerClient(object):
-    def __init__(self, host, username, version=None, bind_address=None):
+    def __init__(self, host, username, version=None, bind_address=None,
+                 user_agent=DEFAULT_USER_AGENT):
         self.host = host
         self.username = username
 
@@ -36,6 +40,8 @@ class TrackerClient(object):
 
         if bind_address:
             self.bind_address(bind_address)
+
+        self.user_agent = user_agent
 
     @reraise_with_tracker_error
     def get_item(self):
@@ -48,6 +54,9 @@ class TrackerClient(object):
                 'version': VERSION,
                 'client_version': self.client_version,
             },
+            headers={
+                'User-Agent': self.user_agent
+            }
         )
 
         response.raise_for_status()
