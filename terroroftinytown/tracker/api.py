@@ -53,6 +53,13 @@ class GetHandler(BaseHandler):
         version = int(self.get_argument('version'))
         client_version = int(self.get_argument('client_version'))
         username = self.get_argument('username')
+        user_agent = self.request.headers.get('User-Agent')
+
+        logger.info('User request: ip=%s user=%s '
+                    'ver=%s client_ver=%s user_agent=%s',
+                    ip_address, repr(username),
+                    version, client_version, repr(user_agent)
+                    )
 
         try:
             claim = self.application.checkout_item(
