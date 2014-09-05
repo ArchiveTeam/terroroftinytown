@@ -2,6 +2,7 @@
 from terroroftinytown.client.errors import PleaseRetry
 from terroroftinytown.services import registry
 
+
 class Scraper(object):
     '''URL shortner scraper.
 
@@ -32,7 +33,7 @@ class Scraper(object):
             for try_count in range(self.retry_count):
                 if try_count > 0:
                     print('Attempt %d' % (try_count + 1))
-                
+
                 try:
                     result = self.service.scrape_one(self.todo_list.pop())
 

@@ -1,17 +1,20 @@
 # encoding=utf-8
 '''Base class for URL shortener services'''
 
+import datetime
 import logging
 import re
 import time
 
-from terroroftinytown.client import alphabet
+from terroroftinytown.client import alphabet, VERSION
 from terroroftinytown.client.errors import (UnhandledStatusCode,
     UnexpectedNoResult, ScraperError, PleaseRetry)
 from terroroftinytown.services.status import URLStatus
 
-__all__ = ['BaseService', 'registry']
 
+__all__ = ['BaseService', 'registry']
+DEFAULT_USER_AGENT = 'ArchiveTeam TerrorOfTinyTown/{0} ({1})'.format(
+    VERSION, datetime.datetime.utcnow())
 registry = {}
 
 
@@ -20,6 +23,7 @@ class BaseService:
         self.params = params
         self.logger = logging.getLogger(self.__class__.__name__)
         self.current_shortcode = None
+        self.user_agent = DEFAULT_USER_AGENT
 
     def wait(self):
         sleep_time = self.params['request_delay']
@@ -54,11 +58,16 @@ class BaseService:
         # this import is moved here so that tracker can import
         # registry without installing requests
         import requests
+        headers = {
+            'User-Agent': self.user_agent,
+        }
 
         if self.params['method'] == 'get':
-            response = requests.get(url, allow_redirects=False)
+            response = requests.get(
+                url, allow_redirects=False, headers=headers)
         else:
-            response = requests.head(url, allow_redirects=False)
+            response = requests.head(
+                url, allow_redirects=False, headers=headers)
 
         return response
 
