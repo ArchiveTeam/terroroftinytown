@@ -21,6 +21,10 @@ from terroroftinytown.tracker.errors import NoItemAvailable, FullClaim, UpdateCl
 from terroroftinytown.tracker.stats import Stats
 
 
+# These overrides for major api changes
+MIN_VERSION_OVERRIDE = 2  # for terroroftinytown.client
+MIN_CLIENT_VERSION_OVERRIDE = 1  # for terrofoftinytown-client-grab/pipeline.py
+
 Base = declarative_base()
 Session = sessionmaker()
 
@@ -129,8 +133,8 @@ class Project(Base):
     __tablename__ = 'projects'
 
     name = Column(String, primary_key=True)
-    min_version = Column(Integer, default=0, nullable=False)
-    min_client_version = Column(Integer, default=0, nullable=False)
+    min_version = Column(Integer, default=MIN_VERSION_OVERRIDE, nullable=False)
+    min_client_version = Column(Integer, default=MIN_CLIENT_VERSION_OVERRIDE, nullable=False)
     alphabet = Column(String, default='0123456789abcdefghijklmnopqrstuvwxyz'
                                       'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
                       nullable=False)
@@ -444,6 +448,8 @@ def checkout_item(username, ip_address, version=-1, client_version=-1):
     assert version is not None
     assert client_version is not None
 
+    check_min_version_overrides(version, client_version)
+
     with new_session() as session:
         item_a = aliased(Item)
         no_same_ip_proj = session.query(item_a) \
@@ -515,3 +521,13 @@ def checkin_item(item_id, tamper_key, results):
         Stats.instance.update(item_stat)
 
     return item_stat
+
+
+def check_min_version_overrides(version, client_version):
+    if version < MIN_VERSION_OVERRIDE or client_version < MIN_CLIENT_VERSION_OVERRIDE:
+        raise UpdateClient(
+            version=version,
+            client_version=client_version,
+            current_version=MIN_VERSION_OVERRIDE,
+            current_client_version=MIN_CLIENT_VERSION_OVERRIDE
+        )

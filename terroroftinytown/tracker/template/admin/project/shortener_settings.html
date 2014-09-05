@@ -3,10 +3,22 @@
 {% block title %} Shortener Settings {% end %}
 
 {% block main %}
+{% from terroroftinytown.tracker.model import MIN_VERSION_OVERRIDE, MIN_CLIENT_VERSION_OVERRIDE %}
+{% from terroroftinytown.services import registry %}
 
 <h1>Shortener Settings</h1>
 
 <p class="help-block">Customize how the scraper will operate.</p>
+
+{% if project_name in registry %}
+<div class="bg-warning">
+	<p><strong>Caution: This project has custom code.</strong></p>
+	<p>
+		Before making changes, please disable the queue for this project. 
+		Ensure the updated unit tests pass and set the minimum script version as required.
+	</p>
+</div>
+{% end %}
 
 {% module Form(form, submit='Apply') %}
 
@@ -37,11 +49,25 @@
 	</dd>
 	<dt>Script version</dt>
 	<dd>
-		Minimum version of terroroftinytown required to get work from this project. Note that the client automatically updates script automatically.
+		<p>Minimum version of terroroftinytown required to get work from this project. Note that the client automatically updates script automatically.</p>
+		<p>The tracker has a hard coded override of {{ MIN_VERSION_OVERRIDE }}</p>
 	</dd>
 	<dt>Client version</dt>
 	<dd>
-		Minimum version of terroroftinytown-client-grab required to get work from this project. Users must manually update the client.
+		<p>Minimum version of terroroftinytown-client-grab required to get work from this project. Users must manually update the client.</p>
+		<p>The tracker has a hard coded override of {{ MIN_CLIENT_VERSION_OVERRIDE }}</p>
+	</dd>
+	<dt>Custom code</dt>
+	<dd>
+		<p>The following services use custom client code: {{ ', '.join(registry.keys()) }}. Their logic is not defined in this interface but rather in the client library.</p>
+		<p>To create a new project with custom code, please remember:</p>
+		<ol>
+			<li>Ensure the project's queue is disabled</li>
+			<li>Write the code and unit tests</li>
+			<li>Bump the minimum script version in the client library</li>
+			<li>Run the unit tests</li>
+			<li>Set the appropriate tracker settings (including the script version)</li>
+		</ol>
 	</dd>
 </dl>
 

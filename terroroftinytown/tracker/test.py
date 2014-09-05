@@ -1,11 +1,11 @@
-import configparser
-import json
-import os.path
-import requests
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
+import configparser
+import json
+import os.path
+import requests
 import string
 import threading
 import unittest
@@ -13,9 +13,11 @@ import unittest
 import tornado.httpserver
 import tornado.testing
 
-from terroroftinytown.tracker.bootstrap import ApplicationBootstrap
 from terroroftinytown.tracker.app import Application
+from terroroftinytown.tracker.bootstrap import ApplicationBootstrap
 from terroroftinytown.tracker.database import Database
+from terroroftinytown.tracker.model import MIN_CLIENT_VERSION_OVERRIDE, \
+    MIN_VERSION_OVERRIDE
 from terroroftinytown.tracker.stats import Stats
 
 
@@ -93,6 +95,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         self.config_project_settings()
         self.populate_queue()
         self.get_project_settings()
+        self.claim_with_outdated_script()
         self.claim_and_return_an_item()
         # these tests are run after an item have been submitted
         self.global_stats()
@@ -347,10 +350,26 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
 
         self.assertEqual('test_project', settings['name'])
 
+    def claim_with_outdated_script(self):
+        response = requests.post(
+            self.get_url('/api/get'),
+            data={
+                'username': 'SMAUG',
+                'version':-1,
+                'client_version':-1,
+            }
+        )
+        print(response.reason)
+        self.assertEqual(412, response.status_code)
+
     def claim_and_return_an_item(self):
         response = requests.post(
             self.get_url('/api/get'),
-            data={'username': 'SMAUG', 'version': 0, 'client_version': 0}
+            data={
+                'username': 'SMAUG',
+                'version': MIN_VERSION_OVERRIDE,
+                'client_version': MIN_CLIENT_VERSION_OVERRIDE
+            }
         )
         print(response.reason)
         self.assertEqual(200, response.status_code)
