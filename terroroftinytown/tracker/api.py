@@ -66,7 +66,7 @@ class GetHandler(BaseHandler):
         except FullClaim:
             raise HTTPError(429, reason='%s has pending claims in all eligible projects. Check that your client is up to date and contact the administrator to release any pending claims.' % (ip_address))
         except UpdateClient as e:
-            raise HTTPError(412, reason='Update your client. Script version: %s (current %s), Client version: %s (current %s -- must be manually upgraded)' % (
+            raise HTTPError(412, reason='Update your client. Library version: %s (current %s), Pipeline version: %s (current %s -- must be manually upgraded)' % (
                     e.version, e.current_version,
                     e.client_version, e.current_client_version
                 )

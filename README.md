@@ -62,3 +62,5 @@ The tracker component manages items and projects. Items represent the shortener 
 
 The tracker will attempt to distribute items across projects so the client does not work on more than one shortener per IP address to avoid bans.
 
+There are two version numbers: Library version for `terroroftinytown.client.__init__` and Pipeline Version for `terroroftinytown-client-grab/pipeline.py`.
+

@@ -60,8 +60,8 @@ class AddProjectForm(Form):
 
 
 class ProjectSettingsForm(Form):
-    min_version = IntegerField('Minimum script (submodule) version:', [validators.Optional()])
-    min_client_version = IntegerField('Minimum client version:', [validators.Optional()])
+    min_version = IntegerField('Minimum library version:', [validators.Optional()])
+    min_client_version = IntegerField('Minimum pipeline version:', [validators.Optional()])
     alphabet = StringField('Alphabet:', [validators.InputRequired()])
     url_template = StringField(
         'URL template:',
