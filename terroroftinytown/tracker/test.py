@@ -32,8 +32,12 @@ class IOLoopThread(threading.Thread):
         self.io_loop.add_callback(self.io_loop.stop)
 
 
-class TestTracker(ApplicationBootstrap, unittest.TestCase):
-    def parse_args(self):
+class TestTracker(unittest.TestCase, ApplicationBootstrap):
+    def __init__(self, *args):
+        unittest.TestCase.__init__(self, *args)
+        ApplicationBootstrap.__init__(self)
+
+    def parse_args(self, args=None):
         pass
 
     def load_config(self):

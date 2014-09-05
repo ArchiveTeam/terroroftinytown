@@ -7,8 +7,12 @@ from terroroftinytown.tracker.model import new_session, Result, Project
 
 
 class MockProject(Bootstrap):
-    def start(self, *args):
-        super().start(*args)
+    def start(self, args=None, delete_everything=False):
+        super().start(args=args)
+
+        if delete_everything == 'yes-really!':
+            self.database._delete_everything()
+
         self.generate_mock()
 
     def setup_args(self):
@@ -27,8 +31,12 @@ class MockProject(Bootstrap):
 
 
 class MockResult(Bootstrap):
-    def start(self, *args):
-        super().start(*args)
+    def start(self, args=None, delete_everything=False):
+        super().start(args=args)
+
+        if delete_everything == 'yes-really!':
+            self.database._delete_everything()
+
         self.generate_mock()
 
     def setup_args(self):

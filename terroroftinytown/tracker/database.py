@@ -29,4 +29,5 @@ class Database(object):
     def _delete_everything(self):
         meta = sqlalchemy.MetaData(self.engine)
         for table in reversed(meta.sorted_tables):
+            print('delete', table)
             self.engine.execute(table.delete())
