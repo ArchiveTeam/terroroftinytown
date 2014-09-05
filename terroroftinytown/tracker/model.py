@@ -127,8 +127,8 @@ class Project(Base):
     __tablename__ = 'projects'
 
     name = Column(String, primary_key=True)
-    min_version = Column(Integer, default=0)
-    min_client_version = Column(Integer, default=0)
+    min_version = Column(Integer, default=0, nullable=False)
+    min_client_version = Column(Integer, default=0, nullable=False)
     alphabet = Column(String, default='0123456789abcdefghijklmnopqrstuvwxyz'
                                       'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
                       nullable=False)
@@ -368,7 +368,11 @@ def new_salt():
 def new_tamper_key():
     return base64.b16encode(os.urandom(16)).decode('ascii')
 
+
 def generate_item(session, username=None, ip_address=None, version=-1, client_version=-1):
+    assert version is not None
+    assert client_version is not None
+
     num_queue = session.query(
         Item.project_id,
         func.count(Item.id).label('queue_size')
@@ -379,8 +383,8 @@ def generate_item(session, username=None, ip_address=None, version=-1, client_ve
     query = session.query(Project, num_queue.c.queue_size) \
         .filter_by(enabled=True, autoqueue=True) \
         .filter(
-            (Project.min_version <= version) | (Project.min_version == None),
-            (Project.min_client_version <= client_version) | (Project.min_client_version == None)
+            (Project.min_version <= version),
+            (Project.min_client_version <= client_version)
         ) \
         .outerjoin(num_queue, Project.name == num_queue.c.project_id) \
         .filter(func.coalesce(num_queue.c.queue_size, 0) < Project.max_num_items)
