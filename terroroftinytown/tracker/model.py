@@ -6,6 +6,7 @@ import datetime
 import hmac
 import json
 import os
+import subprocess
 
 from sqlalchemy import func
 from sqlalchemy.ext.declarative import declarative_base
@@ -531,3 +532,10 @@ def check_min_version_overrides(version, client_version):
             current_version=MIN_VERSION_OVERRIDE,
             current_client_version=MIN_CLIENT_VERSION_OVERRIDE
         )
+
+
+def get_git_hash():
+    try:
+        return subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip()
+    except (subprocess.CalledProcessError, OSError) as error:
+        return str(error)

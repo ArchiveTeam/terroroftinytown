@@ -77,9 +77,12 @@ class IndexHandler(BaseHandler):
 
 
 class StatusHandler(BaseHandler):
+    GIT_HASH = model.get_git_hash()
+
     def get(self):
         projects = list([
             model.Project.get_plain(name)
             for name in model.Project.all_project_names()])
 
-        self.render('status.html', projects=projects, services=registry)
+        self.render('status.html', projects=projects, services=registry,
+                    git_hash=self.GIT_HASH)

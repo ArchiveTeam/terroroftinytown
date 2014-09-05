@@ -3,7 +3,9 @@
 {% block title %} URLTeam Status {% end %}
 
 {% block main %}
-<div ng-controller="StatsController">
+{% from terroroftinytown.tracker.model import MIN_VERSION_OVERRIDE, MIN_CLIENT_VERSION_OVERRIDE %}
+
+<div ng-controller="StatsController" class="container-fluid">
 	<h2>Projects</h2>
 	{% for project in projects %}
 	<div class="col-md-6">
@@ -33,9 +35,9 @@
 				<p class="text-success">This service use custom script.</p>
 				{% end %}
 				<dl>
-					<dt>Minimum client version</dt>
+					<dt>Minimum library version</dt>
 					<dd>{{project.min_client_version}}</dd>
-					<dt>Minimum script version</dt>
+					<dt>Minimum pipeline version</dt>
 					<dd>{{project.min_version}}</dd>
 					<dt>URL</dt>
 					<dd><code>{{project.url_template}}</code></dd>
@@ -56,9 +58,25 @@
 					<dt>Banned status</dt>
 					<dd>{{' '.join([str(x) for x in project.banned_codes])}}</dd>
 				</dl>
+				<a href="{{ '{0}?name={1}'.format(
+						reverse_url('api.project_settings'), project.name) }}">json</a>
 			</div>
 		</div>
 	</div>
 	{% end %}
+</div>
+
+<div class="container-fluid">
+<h2>Tracker</h2>
+<div class="panel panel-body">
+<dl>
+	<dt>Minimum library version:</td>
+	<dd>{{ MIN_VERSION_OVERRIDE }}</dd>
+	<dt>Minimum pipeline version:</td>
+	<dd>{{ MIN_CLIENT_VERSION_OVERRIDE }}</dd>
+	<dt>Git Hash</dt>
+	<dd>{{ git_hash }}</dd>
+</dl>
+</div>
 </div>
 {% end %}
