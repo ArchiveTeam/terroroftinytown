@@ -3,8 +3,13 @@
 {% block title %} Login {% end %}
 
 {% block body %}
+
 <div class="container">
 	<h2>Login</h2>
+	
+	{% if 'message' in globals() %}
+		<div class="alert alert-info">{{ message }}</div>
+	{% end %}
 
 	<p>Login is restricted to administrators only.</p>
 	
