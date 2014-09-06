@@ -30,13 +30,13 @@ class Exporter:
         self.extension = 'txt.xz'
 
         # Length of directory name
-        self.dir_length = 2
+        self.dir_length = settings['dir_length']
         # Number of characters from the right are not used in directory name
         # in other words, number of _
-        self.max_right = 4
+        self.max_right = settings['max_right']
         # Number of characters from the left that are used in file name
         # in other words, number of characters that are not in directory name and not _
-        self.file_length = 2
+        self.file_length = settings['file_length']
 
         # Example of settings:
         # dir_length = 2
@@ -164,29 +164,46 @@ class Exporter:
     def get_filename(self, project, item):
         path = os.path.join(self.output_dir, project.name)
 
-        # 0001asdf
-        # dir_length max_right file_length
-        shortcode = item.shortcode
+        dirs, prefix, underscores = self.split_shortcode(
+            item.shortcode, self.dir_length, self.max_right, self.file_length)
 
-        # create directories until we left only max_right or less characters
-        length = 0
-        while len(shortcode) > self.max_right + self.file_length:
-            dirname = shortcode[:2]
-            length += len(dirname)
-            path = os.path.join(path, quote(dirname.encode(item.encoding)))
-            shortcode = shortcode[2:]
+        dirs = [quote(dirname.encode(item.encoding)) for dirname in dirs]
+        path = os.path.join(path, *dirs)
 
-        # name the file
-        code_length = len(item.shortcode)
-        length_left = code_length - length
-        underscores = min(length_left, self.max_right)
         path = os.path.join(path, '%s%s.%s' % (
-            quote(item.shortcode[:code_length - underscores].encode(item.encoding)),
-            '_' * underscores,
+            quote(prefix.encode(item.encoding)),
+            '_' * len(underscores),
             self.extension
         ))
 
         return path
+
+    @classmethod
+    def split_shortcode(cls, shortcode, dir_length=2, max_right=4,
+                        file_length=2):
+        assert dir_length >= 0
+        assert max_right >= 0
+        assert file_length >= 0
+        # 0001asdf
+        # dir_length max_right file_length
+
+        dirs = []
+
+        # create directories until we left only max_right or less characters
+        length = 0
+        shortcode_temp = shortcode
+        while dir_length and len(shortcode_temp) > max_right + file_length:
+            dirname = shortcode_temp[:dir_length]
+            dirs.append(dirname)
+            length += len(dirname)
+            shortcode_temp = shortcode_temp[dir_length:]
+
+        # name the file
+        code_length = len(shortcode)
+        length_left = code_length - length
+        underscores = min(length_left, max_right)
+
+        return dirs, shortcode[:code_length - underscores], shortcode[code_length - underscores:]
 
 
 class ExporterBootstrap(Bootstrap):
@@ -212,6 +229,18 @@ class ExporterBootstrap(Bootstrap):
         self.arg_parser.add_argument(
             '--zip', help='Zip the projects after exporting',
             action='store_true')
+        self.arg_parser.add_argument(
+            '--dir-length', type=int, default=2,
+            help='Number of characters per directory name'
+            )
+        self.arg_parser.add_argument(
+            '--file-length', type=int, default=2,
+            help='Number of characters per filename prefix (excluding directory names)'
+            )
+        self.arg_parser.add_argument(
+            '--max-right', type=int, default=4,
+            help='Number of characters used inside the file (excluding directory and file prefix names)'
+            )
         self.arg_parser.add_argument(
             'output_dir', help='Output directory (will be created)')
 
