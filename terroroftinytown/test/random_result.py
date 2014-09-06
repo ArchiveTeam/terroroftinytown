@@ -3,15 +3,23 @@ import random, hashlib, datetime
 from sqlalchemy.sql.expression import insert
 
 from terroroftinytown.tracker.bootstrap import Bootstrap
+from terroroftinytown.tracker.database import Database
 from terroroftinytown.tracker.model import new_session, Result, Project
 
 
 class MockProject(Bootstrap):
-    def start(self, args=None, delete_everything=False):
-        super().start(args=args)
+    def __init__(self, delete_everything=False):
+        super().__init__()
+        self.delete_everything = delete_everything
 
-        if delete_everything == 'yes-really!':
-            self.database._delete_everything()
+    def setup_database(self):
+        self.database = Database(
+            path=self.config['database']['path'],
+            delete_everything=self.delete_everything
+        )
+
+    def start(self, args=None):
+        super().start(args=args)
 
         self.generate_mock()
 
@@ -31,11 +39,8 @@ class MockProject(Bootstrap):
 
 
 class MockResult(Bootstrap):
-    def start(self, args=None, delete_everything=False):
+    def start(self, args=None):
         super().start(args=args)
-
-        if delete_everything == 'yes-really!':
-            self.database._delete_everything()
 
         self.generate_mock()
 
