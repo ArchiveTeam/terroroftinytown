@@ -1,10 +1,13 @@
 # encoding=utf-8
 
 import os, lzma
+import shutil
+import zipfile
 
 from sqlalchemy import func
 
 from terroroftinytown.format import registry
+from terroroftinytown.format.projectsettings import ProjectSettingsWriter
 from terroroftinytown.format.urlformat import quote
 from terroroftinytown.tracker.bootstrap import Bootstrap
 from terroroftinytown.tracker.model import new_session, Project, Result
@@ -57,7 +60,13 @@ class Exporter:
 
         with new_session() as session:
             for project in session.query(Project):
+                if self.settings['include_settings']:
+                    self.dump_project_settings(project)
+
                 self.dump_project(project)
+
+                if self.settings['zip']:
+                    self.zip_project(project)
 
     def dump_project(self, project):
         print('Looking in project %s' % (project.name))
@@ -100,7 +109,7 @@ class Exporter:
                 if filename != last_filename:
                     self.close_fp()
 
-                    # assert not os.path.isfile(filename), 'Target file %s already exists' % (filename)
+                    assert not os.path.isfile(filename), 'Target file %s already exists' % (filename)
 
                     self.fp = self.get_fp(filename)
                     self.writer = self.format(self.fp)
@@ -114,6 +123,31 @@ class Exporter:
                     self.last_date = item.datetime
 
             self.close_fp()
+
+    def dump_project_settings(self, project):
+        path = os.path.join(self.output_dir, project.name,
+                            '{0}.meta.json.xz'.format(project.name))
+        self.fp = self.get_fp(path)
+        self.writer = ProjectSettingsWriter(self.fp)
+        self.writer.write_project(project)
+        self.close_fp()
+
+    def zip_project(self, project):
+        project_path = os.path.join(self.output_dir, project.name)
+        zip_path = os.path.join(self.output_dir,
+                                '{0}.zip'.format(project.name))
+
+        assert not os.path.isfile(zip_path), 'Target file %s already exists' % (zip_path)
+
+        with zipfile.ZipFile(zip_path, mode='w',
+                             compression=zipfile.ZIP_STORED) as zip_file:
+            for root, dirs, files in os.walk(project_path):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    arc_filename = os.path.relpath(file_path, self.output_dir)
+                    zip_file.write(file_path, arc_filename)
+
+        shutil.rmtree(project_path)
 
     def get_fp(self, filename):
         dirname = os.path.dirname(filename)
@@ -160,8 +194,8 @@ class Exporter:
 
 
 class ExporterBootstrap(Bootstrap):
-    def start(self, *args):
-        super().start(*args)
+    def start(self, args=None):
+        super().start(args=args)
 
         self.exporter = Exporter(self.args.output_dir, self.args.format, vars(self.args))
         self.exporter.dump()
@@ -169,10 +203,21 @@ class ExporterBootstrap(Bootstrap):
 
     def setup_args(self):
         super().setup_args()
-        self.arg_parser.add_argument('--format', default='beacon',
+        self.arg_parser.add_argument(
+            '--format', default='beacon',
             choices=registry.keys(), help='Output file format')
-        self.arg_parser.add_argument('--after', help='Only export items submitted after specified time. (ISO8601 format YYYY-MM-DDTHH:MM:SS.mmmmmm)')
-        self.arg_parser.add_argument('output_dir', help='Output directory (will be created)')
+        self.arg_parser.add_argument(
+            '--after',
+            help='Only export items submitted after specified time. '
+                 '(ISO8601 format YYYY-MM-DDTHH:MM:SS.mmmmmm)')
+        self.arg_parser.add_argument(
+            '--include-settings',
+            help='Include project settings', action='store_true')
+        self.arg_parser.add_argument(
+            '--zip', help='Zip the projects after exporting',
+            action='store_true')
+        self.arg_parser.add_argument(
+            'output_dir', help='Output directory (will be created)')
 
     def write_stats(self):
         print('Written %d items in %d projects' % (self.exporter.projects_count, self.exporter.items_count))
