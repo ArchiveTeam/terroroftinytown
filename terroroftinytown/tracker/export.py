@@ -59,66 +59,65 @@ class Exporter:
                 if self.settings['include_settings']:
                     self.dump_project_settings(project)
 
-                self.dump_project(project)
+                self.dump_project(project, session)
 
                 if self.settings['zip']:
                     self.zip_project(project)
 
-    def dump_project(self, project):
+    def dump_project(self, project, session):
         print('Looking in project %s' % (project.name))
-        with new_session() as session:
-            query = session.query(Result) \
-                .filter_by(project=project) \
-                .order_by(func.char_length(Result.shortcode), Result.shortcode)
+        query = session.query(Result) \
+            .filter_by(project=project) \
+            .order_by(func.char_length(Result.shortcode), Result.shortcode)
 
-            if self.after:
-                query = query.filter(Result.datetime > self.after)
+        if self.after:
+            query = query.filter(Result.datetime > self.after)
 
-            count = query.count()
-            if count == 0:
-                return
+        count = query.count()
+        if count == 0:
+            return
 
-            self.projects_count += 1
+        self.projects_count += 1
 
-            assert project.url_template.endswith('{shortcode}'), \
-                'Writer only supports URL with prefix'
+        assert project.url_template.endswith('{shortcode}'), \
+            'Writer only supports URL with prefix'
 
-            # XXX: Use regex \{shortcode\}$ instead?
-            site = project.url_template.replace('{shortcode}', '')
+        # XXX: Use regex \{shortcode\}$ instead?
+        site = project.url_template.replace('{shortcode}', '')
 
-            self.fp = None
-            self.writer = None
-            last_filename = ''
-            i = 0
+        self.fp = None
+        self.writer = None
+        last_filename = ''
+        i = 0
 
-            for item in query:
-                self.items_count += 1
-                i += 1
+        for item in query:
+            self.items_count += 1
+            i += 1
 
-                if i % 1000 == 0:
-                    print('%d/%d' % (i, count))
+            if i % 1000 == 0:
+                print('%d/%d' % (i, count))
 
-                # we can do this as the query is sorted
-                # so that item that would end up together
-                # would returned together
-                filename = self.get_filename(project, item)
-                if filename != last_filename:
-                    self.close_fp()
+            # we can do this as the query is sorted
+            # so that item that would end up together
+            # would returned together
+            filename = self.get_filename(project, item)
+            if filename != last_filename:
+                self.close_fp()
 
-                    assert not os.path.isfile(filename), 'Target file %s already exists' % (filename)
+                assert not os.path.isfile(filename), 'Target file %s already exists' % (filename)
 
-                    self.fp = self.get_fp(filename)
-                    self.writer = self.format(self.fp)
-                    self.writer.write_header(site)
+                self.fp = self.get_fp(filename)
+                self.writer = self.format(self.fp)
+                self.writer.write_header(site)
 
-                    last_filename = filename
+                last_filename = filename
 
-                self.writer.write_shortcode(item.shortcode, item.url, item.encoding)
+            self.writer.write_shortcode(item.shortcode, item.url, item.encoding)
 
-                if not self.last_date or item.datetime > self.last_date:
-                    self.last_date = item.datetime
+            if not self.last_date or item.datetime > self.last_date:
+                self.last_date = item.datetime
 
-            self.close_fp()
+        self.close_fp()
 
     def dump_project_settings(self, project):
         path = os.path.join(self.output_dir, project.name,
