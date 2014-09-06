@@ -5,3 +5,4 @@ tornado>=3.2
 wtforms-tornado
 SQLAlchemy>=0.9
 boto>=2.32
+internetarchive>=0.7.1
