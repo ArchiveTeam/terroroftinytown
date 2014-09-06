@@ -26,6 +26,7 @@ class TestExport(unittest.TestCase):
             config_path, '--format', 'beacon',
             '--include-settings', '--zip',
             '--dir-length', '0', '--file-length', '0', '--max-right', '8',
+            '--delete',
             '/tmp/tinytown_test_export/',
             ]
         boot.start(args=args)

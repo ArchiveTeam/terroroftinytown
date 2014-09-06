@@ -117,6 +117,9 @@ class Exporter:
             if not self.last_date or item.datetime > self.last_date:
                 self.last_date = item.datetime
 
+            if self.settings['delete']:
+                session.delete(item)
+
         self.close_fp()
 
     def dump_project_settings(self, project):
@@ -239,6 +242,10 @@ class ExporterBootstrap(Bootstrap):
         self.arg_parser.add_argument(
             '--max-right', type=int, default=4,
             help='Number of characters used inside the file (excluding directory and file prefix names)'
+            )
+        self.arg_parser.add_argument(
+            '--delete', action='store_true',
+            help='Delete the exported rows after export'
             )
         self.arg_parser.add_argument(
             'output_dir', help='Output directory (will be created)')
