@@ -14,39 +14,35 @@ from terroroftinytown.tracker.model import new_session, Project, Result
 
 
 class Exporter:
-    projects_count = 0
-    items_count = 0
-    last_date = None
-
-    output_dir = ''
-    settings = {}
-
-    lzma = True
-    extension = 'txt.xz'
-
-    # Length of directory name
-    dir_length = 2
-    # Number of characters from the right are not used in directory name
-    # in other words, number of _
-    max_right = 4
-    # Number of characters from the left that are used in file name
-    # in other words, number of characters that are not in directory name and not _
-    file_length = 2
-
-    # Example of settings:
-    # dir_length = 2
-    # max_right = 4
-    # file_length = 2
-    # output: projectname/00/01/000100____.txt, projectname/01/01__.txt
-
-    after = None
-
     def __init__(self, output_dir, format="beacon", settings={}):
         super().__init__()
+
         self.setup_format(format)
         self.output_dir = output_dir
         self.settings = settings
         self.after = self.settings['after']
+
+        self.projects_count = 0
+        self.items_count = 0
+        self.last_date = None
+
+        self.lzma = True
+        self.extension = 'txt.xz'
+
+        # Length of directory name
+        self.dir_length = 2
+        # Number of characters from the right are not used in directory name
+        # in other words, number of _
+        self.max_right = 4
+        # Number of characters from the left that are used in file name
+        # in other words, number of characters that are not in directory name and not _
+        self.file_length = 2
+
+        # Example of settings:
+        # dir_length = 2
+        # max_right = 4
+        # file_length = 2
+        # output: projectname/00/01/000100____.txt, projectname/01/01__.txt
 
     def setup_format(self, format):
         self.format = registry[format]
