@@ -104,7 +104,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
 
     def global_stats(self):
         self.driver.get(self.get_url('/'))
-        WebDriverWait(self.driver, 2).until(
+        WebDriverWait(self.driver, 10).until(
             expected_conditions.presence_of_element_located((By.CLASS_NAME, 'ng-binding'))
         )
         self.assertEqual(
@@ -118,7 +118,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
 
     def live_stats(self):
         self.driver.get(self.get_url('/'))
-        WebDriverWait(self.driver, 2).until(
+        WebDriverWait(self.driver, 10).until(
             expected_conditions.presence_of_element_located((By.CLASS_NAME, 'ng-binding'))
         )
         self.assertEqual(
@@ -140,11 +140,11 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
 
     def live_stats_update(self):
         self.driver.get(self.get_url('/'))
-        WebDriverWait(self.driver, 2).until(
+        WebDriverWait(self.driver, 10).until(
             expected_conditions.presence_of_element_located((By.CLASS_NAME, 'ng-binding'))
         )
         self.claim_and_return_an_item()
-        WebDriverWait(self.driver, 2).until(
+        WebDriverWait(self.driver, 10).until(
             expected_conditions.presence_of_element_located((By.XPATH, 'id("leaderboard-recent")//tbody/tr[2]'))
         )
         self.assertEqual(
@@ -183,7 +183,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
 
         element.submit()
 
-        WebDriverWait(self.driver, 2).until(
+        WebDriverWait(self.driver, 10).until(
             expected_conditions.title_is('Overview')
         )
 
@@ -212,7 +212,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         element = self.driver.find_element_by_link_text('Log out')
         element.click()
 
-        WebDriverWait(self.driver, 2).until(
+        WebDriverWait(self.driver, 10).until(
             expected_conditions.title_is('URLTeam Tracker')
         )
 
@@ -220,7 +220,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         element = self.driver.find_element_by_link_text('Users')
         element.click()
 
-        WebDriverWait(self.driver, 2).until(
+        WebDriverWait(self.driver, 10).until(
             expected_conditions.title_is('Users')
         )
 
@@ -235,7 +235,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         element = self.driver.find_element_by_link_text('Users')
         element.click()
 
-        WebDriverWait(self.driver, 2).until(
+        WebDriverWait(self.driver, 10).until(
             expected_conditions.text_to_be_present_in_element(
                 (By.TAG_NAME, 'body'), 'user2'
             )
@@ -256,7 +256,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
 
         element.submit()
 
-        WebDriverWait(self.driver, 2).until(
+        WebDriverWait(self.driver, 10).until(
             expected_conditions.title_is('Overview')
         )
 
@@ -264,7 +264,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         element = self.driver.find_element_by_link_text('Projects')
         element.click()
 
-        WebDriverWait(self.driver, 2).until(
+        WebDriverWait(self.driver, 10).until(
             expected_conditions.title_is('Projects')
         )
 
@@ -279,7 +279,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         element = self.driver.find_element_by_link_text('Projects')
         element.click()
 
-        WebDriverWait(self.driver, 2).until(
+        WebDriverWait(self.driver, 10).until(
             expected_conditions.title_is('Projects')
         )
 
@@ -329,7 +329,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         element = self.driver.find_element_by_link_text('Claims')
         element.click()
 
-        WebDriverWait(self.driver, 2).until(
+        WebDriverWait(self.driver, 10).until(
             expected_conditions.title_is('Items')
         )
 
