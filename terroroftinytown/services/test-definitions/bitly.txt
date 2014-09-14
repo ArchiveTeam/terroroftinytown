@@ -1,0 +1,20 @@
+## Standard tests
+# example.org test
+bj6ufn|http://www.example.org/
+# Not found
+oycsuls|notfound
+
+## STOP - there might be a problem with the requested link
+aybSep|http://www.cbfeed.com/go.php?id=09281006&vid=ec02464250ed119ca4422f1aaa775f88&cbid=bujangkino&tid=arthritis&utm_source=twitterfeed&utm_medium=twitter
+jaOjeq|http://www.iphone5-reviewer.info/_868055
+t5lFZV|http://www.cbtrends.com/get-product.html?productid=6HphNEodh903%252FOETRG80N4kqBtdETDzLgLZjvb5pDUY%253D&affid=hatakah&tid=twitduis&utm_source=web&utm_medium=twitter&utm_campaign=twitduis
+uxbfCc|http://shelby.tv/#!/georgimax79/broadcasts/4ed1456e7a18a2534b00056d
+YNUkZB|http://click.21cn.com/urlhitcounter3.php3?url=http://www.moneywatch11.net/index.htm?ref=kzbxm
+
+## Special words
+# Old API endpoint
+api|blocked
+# Bundles: Looks like a bit.ly redirect, but isn't
+#bundles|blocked
+# Pro (now Bitly Enterprise)
+pro|http://justsignal.com/mobile/post-simple.php?uuid=22e2c82d-8ea9-4c58-9d9f-6bc7fde701ba&entid=44

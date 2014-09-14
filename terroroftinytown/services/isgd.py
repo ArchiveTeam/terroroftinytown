@@ -1,11 +1,12 @@
 # encoding=utf-8
+from __future__ import unicode_literals
+
 import re
 
 from terroroftinytown.client import errors
 from terroroftinytown.client.errors import PleaseRetry
 from terroroftinytown.services.base import BaseService
 from terroroftinytown.services.status import URLStatus
-from terroroftinytown.six import u
 from terroroftinytown.six.moves import html_parser
 
 
