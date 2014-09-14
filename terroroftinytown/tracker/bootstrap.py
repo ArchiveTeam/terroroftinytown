@@ -94,7 +94,6 @@ class ApplicationBootstrap(Bootstrap):
         self.application = Application(
             self.database,
             self.redis,
-            self.config.get('redis', 'prefix', fallback=''),
             debug=self.args.debug,
             cookie_secret=self.config['web']['cookie_secret'],
         )
