@@ -43,7 +43,7 @@ class LoginHandler(BaseHandler):
 
         if User.check_account(username, password):
             self.set_secure_cookie(
-                ACCOUNT_COOKIE_NAME, username, expires_days=None
+                ACCOUNT_COOKIE_NAME, username, expires_days=30
             )
             return True
 
