@@ -7,6 +7,7 @@ import tornado.testing
 import tornado.web
 
 from terroroftinytown.client.scraper import Scraper
+from terroroftinytown.client.errors import ScraperError
 
 
 class ExampleApp(tornado.web.Application):
@@ -26,6 +27,8 @@ class ExampleHandler(tornado.web.RequestHandler):
             self.write(b'<html><body>Please watch this ad.')
             self.write(b'<img><a id="contlink" href="http://yahoo.city">.')
             self.write(b'continue</a></html><body>')
+        elif shortcode == 'd':
+            self.set_status(420, 'banned')
         else:
             self.redirect('http://example.com', status=303)
 
@@ -73,7 +76,7 @@ class TestTracker(unittest.TestCase):
                 'redirect_codes': [301, 200],
                 'no_redirect_codes': [303],
                 'unavailable_codes': [],
-                'banned_codes': [],
+                'banned_codes': [420],
                 'body_regex': r'id="contlink" href="([^"]+)',
                 'custom_code_required': False,
                 'method': 'get',
@@ -87,3 +90,29 @@ class TestTracker(unittest.TestCase):
         self.assertEqual(2, len(scraper.results))
         self.assertEqual('http://archive.land', scraper.results['a']['url'])
         self.assertEqual('http://yahoo.city', scraper.results['b']['url'])
+
+    def test_scraper_banned(self):
+        scraper = Scraper(
+            {
+                'alphabet': 'abcdefghijklmnopqrstuvwxyz',
+                'url_template': self.get_url('/{shortcode}'),
+                'request_delay': 0.1,
+                'redirect_codes': [301, 200],
+                'no_redirect_codes': [303],
+                'unavailable_codes': [],
+                'banned_codes': [420],
+                'body_regex': r'id="contlink" href="([^"]+)',
+                'custom_code_required': False,
+                'method': 'get',
+                'name': 'blah',
+            },
+            [3],
+            max_try_count=1
+        )
+
+        try:
+            scraper.run()
+        except ScraperError:
+            pass
+        else:
+            self.fail()

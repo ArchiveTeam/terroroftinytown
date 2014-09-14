@@ -1,7 +1,14 @@
 # encoding=utf-8
-from terroroftinytown.client.errors import PleaseRetry
+import itertools
+import logging
+import time
+
+from terroroftinytown.client.errors import PleaseRetry, ScraperError
 from terroroftinytown.services.registry import registry
 from terroroftinytown.six import u
+
+
+_logger = logging.getLogger(__name__)
 
 
 class Scraper(object):
@@ -21,31 +28,35 @@ class Scraper(object):
 
     '''
 
-    retry_count = 10
+    MAX_RETRY_COUNT = 10
 
-    def __init__(self, shortener_params, todo_list):
+    def __init__(self, shortener_params, todo_list, max_try_count=MAX_RETRY_COUNT):
         self.params = shortener_params
         self.todo_list = todo_list
+        self.max_try_count = max_try_count
         self.results = {}
         self.service = self.get_service()(self.params)
 
     def run(self):
-        while self.todo_list:
-            for try_count in range(self.retry_count):
+        for item in self.todo_list:
+            for try_count in itertools.count():
                 if try_count > 0:
-                    print('Attempt %d' % (try_count + 1))
+                    _logger.info('Attempt %d', (try_count + 1))
+
+                if try_count > self.max_try_count:
+                    raise ScraperError('Service has banned client.')
 
                 try:
-                    result = self.service.scrape_one(self.todo_list.pop())
-
+                    result = self.service.scrape_one(item)
+                except PleaseRetry:
+                    time.sleep(10 * try_count)
+                else:
                     if result:
                         self.results[result['shortcode']] = result
-                except PleaseRetry:
-                    pass
-                else:
-                    break
-                finally:
+
                     self.service.wait()
+
+                    break
 
         return self.results
 
