@@ -1,6 +1,7 @@
 # encoding=utf-8
 from terroroftinytown.client.errors import PleaseRetry
-from terroroftinytown.services import registry
+from terroroftinytown.services.registry import registry
+from terroroftinytown.six import u
 
 
 class Scraper(object):
@@ -52,4 +53,4 @@ class Scraper(object):
         if self.params['name'] in registry:
             return registry[self.params['name']]
         else:
-            return registry['_default']
+            return registry[u('_default')]

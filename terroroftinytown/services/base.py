@@ -10,12 +10,12 @@ from terroroftinytown.client import alphabet, VERSION
 from terroroftinytown.client.errors import (UnhandledStatusCode,
     UnexpectedNoResult, ScraperError, PleaseRetry)
 from terroroftinytown.services.status import URLStatus
+from terroroftinytown.six import u
 
 
 __all__ = ['BaseService', 'registry']
 DEFAULT_USER_AGENT = 'ArchiveTeam TerrorOfTinyTown/{0} ({1})'.format(
     VERSION, datetime.datetime.utcnow())
-registry = {}
 
 
 class BaseService:
@@ -89,8 +89,10 @@ class BaseService:
         if 'Location' in response.headers:
             result_url = response.headers['Location']
             return (URLStatus.ok, result_url)
-        else:
+        elif self.params.get('body_regex'):
             return self.process_redirect_body(response)
+        else:
+            raise UnexpectedNoResult()
 
     def process_redirect_body(self, response):
         pattern = self.params['body_regex']
@@ -115,4 +117,6 @@ class BaseService:
             'Unknown status code {0}'.format(response.status_code)
         )
 
-registry['_default'] = BaseService
+
+class DefaultService(BaseService):
+    pass

@@ -4,7 +4,7 @@ import os.path
 from tornado.web import URLSpec as U
 import tornado.web
 
-from terroroftinytown.services import registry
+from terroroftinytown.services.registry import registry
 from terroroftinytown.tracker import account, admin, project, api
 from terroroftinytown.tracker import model
 from terroroftinytown.tracker.base import BaseHandler
@@ -12,8 +12,9 @@ from terroroftinytown.tracker.model import BlockedUser
 from terroroftinytown.tracker.ui import FormUIModule
 from terroroftinytown.tracker.errors import UserIsBanned
 
+
 class Application(tornado.web.Application):
-    def __init__(self, database, redis=None, redisPrefix='', **kwargs):
+    def __init__(self, database, redis=None, **kwargs):
         self.db = database
         self.redis = redis
 

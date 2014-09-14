@@ -3,8 +3,9 @@ import re
 
 from terroroftinytown.client import errors
 from terroroftinytown.client.errors import PleaseRetry
-from terroroftinytown.services.base import BaseService, registry
+from terroroftinytown.services.base import BaseService
 from terroroftinytown.services.status import URLStatus
+from terroroftinytown.six import u
 from terroroftinytown.six.moves import html_parser
 
 
@@ -43,6 +44,3 @@ class IsgdService(BaseService):
 
         url = match.group(1)
         return (URLStatus.ok, html_parser.HTMLParser().unescape(url))
-
-
-registry[u'isgd'] = IsgdService
