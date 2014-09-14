@@ -110,7 +110,7 @@ class BaseService:
         return (URLStatus.unavailable, None)
 
     def process_banned(self, response):
-        raise PleaseRetry('Server said: {}'.format(repr(response.reason)))
+        raise PleaseRetry('Server said: {0}'.format(repr(response.reason)))
 
     def process_unknown_code(self, response):
         raise UnhandledStatusCode(
