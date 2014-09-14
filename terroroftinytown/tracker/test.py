@@ -8,6 +8,7 @@ import os.path
 import requests
 import string
 import threading
+import time
 import unittest
 
 import tornado.httpserver
@@ -81,25 +82,45 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
     def get_url(self, path):
         return 'http://localhost:{0}{1}'.format(self.port, path)
 
+    def sleep(self, seconds=0.5):
+        time.sleep(seconds)
+
     def test_all(self):
         self.sign_in()
+        self.sleep()
         self.sign_out()
+        self.sleep()
         self.sign_in_bad()
+        self.sleep()
         self.sign_in()
+        self.sleep()
         self.create_user()
+        self.sleep()
         self.sign_out()
+        self.sleep()
         self.sign_in_second_user()
+        self.sleep()
         self.sign_out()
+        self.sleep()
         self.sign_in()
+        self.sleep()
         self.create_project()
+        self.sleep()
         self.config_project_settings()
+        self.sleep()
         self.populate_queue()
+        self.sleep()
         self.get_project_settings()
+        self.sleep()
         self.claim_with_outdated_script()
+        self.sleep()
         self.claim_and_return_an_item()
+        self.sleep()
         # these tests are run after an item have been submitted
         self.global_stats()
+        self.sleep()
         self.live_stats()
+        self.sleep()
         self.live_stats_update()
 
     def global_stats(self):
@@ -202,7 +223,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
 
         element.submit()
 
-        WebDriverWait(self.driver, 4).until(
+        WebDriverWait(self.driver, 20).until(
             expected_conditions.text_to_be_present_in_element(
                 (By.TAG_NAME, 'body'), 'Log in failed'
             )
