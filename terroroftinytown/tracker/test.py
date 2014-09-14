@@ -1,3 +1,7 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support.wait import WebDriverWait
 import configparser
 import json
 import os.path
@@ -7,11 +11,6 @@ import threading
 import time
 import unittest
 
-from selenium import webdriver
-from selenium.common.exceptions import StaleElementReferenceException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.wait import WebDriverWait
 import tornado.httpserver
 import tornado.testing
 
@@ -232,13 +231,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
 
     def sign_out(self):
         element = self.driver.find_element_by_link_text('Log out')
-
-        for dummy in range(10):
-            try:
-                element.click()
-            except StaleElementReferenceException:
-                break
-            self.sleep()
+        element.click()
 
         WebDriverWait(self.driver, 10).until(
             expected_conditions.title_is('URLTeam Tracker')
