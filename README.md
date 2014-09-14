@@ -4,7 +4,7 @@ terroroftinytown
 URLTeam's second generation of URL shortener archiving tools.
 
 
-Still a work-in-progress. This readme will be updated once it completes.
+Still a work-in-progress. The tracker and client code is maturing and should be ready for production. This readme will be updated once it completes.
 
 
 Running
@@ -29,6 +29,9 @@ Export
 
 The output directory will be created if it does not exists. Specify `--format urlteam` to export in old URLTeam format (no BEACON headers)
 
+A automatic script, to be run from cron, that drains the results, compress, and upload to Internet Archive is still being written.
+
+
 Test
 ----
 
@@ -46,7 +49,7 @@ Client
 
 The client should work in Python 2 and 3. Please be mindful when writing the client code.
 
-See [terroroftinytown-client-grab](https://github.com/ArchiveTeam/terroroftinytown-client-grab).
+See [terroroftinytown-client-grab](https://github.com/ArchiveTeam/terroroftinytown-client-grab) for details on how to run the scraper as part of the Warrior project.
 
 
 Structure
@@ -65,4 +68,11 @@ The tracker component manages items and projects. Items represent the shortener 
 The tracker will attempt to distribute items across projects so the client does not work on more than one shortener per IP address to avoid bans.
 
 There are two version numbers: Library version for `terroroftinytown.client.__init__` and Pipeline Version for `terroroftinytown-client-grab/pipeline.py`.
+
+
+Notes
+=====
+
+When dealing with non-ASCII characters, one cannot simply treat them as UTF-8 since the originating URL may come from other character sets such as shift-jis. As such, it is ideal to handle the URLs in raw bytes as much as possible. Therefore, the files should be treated as bytes. If not possible, use a "lossless" encoding suitable for your environment. For Python, latin-1 should be used instead of UTF-8. Avoid percent-encoding as much as possible since some servers do not handle percent-encoding well.
+
 
