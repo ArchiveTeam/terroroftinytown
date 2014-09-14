@@ -1,12 +1,13 @@
 '''Test live services.'''
 import codecs
 import glob
+import os
 import os.path
 import unittest
 
+from terroroftinytown.services.registry import registry
 from terroroftinytown.services.status import URLStatus
 from terroroftinytown.six import u
-from terroroftinytown.services.registry import registry
 
 
 MOCK_PARAMS = {
@@ -32,7 +33,13 @@ MOCK_PARAMS = {
 
 
 class TestLive(unittest.TestCase):
+    #  @unittest.skipIf(os.environ.get('NO_LIVE_SERVICE_TEST'), 'no live test')
     def test_custom_services(self):
+        # for python 2.6 compatbility
+        if os.environ.get('NO_LIVE_SERVICE_TEST'):
+            print('SKIP')
+            return
+
         filenames = get_definition_filenames()
         for filename in filenames:
             service_name = os.path.split(filename)[-1].replace('.txt', '')
