@@ -77,6 +77,7 @@ class TestTracker(unittest.TestCase):
                 'body_regex': r'id="contlink" href="([^"]+)',
                 'custom_code_required': False,
                 'method': 'get',
+                'name': 'blah',
             },
             [0, 1, 2]
         )
