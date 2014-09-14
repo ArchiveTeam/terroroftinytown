@@ -1,10 +1,11 @@
 '''Test exporting.'''
+import functools
 import os.path
+import time
 import unittest
 
-from terroroftinytown.tracker.export import ExporterBootstrap, Exporter
 from terroroftinytown.test.random_result import MockResult, MockProject
-import functools
+from terroroftinytown.tracker.export import ExporterBootstrap, Exporter
 
 
 class TestExport(unittest.TestCase):
@@ -27,7 +28,7 @@ class TestExport(unittest.TestCase):
             '--include-settings', '--zip',
             '--dir-length', '0', '--file-length', '0', '--max-right', '8',
             '--delete',
-            '/tmp/tinytown_test_export/',
+            '/tmp/tinytown_test_export{0}/'.format(int(time.time())),
             ]
         boot.start(args=args)
 
