@@ -6,7 +6,7 @@ import zipfile
 
 from sqlalchemy import func
 
-from terroroftinytown.services.registry import registry
+from terroroftinytown.format import registry
 from terroroftinytown.format.projectsettings import ProjectSettingsWriter
 from terroroftinytown.format.urlformat import quote
 from terroroftinytown.tracker.bootstrap import Bootstrap
