@@ -10,7 +10,7 @@ class UnhandledStatusCode(ScraperError):
 
 
 class UnexpectedNoResult(ScraperError):
-    '''The code definately expected a URL but didn't find one.'''
+    '''The code definitely expected a URL but didn't find one.'''
 
 
 class PleaseRetry(ScraperError):
