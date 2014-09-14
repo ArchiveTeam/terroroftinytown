@@ -3,11 +3,14 @@
 {% block title %} Admin {% end %}
 
 {% block body %}
-<div class="pull-right">
-	<a href="{{ reverse_url('admin.logout') }}">Log out</a>
-</div>
 
 <div class="container admin">
+	<div class="row">
+		<div class="logoutLink">
+			<a href="{{ reverse_url('admin.logout') }}">Log out</a>
+		</div>
+	</div>
+
 	<div class="row">
 		<div class="col-md-3">
 			{% block menu %}

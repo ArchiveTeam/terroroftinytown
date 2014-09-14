@@ -121,3 +121,7 @@ th{
 		display: none;
 	}
 }
+.logoutLink {
+	text-align: right;
+	padding: 0.2em;
+}
