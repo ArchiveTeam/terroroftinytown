@@ -32,6 +32,8 @@ The output directory will be created if it does not exists. Specify `--format ur
 Test
 ----
 
+[![Build Status](https://travis-ci.org/ArchiveTeam/terroroftinytown.svg?branch=master)](https://travis-ci.org/ArchiveTeam/terroroftinytown)
+
 How to run the tests:
 
         apt-get install firefox
