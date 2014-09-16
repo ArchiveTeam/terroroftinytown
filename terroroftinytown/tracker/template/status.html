@@ -6,7 +6,7 @@
 {% from terroroftinytown.tracker.model import MIN_VERSION_OVERRIDE, MIN_CLIENT_VERSION_OVERRIDE %}
 
 <div ng-controller="StatsController" class="container-fluid">
-	<h2>Projects</h2>
+	<h2>Shortener Projects</h2>
 	{% for project in projects %}
 	<div class="col-md-6">
 		<div class="panel panel-default">
@@ -51,7 +51,7 @@
 					<dd>{{project.body_regex}}</dd>
 					<dt>Redirect status</dt>
 					<dd>{{' '.join([str(x) for x in project.redirect_codes])}}</dd>
-					<dt>Error status</dt>
+					<dt>No redirect status</dt>
 					<dd>{{' '.join([str(x) for x in project.no_redirect_codes])}}</dd>
 					<dt>Unavailable status</dt>
 					<dd>{{' '.join([str(x) for x in project.unavailable_codes])}}</dd>
