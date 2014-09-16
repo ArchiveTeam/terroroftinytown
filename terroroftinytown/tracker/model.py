@@ -171,6 +171,12 @@ class Project(Base):
             'banned_codes': self.banned_codes,
             'body_regex': self.body_regex,
             'method': self.method,
+            'enabled': self.enabled,
+            'autoqueue': self.autoqueue,
+            'num_count_per_item': self.num_count_per_item,
+            'max_num_items': self.max_num_items,
+            'lower_sequence_num': self.lower_sequence_num,
+            'autorelease_time': self.autorelease_time,
         }
 
     @classmethod
