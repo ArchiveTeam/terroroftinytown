@@ -71,7 +71,7 @@ class GetHandler(BaseHandler):
         except UserIsBanned:
             raise HTTPError(403, reason='You are banned. Please contact an administrator.')
         except FullClaim:
-            raise HTTPError(429, reason='%s has pending claims in all eligible projects. Check that your client is up to date and contact the administrator to release any pending claims.' % (ip_address))
+            raise HTTPError(429, reason='%s has pending claims in all shorteners. Check that your client is up to date, you\'re running at most 1 client per shortener then contact a tracker administrator to release any pending claims.' % (ip_address))
         except UpdateClient as e:
             raise HTTPError(412, reason='Update your client. Library version: %s (current %s), Pipeline version: %s (current %s -- must be manually upgraded)' % (
                     e.version, e.current_version,
