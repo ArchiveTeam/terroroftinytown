@@ -405,11 +405,11 @@ def generate_item(session, username=None, ip_address=None, version=-1, client_ve
     if ip_address:
         no_same_ip_proj = session.query(Item) \
             .filter(Item.ip_address == ip_address) \
+            .filter(Item.project_id == Project.name)
 
         query = query.filter(~(no_same_ip_proj.exists()))
 
     query = query.first()
-    # XXX: Should the project be randomized?
 
     if not query:
         ip_items = session.query(Item) \
