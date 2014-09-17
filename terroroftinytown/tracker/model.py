@@ -153,9 +153,9 @@ class Project(Base):
     enabled = Column(Boolean, default=True)
     autoqueue = Column(Boolean)
     num_count_per_item = Column(Integer, default=50, nullable=False)
-    max_num_items = Column(Integer, default=1000, nullable=False)
+    max_num_items = Column(Integer, default=100, nullable=False)
     lower_sequence_num = Column(Integer, default=0, nullable=False)
-    autorelease_time = Column(Integer, default=3600 * 6)
+    autorelease_time = Column(Integer, default=60 * 30)
 
     def to_dict(self):
         return {

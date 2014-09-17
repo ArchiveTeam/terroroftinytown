@@ -120,7 +120,7 @@ class QueueSettingsForm(Form):
         'Lower sequence number:', [validators.Optional()]
     )
     autorelease_time = IntegerField(
-        'AutoRelease items after hours:', [validators.Optional()]
+        'AutoRelease items after minutes:', [validators.Optional()]
     )
 
 
@@ -129,7 +129,7 @@ class AddItemsForm(Form):
 
 
 class ReleaseClaimForm(Form):
-    hours = IntegerField('Release claims older than hours:')
+    hours = IntegerField('Release claims older than minutes:')
 
 
 class ItemActionForm(Form):

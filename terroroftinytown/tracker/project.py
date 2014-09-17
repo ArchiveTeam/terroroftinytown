@@ -105,7 +105,7 @@ class QueueHandler(BaseHandler):
                     project.num_count_per_item = form.num_count_per_item.data
                     project.max_num_items = form.max_num_items.data
                     project.lower_sequence_num = form.lower_sequence_num.data or 0
-                    project.autorelease_time = form.autorelease_time.data * 3600 or 0
+                    project.autorelease_time = form.autorelease_time.data * 60 or 0
 
                 logger.debug('Project %s queue settings changed.', name)
                 message = 'Settings saved.'
@@ -133,7 +133,7 @@ class QueueHandler(BaseHandler):
             'num_count_per_item': project.num_count_per_item,
             'max_num_items': project.max_num_items,
             'lower_sequence_num': project.lower_sequence_num,
-            'autorelease_time': project.autorelease_time // 3600
+            'autorelease_time': project.autorelease_time // 60
         }
 
 
@@ -217,7 +217,7 @@ class ClaimsHandler(BaseHandler):
         logger.info('Released item %s', item_id)
 
     def _release_all(self, project_name, release_form):
-        time_ago = time.time() - release_form.hours.data * 3600
+        time_ago = time.time() - release_form.hours.data * 60
         Item.release_all(project_name, datetime.datetime.utcfromtimestamp(time_ago))
         logger.info('Released items for %s', project_name)
 
