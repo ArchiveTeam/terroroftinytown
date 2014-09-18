@@ -23,7 +23,7 @@ from terroroftinytown.tracker.stats import Stats
 
 
 # These overrides for major api changes
-MIN_VERSION_OVERRIDE = 3  # for terroroftinytown.client
+MIN_VERSION_OVERRIDE = 4  # for terroroftinytown.client
 MIN_CLIENT_VERSION_OVERRIDE = 1  # for terrofoftinytown-client-grab/pipeline.py
 
 Base = declarative_base()

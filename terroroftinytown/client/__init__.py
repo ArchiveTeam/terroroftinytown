@@ -1,1 +1,1 @@
-VERSION = 3  # Please update this whenever .client or .services changes
+VERSION = 4  # Please update this whenever .client or .services changes
