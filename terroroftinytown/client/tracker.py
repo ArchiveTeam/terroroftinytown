@@ -73,7 +73,7 @@ class TrackerClient(object):
             data={
                 'claim_id': claim_id,
                 'tamper_key': tamper_key,
-                'results': json.dumps(results),
+                'results': json.dumps(results, encoding='unicode-escape'),
             },
         )
         response.raise_for_status()
