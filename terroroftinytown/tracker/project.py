@@ -286,6 +286,7 @@ class DeleteHandler(BaseHandler):
         form = ConfirmForm()
         self.render('admin/project/delete.html', project_name=name, form=form)
 
+    @tornado.web.authenticated
     def post(self, name):
         form = ConfirmForm(self.request.arguments)
 
