@@ -6,6 +6,8 @@ import logging
 import re
 import time
 
+from requests.exceptions import ConnectionError
+
 from terroroftinytown.client import alphabet, VERSION
 from terroroftinytown.client.errors import (UnhandledStatusCode,
     UnexpectedNoResult, ScraperError, PleaseRetry)
@@ -62,12 +64,15 @@ class BaseService:
             'User-Agent': self.user_agent,
         }
 
-        if self.params['method'] == 'get':
-            response = requests.get(
-                url, allow_redirects=False, headers=headers)
-        else:
-            response = requests.head(
-                url, allow_redirects=False, headers=headers)
+        try:
+            if self.params['method'] == 'get':
+                response = requests.get(
+                    url, allow_redirects=False, headers=headers)
+            else:
+                response = requests.head(
+                    url, allow_redirects=False, headers=headers)
+        except ConnectionError as e:
+            return self.process_connection_error(e)
 
         return response
 
@@ -116,6 +121,9 @@ class BaseService:
         raise UnhandledStatusCode(
             'Unknown status code {0}'.format(response.status_code)
         )
+
+    def process_connection_error(self, exception):
+        raise PleaseRetry('Connection error: {0}'.format(repr(exception.args)))
 
 
 class DefaultService(BaseService):
