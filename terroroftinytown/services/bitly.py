@@ -26,7 +26,7 @@ class BitlyService(BaseService):
 
             unshortened_url = query["url"][0]
 
-            return (URLStatus.ok, unshortened_url)
+            return (URLStatus.ok, unshortened_url, None)
 
         else:
             return BaseService.process_redirect(self, response)

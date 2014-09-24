@@ -88,7 +88,7 @@ class DoneHandler(BaseHandler):
         claim_id = self.get_argument('claim_id')
         tamper_key = self.get_argument('tamper_key')
         results_str = self.get_argument('results')
-        results = json.loads(results_str)
+        results = json.loads(results_str, encoding='unicode_escape')
 
         try:
             self.application.checkin_item(claim_id, tamper_key, results)

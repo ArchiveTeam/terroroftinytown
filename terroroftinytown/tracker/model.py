@@ -23,7 +23,7 @@ from terroroftinytown.tracker.stats import Stats
 
 
 # These overrides for major api changes
-MIN_VERSION_OVERRIDE = 3  # for terroroftinytown.client
+MIN_VERSION_OVERRIDE = 4  # for terroroftinytown.client
 MIN_CLIENT_VERSION_OVERRIDE = 1  # for terrofoftinytown-client-grab/pipeline.py
 
 Base = declarative_base()
@@ -400,7 +400,8 @@ def generate_item(session, username=None, ip_address=None, version=-1, client_ve
             (Project.min_client_version <= client_version)
         ) \
         .outerjoin(num_queue, Project.name == num_queue.c.project_id) \
-        .filter(func.coalesce(num_queue.c.queue_size, 0) < Project.max_num_items)
+        .filter(func.coalesce(num_queue.c.queue_size, 0) < Project.max_num_items) \
+        .order_by(func.random())  # Not portable
 
     if ip_address:
         no_same_ip_proj = session.query(Item) \

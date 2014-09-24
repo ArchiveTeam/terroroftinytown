@@ -8,7 +8,7 @@ import tornado.ioloop
 
 from terroroftinytown.tracker.app import Application
 from terroroftinytown.tracker.database import Database
-from terroroftinytown.tracker.logging import GzipRotatingFileHandler
+from terroroftinytown.tracker.logs import GzipRotatingFileHandler
 from terroroftinytown.tracker.stats import Stats
 
 

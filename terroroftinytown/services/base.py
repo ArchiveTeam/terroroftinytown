@@ -43,7 +43,7 @@ class BaseService:
         self.logger.info('Requesting %s', url)
 
         response = self.fetch_url(url)
-        url_status, result_url = self.process_response(response)
+        url_status, result_url, encoding = self.process_response(response)
 
         if url_status == URLStatus.ok:
             assert result_url is not None
@@ -53,7 +53,7 @@ class BaseService:
             return {
                 'shortcode': shortcode,
                 'url': result_url,
-                'encoding': response.encoding or 'latin-1'
+                'encoding': encoding or 'latin-1'
             }
 
     def fetch_url(self, url):
@@ -93,7 +93,7 @@ class BaseService:
     def process_redirect(self, response):
         if 'Location' in response.headers:
             result_url = response.headers['Location']
-            return (URLStatus.ok, result_url)
+            return (URLStatus.ok, result_url, None)
         elif self.params.get('body_regex'):
             return self.process_redirect_body(response)
         else:
@@ -104,15 +104,15 @@ class BaseService:
         match = re.search(pattern, response.text)
 
         if match:
-            return (URLStatus.ok, match.group(1))
+            return (URLStatus.ok, match.group(1), response.encoding)
         else:
             raise UnexpectedNoResult()
 
     def process_no_redirect(self, response):
-        return (URLStatus.not_found, None)
+        return (URLStatus.not_found, None, None)
 
     def process_unavailable(self, response):
-        return (URLStatus.unavailable, None)
+        return (URLStatus.unavailable, None, None)
 
     def process_banned(self, response):
         raise PleaseRetry('Server said: {0}'.format(repr(response.reason)))

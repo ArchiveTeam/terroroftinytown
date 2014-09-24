@@ -19,7 +19,7 @@ class IsgdService(BaseService):
 
     def process_unavailable(self, response):
         if not response.text:
-            return (URLStatus.unavailable, None)
+            return (URLStatus.unavailable, None, None)
         if '<div id="main"><p>Rate limit exceeded - please wait 1 minute before accessing more shortened URLs</p></div>' in response.text:
             raise PleaseRetry()
         if "<div id=\"disabled\"><h2>Link Disabled</h2>" in response.text:
@@ -35,8 +35,8 @@ class IsgdService(BaseService):
         url = match.group(1)
         url = html_parser.HTMLParser().unescape(url)
         if url == "":
-            return (URLStatus.unavailable, None)
-        return (URLStatus.ok, url)
+            return (URLStatus.unavailable, None, None)
+        return (URLStatus.ok, url, response.encoding)
 
     def parse_preview(self, response):
         match = re.search("<b>Click the link</b> if you'd like to proceed to the destination shown: -<br /><a href=\"(.*)\" class=\"biglink\">", response.text)
@@ -44,4 +44,4 @@ class IsgdService(BaseService):
             raise errors.UnexpectedNoResult("Could not find target URL in 'Preview' page")
 
         url = match.group(1)
-        return (URLStatus.ok, html_parser.HTMLParser().unescape(url))
+        return (URLStatus.ok, html_parser.HTMLParser().unescape(url), response.encoding)

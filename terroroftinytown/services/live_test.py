@@ -56,9 +56,9 @@ class TestLive(unittest.TestCase):
                     print('Requesting', url, 'Expect:', expected_result)
 
                     response = service.fetch_url(url)
-                    url_status, result_url = service.process_response(response)
+                    url_status, result_url, encoding = service.process_response(response)
 
-                    print('  Got', url_status, result_url)
+                    print('  Got', url_status, result_url, encoding)
 
                     if url_status == URLStatus.ok:
                         self.assertEqual(expected_result, result_url)
