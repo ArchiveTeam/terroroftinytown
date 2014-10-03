@@ -20,7 +20,7 @@ DEFAULT_USER_AGENT = 'ArchiveTeam TerrorOfTinyTown/{0} ({1})'.format(
     VERSION, datetime.datetime.utcnow())
 
 
-class BaseService:
+class BaseService(object):
     def __init__(self, params):
         self.params = params
         self.logger = logging.getLogger(self.__class__.__name__)
