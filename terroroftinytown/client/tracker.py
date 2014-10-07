@@ -8,6 +8,7 @@ import socket
 
 from terroroftinytown import six
 from terroroftinytown.client import VERSION
+from terroroftinytown.util.jsonutil import NativeStringJSONEncoder
 
 
 DEFAULT_USER_AGENT = 'Terroroftinytown/{0} (standalone library)'.format(VERSION)
@@ -73,7 +74,7 @@ class TrackerClient(object):
             data={
                 'claim_id': claim_id,
                 'tamper_key': tamper_key,
-                'results': json.dumps(results, encoding='unicode-escape'),
+                'results': json.dumps(results, cls=NativeStringJSONEncoder),
             },
         )
         response.raise_for_status()
