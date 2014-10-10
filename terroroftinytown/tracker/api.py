@@ -10,6 +10,7 @@ from terroroftinytown.tracker.errors import (NoItemAvailable, UserIsBanned,
     InvalidClaim, FullClaim, UpdateClient)
 from terroroftinytown.tracker.model import Project
 from terroroftinytown.tracker.stats import Stats, stats_bus
+from terroroftinytown.util.jsonutil import NativeStringJSONDecoder
 
 
 logger = logging.getLogger(__name__)
@@ -88,7 +89,7 @@ class DoneHandler(BaseHandler):
         claim_id = self.get_argument('claim_id')
         tamper_key = self.get_argument('tamper_key')
         results_str = self.get_argument('results')
-        results = json.loads(results_str, encoding='unicode_escape')
+        results = json.loads(results_str, cls=NativeStringJSONDecoder)
 
         try:
             self.application.checkin_item(claim_id, tamper_key, results)

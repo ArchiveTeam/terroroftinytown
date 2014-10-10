@@ -27,7 +27,15 @@ MOCK_PARAMS = {
         'no_redirect_codes': [404],
         'unavailable_codes': [410],
         'banned_codes': [403],
-        'method': 'heat',
+        'method': 'head',
+    },
+    'xco': {
+        'alphabet': '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        'url_template': 'http://x.co/{shortcode}',
+        'redirect_codes': [301],
+        'no_redirect_codes': [200],
+        'banned_codes': [403, 420, 429],
+        'method': 'head',
     },
 }
 
@@ -43,6 +51,11 @@ class TestLive(unittest.TestCase):
         filenames = get_definition_filenames()
         for filename in filenames:
             service_name = os.path.split(filename)[-1].replace('.txt', '')
+
+            if False and service_name in ('isgd',):
+                print('Skip', service_name)
+                continue
+
             params = MOCK_PARAMS[service_name]
             service = registry[u(service_name)](params)
 

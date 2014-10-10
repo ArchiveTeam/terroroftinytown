@@ -1,14 +1,16 @@
+from __future__ import unicode_literals
 
 from terroroftinytown.services.base import DefaultService
 from terroroftinytown.services.isgd import IsgdService
-from terroroftinytown.six import u
 from terroroftinytown.services.bitly import BitlyService
+from terroroftinytown.services.xco import XCOService
 
 
 registry = {}
 '''Mapping of unicode strings to BaseService classes.'''
 
 
-registry[u('_default')] = DefaultService
-registry[u('isgd')] = IsgdService
-registry[u('bitly')] = BitlyService
+registry['_default'] = DefaultService
+registry['isgd'] = IsgdService
+registry['bitly'] = BitlyService
+registry['xco'] = XCOService
