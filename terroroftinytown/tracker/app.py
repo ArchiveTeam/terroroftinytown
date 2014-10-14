@@ -24,6 +24,7 @@ class Application(tornado.web.Application):
             U(r'/admin/banned', admin.BannedHandler, name='admin.banned'),
             U(r'/admin/login', account.LoginHandler, name='admin.login'),
             U(r'/admin/logout', account.LogoutHandler, name='admin.logout'),
+            U(r'/admin/error_reports', admin.ErrorReportsListHandler, name='admin.error_reports'),
             U(r'/users/', account.AllUsersHandler, name='users.overview'),
             U(r'/user/([a-z0-9_-]*)', account.UserHandler, name='user.overview'),
             U(r'/projects/overview', project.AllProjectsHandler, name='projects.overview'),
@@ -36,6 +37,7 @@ class Application(tornado.web.Application):
             U(r'/api/project_settings', api.ProjectSettingsHandler, name='api.project_settings'),
             U(r'/api/get', api.GetHandler, name='api.get'),
             U(r'/api/done', api.DoneHandler, name='api.done'),
+            U(r'/api/error', api.ErrorHandler, name='api.error'),
             U(r'/status', StatusHandler, name='index.status'),
         ]
 
@@ -70,6 +72,9 @@ class Application(tornado.web.Application):
 
     def checkin_item(self, item_id, tamper_key, results):
         model.checkin_item(item_id, tamper_key, results)
+
+    def report_error(self, item_id, tamper_key, message):
+        model.report_error(item_id, tamper_key, message)
 
 
 class IndexHandler(BaseHandler):

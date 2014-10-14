@@ -98,3 +98,18 @@ class DoneHandler(BaseHandler):
         else:
             logger.info('Checked in claim %s %s', claim_id, results)
             self.write({'status': 'OK'})
+
+
+class ErrorHandler(BaseHandler):
+    def post(self):
+        claim_id = self.get_argument('claim_id')
+        tamper_key = self.get_argument('tamper_key')
+        message = self.get_argument('message')
+
+        try:
+            self.application.report_error(claim_id, tamper_key, message)
+        except InvalidClaim:
+            raise HTTPError(409, reason='Invalid item claimed')
+        else:
+            logger.info('Error reported for claim %s', claim_id)
+            self.write({'status': 'OK'})
