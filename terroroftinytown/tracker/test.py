@@ -400,6 +400,8 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
 
         item['project']
 
+        self.report_error(item)
+
         response = requests.post(
             self.get_url('/api/done'),
             data={
@@ -420,3 +422,16 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         doc = response.json()
 
         print(doc)
+
+    def report_error(self, item):
+        response = requests.post(
+            self.get_url('/api/error'),
+            data={
+                'claim_id': item['id'],
+                'tamper_key': item['tamper_key'],
+                'message': 'asdfasdf'
+            }
+        )
+
+        print(response.reason)
+        self.assertEqual(200, response.status_code)

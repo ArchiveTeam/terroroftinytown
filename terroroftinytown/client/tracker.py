@@ -79,6 +79,19 @@ class TrackerClient(object):
         )
         response.raise_for_status()
 
+    @reraise_with_tracker_error
+    def report_error(self, claim_id, tamper_key, message):
+        _logger.info('Sending error report to tracker.')
+        response = requests.post(
+            'http://{host}/api/error'.format(host=self.host),
+            data={
+                'claim_id': claim_id,
+                'tamper_key': tamper_key,
+                'message': message,
+            },
+        )
+        response.raise_for_status()
+
     def bind_address(self, address):
         '''Set **all, global** socket connections to be outbound from this address'''
         # https://stackoverflow.com/questions/12585317/requests-bind-to-an-ip

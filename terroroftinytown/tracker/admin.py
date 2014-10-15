@@ -5,7 +5,7 @@ import tornado.web
 
 from terroroftinytown.tracker.base import BaseHandler
 from terroroftinytown.tracker.form import BlockUsernameForm, UnblockUsernameForm
-from terroroftinytown.tracker.model import BlockedUser
+from terroroftinytown.tracker.model import BlockedUser, ErrorReport
 
 
 logger = logging.getLogger(__name__)
@@ -55,4 +55,13 @@ class BannedHandler(BaseHandler):
             message=message,
             form=form, unblock_form=unblock_form,
             usernames=BlockedUser.all_blocked_usernames(),
+        )
+
+
+class ErrorReportsListHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+        self.render(
+            'admin/overview/error_reports.html',
+            error_reports=ErrorReport.all_reports()
         )

@@ -18,7 +18,8 @@ from sqlalchemy.sql.sqltypes import String, Binary, Float, Boolean, Integer, \
     DateTime
 from sqlalchemy.sql.type_api import TypeDecorator
 
-from terroroftinytown.tracker.errors import NoItemAvailable, FullClaim, UpdateClient
+from terroroftinytown.tracker.errors import NoItemAvailable, FullClaim, UpdateClient, \
+    InvalidClaim
 from terroroftinytown.tracker.stats import Stats
 
 
@@ -367,6 +368,36 @@ class Result(Base):
     datetime = Column(DateTime)
 
 
+class ErrorReport(Base):
+    '''Error report.'''
+    __tablename__ = 'error_reports'
+
+    id = Column(Integer, primary_key=True)
+
+    item_id = Column(Integer, ForeignKey('items.id'), nullable=False)
+    item = relationship('Item')
+
+    message = Column(String, nullable=False)
+    datetime = Column(DateTime, nullable=False,
+                      default=datetime.datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'item_id': self.item_id,
+            'project': self.item.project_id,
+            'message': self.message,
+            'datetime': self.datetime,
+        }
+
+    @classmethod
+    def all_reports(cls):
+        with new_session() as session:
+            reports = session.query(ErrorReport)
+
+            return list(report.to_dict() for report in reports)
+
+
 def make_hash(plaintext, salt):
     key = salt
     msg = plaintext.encode('ascii')
@@ -529,6 +560,17 @@ def checkin_item(item_id, tamper_key, results):
         Stats.instance.update(item_stat)
 
     return item_stat
+
+
+def report_error(item_id, tamper_key, message):
+    with new_session() as session:
+        item = session.query(Item).filter_by(id=item_id, tamper_key=tamper_key).first()
+
+        if not item:
+            raise InvalidClaim()
+
+        error_report = ErrorReport(item_id=item_id, message=message)
+        session.add(error_report)
 
 
 def check_min_version_overrides(version, client_version):

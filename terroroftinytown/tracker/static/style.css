@@ -125,3 +125,8 @@ th{
 	text-align: right;
 	padding: 0.2em;
 }
+
+.errorReportMessage {
+	overflow: auto;
+	max-width: 40vw;
+}
