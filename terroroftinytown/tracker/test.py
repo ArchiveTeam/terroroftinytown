@@ -20,6 +20,7 @@ from terroroftinytown.tracker.database import Database
 from terroroftinytown.tracker.model import MIN_CLIENT_VERSION_OVERRIDE, \
     MIN_VERSION_OVERRIDE
 from terroroftinytown.tracker.stats import Stats
+from terroroftinytown.util.jsonutil import NativeStringJSONEncoder
 
 
 class IOLoopThread(threading.Thread):
@@ -412,7 +413,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
                         'url': 'http://ultraarchive.org',
                         'encoding': 'ascii',
                     }
-                })
+                }, cls=NativeStringJSONEncoder)
             }
         )
 
