@@ -385,7 +385,7 @@ class ErrorReport(Base):
         return {
             'id': self.id,
             'item_id': self.item_id,
-            'project': self.item.project_id,
+            'project': self.item.project_id if self.item else None,
             'message': self.message,
             'datetime': self.datetime,
         }
