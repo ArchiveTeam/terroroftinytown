@@ -1,12 +1,12 @@
 @font-face{
 	font-family: "pixelmix";
 	font-weight: normal;
-	src: url("pixelmix.woff") format(woff), url("pixelmix.ttf") format(truetype);
+	src: url("pixelmix.woff") format("woff"), url("pixelmix.ttf") format("truetype");
 }
 @font-face{
 	font-family: "pixelmix";
 	font-weight: bold;
-	src: url("pixelmix_bold.woff") format(woff), url("pixelmix_bold.ttf") format(truetype);
+	src: url("pixelmix_bold.woff") format("woff"), url("pixelmix_bold.ttf") format("truetype");
 }
 
 body{
