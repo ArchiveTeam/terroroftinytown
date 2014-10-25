@@ -134,3 +134,7 @@ class ReleaseClaimForm(Form):
 
 class ItemActionForm(Form):
     pass
+
+
+class DeleteAllErrorReportsForm(Form):
+    pass

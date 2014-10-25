@@ -397,6 +397,11 @@ class ErrorReport(Base):
 
             return list(report.to_dict() for report in reports)
 
+    @classmethod
+    def delete_all(cls):
+        with new_session() as session:
+            session.query(ErrorReport).delete()
+
 
 def make_hash(plaintext, salt):
     key = salt
