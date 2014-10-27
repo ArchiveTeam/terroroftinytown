@@ -385,7 +385,7 @@ class ErrorReport(Base):
         return {
             'id': self.id,
             'item_id': self.item_id,
-            'project': self.item.project_id,
+            'project': self.item.project_id if self.item else None,
             'message': self.message,
             'datetime': self.datetime,
         }
@@ -396,6 +396,11 @@ class ErrorReport(Base):
             reports = session.query(ErrorReport)
 
             return list(report.to_dict() for report in reports)
+
+    @classmethod
+    def delete_all(cls):
+        with new_session() as session:
+            session.query(ErrorReport).delete()
 
 
 def make_hash(plaintext, salt):

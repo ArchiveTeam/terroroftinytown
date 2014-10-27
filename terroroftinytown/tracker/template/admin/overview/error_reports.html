@@ -28,4 +28,6 @@
 	{% end %}
 </table>
 
+{% module Form(delete_all_form, action=reverse_url('admin.error_reports.delete_all'), submit='Delete All') %}
+
 {% end %}
