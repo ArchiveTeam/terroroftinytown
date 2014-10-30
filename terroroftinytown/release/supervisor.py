@@ -10,74 +10,81 @@ from terroroftinytown.tracker.export import ExporterBootstrap
 from terroroftinytown.tracker.bootstrap import Bootstrap
 
 
-ROOT_PATH = os.environ.get('ROOT_PATH', '/home/tinytown/tinytown-export/')
-SENTINEL_FILE = os.path.join(ROOT_PATH, 'tinytown-supervisor-sentinel')
-
 logger = logging.getLogger(__name__)
 
 
 def main():
-    log_filename = os.path.join(ROOT_PATH, 'supervisor.log')
-    logging.basicConfig(level=logging.INFO, filename=log_filename)
-    arg_parser = argparse.ArgumentParser('config_path')
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument('config_path')
+    arg_parser.add_argument('export_dir',
+                            default='/home/tinytown/tinytown-export/')
+
     args = arg_parser.parse_args()
+
+    if not os.path.exists(args.export_dir):
+        os.mkdir(args.export_dir)
+
+    log_filename = os.path.join(args.export_dir, 'supervisor.log')
+    logging.basicConfig(level=logging.INFO, filename=log_filename)
 
     logger.info('Supervisor starting up.')
 
     try:
-        wrapper(args.config_path)
-    except Exception:
-        logger.exception()
+        wrapper(args.config_path, args.export_dir)
+    except (Exception, SystemExit):
+        logger.exception('Failure.')
         raise
 
     logger.info('Supervisor done.')
 
 
-def wrapper(config_path):
-    if os.path.exists(SENTINEL_FILE):
+def wrapper(config_path, export_dir):
+    sentinel_file = os.path.join(export_dir, 'tinytown-supervisor-sentinel')
+
+    if os.path.exists(sentinel_file):
         raise Exception(
             'The sentinel file exists. '
             'Previous supervisor did not exit correctly.'
             )
     else:
-        with open(SENTINEL_FILE, 'wb'):
+        with open(sentinel_file, 'wb'):
             pass
 
-    if not sys.version_info[0] != 3:
+    if sys.version_info[0] != 3:
         raise Exception('This script expects Python 3')
 
     if not os.path.isfile(config_path):
         raise Exception('Config path is not a file.')
 
+    logger.info('Loading bootstrap.')
+
     bootstrap = Bootstrap()
+    bootstrap.setup_args()
     bootstrap.parse_args(args=[config_path])
     bootstrap.load_config()
 
     time_struct = time.gmtime()
     timestamp = bootstrap.config.get(
         'iaexporter', 'timestamp',
-        vars=dict(
-            year=time_struct.tm_year,
-            month=time_struct.tm_mon,
-            day=time_struct.tm_mday,
-            hour=time_struct.tm_hour,
-            minute=time_struct.tm_min,
-            second=time_struct.tm_sec,
-        )
+    ).format(
+        year=time_struct.tm_year,
+        month=time_struct.tm_mon,
+        day=time_struct.tm_mday,
+        hour=time_struct.tm_hour,
+        minute=time_struct.tm_min,
+        second=time_struct.tm_sec,
     )
 
-    export_directory = os.path.join(ROOT_PATH, timestamp)
+    export_directory = os.path.join(export_dir, timestamp)
 
     logger.info('Begin export to %s.', export_directory)
 
-    title = bootstrap.config.get(
-        'iaexporter', 'title', vars=dict(timestamp=timestamp)
-    )
-    identifier = bootstrap.config.get(
-        'iaexporter', 'item', vars=dict(timestamp=timestamp)
-    )
+    title = bootstrap.config.get('iaexporter', 'title')\
+        .format(timestamp=timestamp)
+    identifier = bootstrap.config.get('iaexporter', 'item')\
+        .format(timestamp=timestamp)
 
-    upload_meta_path = os.path.join(ROOT_PATH, 'current.json')
+    upload_meta_path = os.path.join(export_dir, 'current.json')
     upload_meta = {
         'identifier': identifier,
         'title': title
@@ -121,7 +128,7 @@ def wrapper(config_path):
 
     logger.info('Upload done.')
 
-    os.remove(SENTINEL_FILE)
+    os.remove(sentinel_file)
 
     logger.info('Done')
 
