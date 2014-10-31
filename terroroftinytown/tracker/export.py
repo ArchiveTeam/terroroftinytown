@@ -1,5 +1,6 @@
 # encoding=utf-8
 
+import logging
 import os, lzma
 import shutil
 import zipfile
@@ -11,6 +12,9 @@ from terroroftinytown.format.projectsettings import ProjectSettingsWriter
 from terroroftinytown.format.urlformat import quote
 from terroroftinytown.tracker.bootstrap import Bootstrap
 from terroroftinytown.tracker.model import new_session, Project, Result
+
+
+logger = logging.getLogger(__name__)
 
 
 class Exporter:
@@ -65,7 +69,8 @@ class Exporter:
                     self.zip_project(project)
 
     def dump_project(self, project, session):
-        print('Looking in project %s' % (project.name))
+        logger.info('Looking in project %s', project.name)
+
         query = session.query(Result) \
             .filter_by(project=project) \
             .order_by(func.char_length(Result.shortcode), Result.shortcode)
@@ -95,7 +100,7 @@ class Exporter:
             i += 1
 
             if i % 1000 == 0:
-                print('%d/%d' % (i, count))
+                logger.info('Progress: %d/%d', i, count)
 
             # we can do this as the query is sorted
             # so that item that would end up together
@@ -212,6 +217,8 @@ class ExporterBootstrap(Bootstrap):
     def start(self, args=None):
         super().start(args=args)
 
+        logging.basicConfig(level=logging.INFO)
+
         self.exporter = Exporter(self.args.output_dir, self.args.format, vars(self.args))
         self.exporter.dump()
         self.write_stats()
@@ -251,10 +258,10 @@ class ExporterBootstrap(Bootstrap):
             'output_dir', help='Output directory (will be created)')
 
     def write_stats(self):
-        print('Written %d items in %d projects' % (self.exporter.projects_count, self.exporter.items_count))
+        logger.info('Written %d items in %d projects', self.exporter.projects_count, self.exporter.items_count)
         if self.exporter.last_date:
-            print('Last item timestamp (use --after to dump after this item):')
-            print(self.exporter.last_date.isoformat())
+            logger.info('Last item timestamp (use --after to dump after this item):')
+            logger.info(self.exporter.last_date.isoformat())
 
 
 if __name__ == '__main__':
