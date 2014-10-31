@@ -18,6 +18,7 @@ def main():
     arg_parser.add_argument('config_path')
     arg_parser.add_argument('export_dir',
                             default='/home/tinytown/tinytown-export/')
+    arg_parser.add_argument('--verbose', action='store_true')
 
     args = arg_parser.parse_args()
 
@@ -26,6 +27,13 @@ def main():
 
     log_filename = os.path.join(args.export_dir, 'supervisor.log')
     logging.basicConfig(level=logging.INFO, filename=log_filename)
+
+    if args.verbose:
+        stream_handler = logging.StreamHandler()
+        stream_handler.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
+        stream_handler.setFormatter(formatter)
+        logging.getLogger().addHandler(stream_handler)
 
     logger.info('Supervisor starting up.')
 
