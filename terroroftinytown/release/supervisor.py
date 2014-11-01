@@ -26,7 +26,10 @@ def main():
         os.mkdir(args.export_dir)
 
     log_filename = os.path.join(args.export_dir, 'supervisor.log')
-    logging.basicConfig(level=logging.INFO, filename=log_filename)
+    logging.basicConfig(
+        level=logging.INFO, filename=log_filename,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
 
     if args.verbose:
         stream_handler = logging.StreamHandler()
