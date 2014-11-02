@@ -174,11 +174,11 @@ class Exporter:
         dirs, prefix, underscores = self.split_shortcode(
             item.shortcode, self.dir_length, self.max_right, self.file_length)
 
-        dirs = [quote(dirname.encode(item.encoding)) for dirname in dirs]
+        dirs = [quote(dirname.encode('ascii')) for dirname in dirs]
         path = os.path.join(path, *dirs)
 
         path = os.path.join(path, '%s%s.%s' % (
-            quote(prefix.encode(item.encoding)),
+            quote(prefix.encode('ascii')),
             '_' * len(underscores),
             self.extension
         ))
