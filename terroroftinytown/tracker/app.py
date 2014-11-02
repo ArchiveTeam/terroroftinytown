@@ -65,11 +65,14 @@ class Application(tornado.web.Application):
             **kwargs
         )
 
+        self._release_old_timer = tornado.ioloop.PeriodicCallback(
+            model.Item.release_old, 60 * 1000
+        )
+        self._release_old_timer.start()
+
     def checkout_item(self, username, ip_address=None, version=-1, client_version=-1):
         if BlockedUser.is_username_blocked(username, ip_address):
             raise UserIsBanned()
-
-        model.Item.release_old()
 
         return model.checkout_item(username, ip_address, version, client_version)
 
