@@ -26,7 +26,7 @@ class BEACONWriter(BaseWriter):
         self.fp.write(b'\n')
 
     def write_shortcode(self, shortcode, url, encoding):
-        self.fp.write(shortcode.encode(encoding))
+        self.fp.write(shortcode.encode('ascii'))
         self.fp.write(b'|')
         self.fp.write(url.encode(encoding))
         self.fp.write(b'\n')
