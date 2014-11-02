@@ -12,7 +12,7 @@ from sqlalchemy import func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, aliased
 from sqlalchemy.orm.session import make_transient
-from sqlalchemy.sql.expression import insert, update
+from sqlalchemy.sql.expression import insert, update, select
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import String, Binary, Float, Boolean, Integer, \
     DateTime
@@ -339,9 +339,13 @@ class BlockedUser(Base):
             session.query(BlockedUser).filter_by(username=username).delete()
 
     @classmethod
-    def is_username_blocked(cls, username):
+    def is_username_blocked(cls, *username):
         with new_session() as session:
-            result = session.query(BlockedUser).filter_by(username=username).first()
+            query = select([BlockedUser.username])\
+                .where(BlockedUser.username.in_(username))
+
+            result = session.execute(query).first()
+
             if result:
                 return True
 
@@ -520,7 +524,7 @@ def checkout_item(username, ip_address, version=-1, client_version=-1):
         item.ip_address = ip_address
 
         # Item should be committed now to generate ID for
-        # newly generated items        
+        # newly generated items
         session.commit()
 
         return item.to_dict()
