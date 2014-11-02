@@ -2,8 +2,10 @@
 import argparse
 import configparser
 import logging
+import signal
 
 import redis
+import tornado.httpserver
 import tornado.ioloop
 
 from terroroftinytown.tracker.app import Application
@@ -88,6 +90,7 @@ class ApplicationBootstrap(Bootstrap):
         self.setup_stats()
         self.setup_application()
         self.setup_logging()
+        self.setup_signal_handlers()
         self.boot()
 
     def setup_application(self):
@@ -108,5 +111,22 @@ class ApplicationBootstrap(Bootstrap):
         if xheaders:
             logger.info('Using xheaders.')
 
-        self.application.listen(port, address=host, xheaders=xheaders)
+        self.server = tornado.httpserver.HTTPServer(
+            self.application, xheaders=xheaders
+        )
+        self.server.listen(port, address=host)
         tornado.ioloop.IOLoop.instance().start()
+
+    def setup_signal_handlers(self):
+        signal.signal(signal.SIGINT, self._signal_handler)
+        signal.signal(signal.SIGTERM, self._signal_handler)
+
+    def _signal_handler(self, signal_number, stack_frame):
+        logger.info('Shutting down.')
+        io_loop = tornado.ioloop.IOLoop.instance()
+        io_loop.add_callback_from_signal(self.stop)
+
+    def stop(self):
+        io_loop = tornado.ioloop.IOLoop.instance()
+        self.server.stop()
+        io_loop.call_later(1, io_loop.stop)
