@@ -99,7 +99,14 @@ class ApplicationBootstrap(Bootstrap):
         )
 
     def boot(self):
-        logger.info('Application booting. Listen on %s',
-                    self.config['web']['port'])
-        self.application.listen(int(self.config['web']['port']))
+        host = self.config['web'].get('host', 'localhost')
+        port = int(self.config['web']['port'])
+        xheaders = self.config.getboolean('web', 'xheaders', fallback=False)
+
+        logger.info('Application booting. Listen on %s:%s', host, port)
+
+        if xheaders:
+            logger.info('Using xheaders.')
+
+        self.application.listen(port, address=host, xheaders=xheaders)
         tornado.ioloop.IOLoop.instance().start()
