@@ -1,20 +1,30 @@
 # encoding=utf-8
 
+import collections
+import itertools
 import logging
 import os, lzma
 import shutil
 import zipfile
 
 from sqlalchemy import func
+from sqlalchemy.sql.expression import delete
 
 from terroroftinytown.format import registry
 from terroroftinytown.format.projectsettings import ProjectSettingsWriter
 from terroroftinytown.format.urlformat import quote
 from terroroftinytown.tracker.bootstrap import Bootstrap
 from terroroftinytown.tracker.model import new_session, Project, Result
+from terroroftinytown.util.externalsort import GNUExternalSort
 
 
 logger = logging.getLogger(__name__)
+
+
+ResultContainer = collections.namedtuple(
+    'ResultContainer',
+    ['id', 'shortcode', 'url', 'encoding', 'datetime']
+)
 
 
 class Exporter:
@@ -48,6 +58,10 @@ class Exporter:
         # file_length = 2
         # output: projectname/00/01/000100____.txt, projectname/01/01__.txt
 
+        self.fp = None
+        self.writer = None
+        self.project_result_sorters = {}
+
     def setup_format(self, format):
         self.format = registry[format]
 
@@ -59,30 +73,53 @@ class Exporter:
         self.make_output_dir()
 
         with new_session() as session:
-            for project in session.query(Project):
+            self._input_sorters(session)
+
+            for project_id, sorter in self.project_result_sorters.items():
+                project = session.query(Project).filter_by(name=project_id).first()
+
                 if self.settings['include_settings']:
                     self.dump_project_settings(project)
 
-                self.dump_project(project, session)
+                self.dump_project(project, sorter, session)
 
                 if self.settings['zip']:
                     self.zip_project(project)
 
-    def dump_project(self, project, session):
-        logger.info('Looking in project %s', project.name)
-
-        query = session.query(Result) \
-            .filter_by(project=project) \
-            .order_by(func.char_length(Result.shortcode), Result.shortcode)
-
+    def _input_sorters(self, session, size=1000):
+        query = session.query(Result)
         if self.after:
             query = query.filter(Result.datetime > self.after)
 
-        count = query.count()
-        if count == 0:
-            return
+        for offset in itertools.count(step=size):
+            # Optimized for SQLite scrolling window
+            rows = query.filter(Result.id >= offset).limit(size).all()
 
-        self.projects_count += 1
+            if not rows:
+                break
+
+            for result in rows:
+                if result.project_id not in self.project_result_sorters:
+                    self.project_result_sorters[result.project_id] = \
+                        GNUExternalSort(temp_dir=self.output_dir,
+                                        temp_prefix='tott-{0}-'.format(
+                                            result.project_id
+                                            )
+                                        )
+                    self.projects_count += 1
+
+                sorter = self.project_result_sorters[result.project_id]
+                sorter.input(
+                    result.shortcode,
+                    (result.id, result.url, result.encoding, result.datetime)
+                )
+                self.items_count += 1
+
+                if self.items_count % 10000 == 0:
+                    logger.info('Dump progress: %d', self.items_count)
+
+    def dump_project(self, project, sorter, session):
+        logger.info('Looking in project %s', project.name)
 
         assert project.url_template.endswith('{shortcode}'), \
             'Writer only supports URL with prefix'
@@ -90,25 +127,23 @@ class Exporter:
         # XXX: Use regex \{shortcode\}$ instead?
         site = project.url_template.replace('{shortcode}', '')
 
-        self.fp = None
-        self.writer = None
-        last_filename = ''
-        i = 0
+        last_filename = None
 
-        for item in query:
-            self.items_count += 1
-            i += 1
+        for i, (key, value) in enumerate(sorter.sort()):
+            if i % 10000 == 0:
+                logger.info('Format progress: %d/%d', i, self.items_count)
 
-            if i % 1000 == 0:
-                logger.info('Progress: %d/%d', i, count)
+            id_, url, encoding, datetime_ = value
+            result = ResultContainer(id_, key, url, encoding, datetime_)
 
             # we can do this as the query is sorted
             # so that item that would end up together
             # would returned together
-            filename = self.get_filename(project, item)
+            filename = self.get_filename(project, result)
             if filename != last_filename:
                 self.close_fp()
 
+                logger.info('Writing results to file %s.', filename)
                 assert not os.path.isfile(filename), 'Target file %s already exists' % (filename)
 
                 self.fp = self.get_fp(filename)
@@ -117,13 +152,13 @@ class Exporter:
 
                 last_filename = filename
 
-            self.writer.write_shortcode(item.shortcode, item.url, item.encoding)
+            self.writer.write_shortcode(result.shortcode, result.url, result.encoding)
 
-            if not self.last_date or item.datetime > self.last_date:
-                self.last_date = item.datetime
+            if not self.last_date or result.datetime > self.last_date:
+                self.last_date = result.datetime
 
             if self.settings['delete']:
-                session.delete(item)
+                session.execute(delete(Result).where(Result.id == result.id))
 
         self.close_fp()
 
