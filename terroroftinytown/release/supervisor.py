@@ -8,9 +8,16 @@ import time
 from terroroftinytown.release.iaupload import IAUploaderBootstrap
 from terroroftinytown.tracker.export import ExporterBootstrap
 from terroroftinytown.tracker.bootstrap import Bootstrap
+from terroroftinytown.release.botouploader import BotoUploaderBootstrap
 
 
 logger = logging.getLogger(__name__)
+
+
+UPLOADER_CLASS_MAP = {
+    'ia': IAUploaderBootstrap,
+    'boto': BotoUploaderBootstrap,
+}
 
 
 def main():
@@ -19,6 +26,8 @@ def main():
     arg_parser.add_argument('export_dir',
                             default='/home/tinytown/tinytown-export/')
     arg_parser.add_argument('--verbose', action='store_true')
+    arg_parser.add_argument('--uploader',
+                            choices=['ia', 'boto'], default='boto')
 
     args = arg_parser.parse_args()
 
@@ -40,8 +49,10 @@ def main():
 
     logger.info('Supervisor starting up.')
 
+    uploader_class = UPLOADER_CLASS_MAP[args.uploader]
+
     try:
-        wrapper(args.config_path, args.export_dir)
+        wrapper(args.config_path, args.export_dir, uploader_class)
     except (Exception, SystemExit):
         logger.exception('Failure.')
         raise
@@ -49,7 +60,7 @@ def main():
     logger.info('Supervisor done.')
 
 
-def wrapper(config_path, export_dir):
+def wrapper(config_path, export_dir, uploader_class):
     sentinel_file = os.path.join(export_dir, 'tinytown-supervisor-sentinel')
 
     if os.path.exists(sentinel_file):
@@ -129,7 +140,7 @@ def wrapper(config_path, export_dir):
 
     logger.info('Upload starting')
 
-    uploader = IAUploaderBootstrap()
+    uploader = uploader_class()
     args = [
         config_path,
         export_directory,
