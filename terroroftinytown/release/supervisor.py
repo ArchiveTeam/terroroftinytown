@@ -2,13 +2,14 @@ import argparse
 import json
 import logging
 import os.path
+import shutil
 import sys
 import time
 
-from terroroftinytown.release.iaupload import IAUploaderBootstrap
-from terroroftinytown.tracker.export import ExporterBootstrap
-from terroroftinytown.tracker.bootstrap import Bootstrap
 from terroroftinytown.release.botouploader import BotoUploaderBootstrap
+from terroroftinytown.release.iaupload import IAUploaderBootstrap
+from terroroftinytown.tracker.bootstrap import Bootstrap
+from terroroftinytown.tracker.export import ExporterBootstrap
 
 
 logger = logging.getLogger(__name__)
@@ -97,9 +98,14 @@ def wrapper(config_path, export_dir, uploader_class):
         second=time_struct.tm_sec,
     )
 
-    export_directory = os.path.join(export_dir, timestamp)
+    done_directory = os.path.join(export_dir, 'done')
 
-    logger.info('Begin export to %s.', export_directory)
+    if not os.path.exists(done_directory):
+        os.mkdir(done_directory)
+
+    item_export_directory = os.path.join(export_dir, timestamp)
+
+    logger.info('Begin export to %s.', item_export_directory)
 
     title = bootstrap.config.get('iaexporter', 'title')\
         .format(timestamp=timestamp)
@@ -115,7 +121,7 @@ def wrapper(config_path, export_dir, uploader_class):
     with open(upload_meta_path, 'w') as out_file:
         out_file.write(json.dumps(upload_meta))
 
-    os.makedirs(export_directory)
+    os.makedirs(item_export_directory)
 
     exporter = ExporterBootstrap()
     args = [
@@ -123,16 +129,16 @@ def wrapper(config_path, export_dir, uploader_class):
         '--include-settings', '--zip',
         '--dir-length', '0', '--file-length', '0', '--max-right', '8',
         '--delete',
-        export_directory,
+        item_export_directory,
         ]
 
-    export_dir_start_size = get_dir_size(export_directory)
+    export_dir_start_size = get_dir_size(item_export_directory)
 
     exporter.start(args=args)
 
     logger.info('Export finished')
 
-    export_dir_end_size = get_dir_size(export_directory)
+    export_dir_end_size = get_dir_size(item_export_directory)
 
     if export_dir_start_size == export_dir_end_size:
         raise Exception('Export directory size did not change: {} bytes'
@@ -143,7 +149,7 @@ def wrapper(config_path, export_dir, uploader_class):
     uploader = uploader_class()
     args = [
         config_path,
-        export_directory,
+        item_export_directory,
         '--title', upload_meta['title'],
         '--identifier', upload_meta['identifier']
     ]
@@ -151,6 +157,8 @@ def wrapper(config_path, export_dir, uploader_class):
 
     logger.info('Upload done.')
 
+    os.remove(upload_meta_path)
+    shutil.move(item_export_directory, done_directory)
     os.remove(sentinel_file)
 
     logger.info('Done')
