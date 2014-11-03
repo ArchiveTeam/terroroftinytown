@@ -1,63 +1,30 @@
 import logging
-import os.path
 
 import internetarchive
 
-from terroroftinytown.tracker.bootstrap import Bootstrap
+from terroroftinytown.release.baseuploader import BaseUploaderBootstrap
 
 
 logger = logging.getLogger(__name__)
 
 
-class IAUploaderBootstrap(Bootstrap):
-    def setup_args(self):
-        super().setup_args()
-        self.arg_parser.add_argument('directory')
-        self.arg_parser.add_argument('--title', required=True)
-        self.arg_parser.add_argument('--identifier', required=True)
-
-    def start(self, args=None):
-        super().start(args=args)
-
-        directory = self.args.directory
-
-        if not os.path.isdir(directory):
-            raise Exception('Path is not a directory')
-
-        contents = [os.path.join(directory, filename)
-                    for filename in os.listdir(directory)]
-
-        for filename in contents:
-            if not os.path.isfile(filename):
-                raise Exception('{} is not a file'.format(filename))
-
-        identifier = self.args.identifier
-        title = self.args.title
-        collection = self.config['iaexporter']['collection']
-        access_key = self.config['iaexporter']['access_key']
-        secret_key = self.config['iaexporter']['secret_key']
-        description = self.config['iaexporter']['description']
-
-        assert identifier
-        assert title
-        assert collection
-        assert access_key
-        assert secret_key
-        assert description
-
-        item = internetarchive.get_item(identifier)
+class IAUploaderBootstrap(BaseUploaderBootstrap):
+    def upload(self):
+        item = internetarchive.get_item(self.identifier)
         metadata = dict(
-            title=title,
-            collection=collection,
+            title=self.title,
+            collection=self.collection,
             mediatype='software',
             subject='urlteam;terroroftinytown',
-            description=description,
+            description=self.description,
         )
 
-        logger.info('Begin upload %s %s.', identifier, contents)
+        logger.info('Begin upload %s %s.', self.identifier, self.filenames)
 
-        item.upload(contents, metadata=metadata, verify=True, verbose=True,
-                    access_key=access_key, secret_key=secret_key, retries=10)
+        item.upload(self.filenames, metadata=metadata,
+                    verify=True, verbose=True,
+                    access_key=self.access_key, secret_key=self.secret_key,
+                    retries=10)
 
         logger.info('Done upload.')
 
