@@ -371,6 +371,13 @@ class Result(Base):
     encoding = Column(String, nullable=False)
     datetime = Column(DateTime)
 
+    @classmethod
+    def has_results(cls):
+        with new_session() as session:
+            result = session.query(Result.id).first()
+
+            return bool(result)
+
 
 class ErrorReport(Base):
     '''Error report.'''

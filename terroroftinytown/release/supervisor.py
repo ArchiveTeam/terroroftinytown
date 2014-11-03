@@ -10,6 +10,7 @@ from terroroftinytown.release.botouploader import BotoUploaderBootstrap
 from terroroftinytown.release.iaupload import IAUploaderBootstrap
 from terroroftinytown.tracker.bootstrap import Bootstrap
 from terroroftinytown.tracker.export import ExporterBootstrap
+from terroroftinytown.tracker.model import Result
 
 
 logger = logging.getLogger(__name__)
@@ -81,9 +82,12 @@ def wrapper(args):
     if not os.path.isfile(config_path):
         raise Exception('Config path is not a file.')
 
-    for batch_num in range(args.max_batches):
-        logging.info('Starting batch #%d', batch_num + 1)
-        process_batch(args)
+    if has_results(args):
+        for batch_num in range(args.max_batches):
+            logging.info('Starting batch #%d', batch_num + 1)
+            process_batch(args)
+    else:
+        logger.info('No results. Nothing to do.')
 
     os.remove(sentinel_file)
 
@@ -178,6 +182,16 @@ def process_batch(args):
 
     os.remove(upload_meta_path)
     shutil.move(item_export_directory, done_directory)
+
+
+def has_results(args):
+    bootstrap = Bootstrap()
+    bootstrap.setup_args()
+    bootstrap.parse_args(args=[args.config_path])
+    bootstrap.load_config()
+    bootstrap.setup_database()
+
+    return Result.has_results()
 
 
 def get_dir_size(path):
