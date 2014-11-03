@@ -92,9 +92,11 @@ class Exporter:
         if self.after:
             query = query.filter(Result.datetime > self.after)
 
-        for offset in itertools.count(step=size):
+        last_id = -1
+
+        while True:
             # Optimized for SQLite scrolling window
-            rows = query.filter(Result.id >= offset).limit(size).all()
+            rows = query.filter(Result.id > last_id).limit(size).all()
 
             if not rows:
                 break
@@ -115,6 +117,7 @@ class Exporter:
                     (result.id, result.url, result.encoding, result.datetime)
                 )
                 self.items_count += 1
+                last_id = result.id
 
                 if self.items_count % 10000 == 0:
                     logger.info('Dump progress: %d', self.items_count)
