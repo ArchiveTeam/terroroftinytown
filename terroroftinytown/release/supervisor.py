@@ -29,6 +29,7 @@ def main():
     arg_parser.add_argument('--verbose', action='store_true')
     arg_parser.add_argument('--uploader',
                             choices=['ia', 'boto'], default='boto')
+    arg_parser.add_argument('--max-items', type=int)
 
     args = arg_parser.parse_args()
 
@@ -53,7 +54,8 @@ def main():
     uploader_class = UPLOADER_CLASS_MAP[args.uploader]
 
     try:
-        wrapper(args.config_path, args.export_dir, uploader_class)
+        wrapper(args.config_path, args.export_dir, uploader_class,
+                args.max_items)
     except (Exception, SystemExit):
         logger.exception('Failure.')
         raise
@@ -61,7 +63,7 @@ def main():
     logger.info('Supervisor done.')
 
 
-def wrapper(config_path, export_dir, uploader_class):
+def wrapper(config_path, export_dir, uploader_class, max_items):
     sentinel_file = os.path.join(export_dir, 'tinytown-supervisor-sentinel')
 
     if os.path.exists(sentinel_file):
@@ -131,6 +133,9 @@ def wrapper(config_path, export_dir, uploader_class):
         '--delete',
         item_export_directory,
         ]
+
+    if max_items:
+        args.extend(['--max-items', str(max_items)])
 
     export_dir_start_size = get_dir_size(item_export_directory)
 
