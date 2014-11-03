@@ -24,7 +24,8 @@ class IAUploaderBootstrap(Bootstrap):
         if not os.path.isdir(directory):
             raise Exception('Path is not a directory')
 
-        contents = os.listdir(directory)
+        contents = [os.path.join(directory, filename)
+                    for filename in os.listdir(directory)]
 
         for filename in contents:
             if not os.path.isfile(filename):
@@ -33,12 +34,16 @@ class IAUploaderBootstrap(Bootstrap):
         identifier = self.args.identifier
         title = self.args.title
         collection = self.config['iaexporter']['collection']
-        access_key = self.config['iaexporter']['access_key'],
-        secret_key = self.config['iaexporter']['secret_key'],
-        description = self.config['iaexporter']['description'],
+        access_key = self.config['iaexporter']['access_key']
+        secret_key = self.config['iaexporter']['secret_key']
+        description = self.config['iaexporter']['description']
 
         assert identifier
         assert title
+        assert collection
+        assert access_key
+        assert secret_key
+        assert description
 
         item = internetarchive.get_item(identifier)
         metadata = dict(
@@ -49,7 +54,7 @@ class IAUploaderBootstrap(Bootstrap):
             description=description,
         )
 
-        logger.info('Begin upload %s.', contents)
+        logger.info('Begin upload %s %s.', identifier, contents)
 
         item.upload(contents, metadata=metadata, verify=True, verbose=True,
                     access_key=access_key, secret_key=secret_key, retries=10)
