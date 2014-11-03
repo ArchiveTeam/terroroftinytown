@@ -152,7 +152,24 @@ class Exporter:
 
                 last_filename = filename
 
-            self.writer.write_shortcode(result.shortcode, result.url, result.encoding)
+            for encoding in (result.encoding, 'latin-1', 'cp437', 'utf-8'):
+                try:
+                    result.url.encode(encoding)
+                except UnicodeError:
+                    logger.warning('Encoding failed %s|%s %s.',
+                                   result.shortcode, result.url, encoding,
+                                   exc_info=True)
+                    continue
+                else:
+                    self.writer.write_shortcode(
+                        result.shortcode, result.url, result.encoding
+                    )
+                    break
+            else:
+                raise Exception(
+                    'Unable to encode {}|{} {}'
+                    .format(result.shortcode, result.url, result.encoding)
+                )
 
             if not self.last_date or result.datetime > self.last_date:
                 self.last_date = result.datetime
