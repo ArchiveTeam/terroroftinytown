@@ -44,11 +44,12 @@ class BotoUploaderBootstrap(BaseUploaderBootstrap):
         bucket_name = self.identifier
         try:
             self.bucket = self.boto.create_bucket(bucket_name, {
-                'x-archive-meta-title': self.title,
+                'x-archive-meta-title': self.title.encode('utf-8'),
                 'x-archive-meta-collection': self.collection,
                 'x-archive-meta-mediatype': 'software',
-                'x-archive-meta-subject': 'urlteam;terroroftinytown',
-                'x-archive-meta-description': self.description,
+                'x-archive-meta-subject':
+                    'urlteam;terroroftinytown'.encode('utf-8'),
+                'x-archive-meta-description': self.description.encode('utf-8'),
                 'x-archive-ignore-preexisting-bucket': '1'
             })
         except S3CreateError:
