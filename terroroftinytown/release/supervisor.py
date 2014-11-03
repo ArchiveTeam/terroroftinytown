@@ -29,7 +29,8 @@ def main():
     arg_parser.add_argument('--verbose', action='store_true')
     arg_parser.add_argument('--uploader',
                             choices=['ia', 'boto'], default='boto')
-    arg_parser.add_argument('--max-items', type=int)
+    arg_parser.add_argument('--batch-size', type=int)
+    arg_parser.add_argument('--max-batches', type=int, default=1)
 
     args = arg_parser.parse_args()
 
@@ -51,11 +52,8 @@ def main():
 
     logger.info('Supervisor starting up.')
 
-    uploader_class = UPLOADER_CLASS_MAP[args.uploader]
-
     try:
-        wrapper(args.config_path, args.export_dir, uploader_class,
-                args.max_items)
+        wrapper(args)
     except (Exception, SystemExit):
         logger.exception('Failure.')
         raise
@@ -63,7 +61,9 @@ def main():
     logger.info('Supervisor done.')
 
 
-def wrapper(config_path, export_dir, uploader_class, max_items):
+def wrapper(args):
+    config_path = args.config_path
+    export_dir = args.export_dir
     sentinel_file = os.path.join(export_dir, 'tinytown-supervisor-sentinel')
 
     if os.path.exists(sentinel_file):
@@ -80,6 +80,20 @@ def wrapper(config_path, export_dir, uploader_class, max_items):
 
     if not os.path.isfile(config_path):
         raise Exception('Config path is not a file.')
+
+    for batch_num in range(args.max_batches):
+        logging.info('Starting batch #%d', batch_num + 1)
+        process_batch(args)
+
+    os.remove(sentinel_file)
+
+    logger.info('Done')
+
+
+def process_batch(args):
+    config_path = args.config_path
+    export_dir = args.export_dir
+    uploader_class = UPLOADER_CLASS_MAP[args.uploader]
 
     logger.info('Loading bootstrap.')
 
@@ -126,7 +140,7 @@ def wrapper(config_path, export_dir, uploader_class, max_items):
     os.makedirs(item_export_directory)
 
     exporter = ExporterBootstrap()
-    args = [
+    exporter_args = [
         config_path, '--format', 'beacon',
         '--include-settings', '--zip',
         '--dir-length', '0', '--file-length', '0', '--max-right', '8',
@@ -134,12 +148,12 @@ def wrapper(config_path, export_dir, uploader_class, max_items):
         item_export_directory,
         ]
 
-    if max_items:
-        args.extend(['--max-items', str(max_items)])
+    if args.batch_size:
+        exporter_args.extend(['--max-items', str(args.batch_size)])
 
     export_dir_start_size = get_dir_size(item_export_directory)
 
-    exporter.start(args=args)
+    exporter.start(args=exporter_args)
 
     logger.info('Export finished')
 
@@ -164,9 +178,6 @@ def wrapper(config_path, export_dir, uploader_class, max_items):
 
     os.remove(upload_meta_path)
     shutil.move(item_export_directory, done_directory)
-    os.remove(sentinel_file)
-
-    logger.info('Done')
 
 
 def get_dir_size(path):
