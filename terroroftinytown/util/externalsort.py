@@ -28,7 +28,11 @@ class GNUExternalSort(object):
         self._temp_file.flush()
 
         proc = subprocess.Popen(
-            ['sort', self._temp_file.name, '--key', '1,1n', '--key', '2,2'],
+            [
+                'sort', self._temp_file.name,
+                '--key', '1,1n', '--key', '2,2', '--key', '3,3',
+                '--unique',
+            ],
             stdout=subprocess.PIPE,
             env={'LC_COLLATE': 'C', 'LC_ALL': 'C'},
         )
