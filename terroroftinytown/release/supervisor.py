@@ -131,6 +131,7 @@ def wrapper(config_path, export_dir):
 
     uploader = IAUploaderBootstrap()
     args = [
+        config_path,
         export_directory,
         '--title', upload_meta['title'],
         '--identifier', upload_meta['identifier']
