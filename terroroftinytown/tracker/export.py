@@ -35,6 +35,7 @@ class Exporter:
         self.output_dir = output_dir
         self.settings = settings
         self.after = self.settings['after']
+        self.max_items = self.settings['max_items']
 
         self.projects_count = 0
         self.items_count = 0
@@ -117,6 +118,10 @@ class Exporter:
 
                 if self.items_count % 10000 == 0:
                     logger.info('Dump progress: %d', self.items_count)
+
+                if self.max_items and self.items_count >= self.max_items:
+                    logger.info('Reached max items %d.', self.max_items)
+                    return
 
     def dump_project(self, project, sorter, session):
         logger.info('Looking in project %s', project.name)
@@ -306,6 +311,9 @@ class ExporterBootstrap(Bootstrap):
             '--delete', action='store_true',
             help='Delete the exported rows after export'
             )
+        self.arg_parser.add_argument(
+            '--max-items', type=int, metavar='N',
+            help='Export a maximum of N items.')
         self.arg_parser.add_argument(
             'output_dir', help='Output directory (will be created)')
 
