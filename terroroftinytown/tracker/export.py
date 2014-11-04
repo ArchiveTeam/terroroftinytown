@@ -170,7 +170,7 @@ class Exporter:
                     continue
                 else:
                     self.writer.write_shortcode(
-                        result.shortcode, result.url, result.encoding
+                        result.shortcode, result.url, encoding
                     )
                     break
             else:
