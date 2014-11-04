@@ -165,7 +165,8 @@ class Exporter:
                     result.url.encode(encoding)
                 except UnicodeError:
                     logger.warning('Encoding failed %s|%s %s.',
-                                   result.shortcode, result.url, encoding,
+                                   result.shortcode, repr(result.url),
+                                   encoding,
                                    exc_info=True)
                     continue
                 else:
@@ -176,7 +177,8 @@ class Exporter:
             else:
                 raise Exception(
                     'Unable to encode {}|{} {}'
-                    .format(result.shortcode, result.url, result.encoding)
+                    .format(result.shortcode, repr(result.url),
+                            result.encoding)
                 )
 
             if not self.last_date or result.datetime > self.last_date:
@@ -197,8 +199,13 @@ class Exporter:
 
     def zip_project(self, project):
         project_path = os.path.join(self.output_dir, project.name)
-        zip_path = os.path.join(self.output_dir,
-                                '{0}.zip'.format(project.name))
+
+        filename = project.name
+
+        if self.settings.get('zip_filename_infix'):
+            filename += self.settings['zip_filename_infix']
+
+        zip_path = os.path.join(self.output_dir, '{0}.zip'.format(filename))
 
         assert not os.path.isfile(zip_path), 'Target file %s already exists' % (zip_path)
 
@@ -317,6 +324,10 @@ class ExporterBootstrap(Bootstrap):
         self.arg_parser.add_argument(
             '--max-items', type=int, metavar='N',
             help='Export a maximum of N items.')
+        self.arg_parser.add_argument(
+            '--zip-filename-infix',
+            help='Insert string in filename in final zip filename.'
+        )
         self.arg_parser.add_argument(
             'output_dir', help='Output directory (will be created)')
 
