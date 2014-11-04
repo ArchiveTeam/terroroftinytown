@@ -1,8 +1,10 @@
 '''Test exporting.'''
 import functools
+import lzma
 import os.path
 import time
 import unittest
+import zipfile
 
 from terroroftinytown.test.random_result import MockResult, MockProject
 from terroroftinytown.tracker.export import ExporterBootstrap, Exporter
@@ -22,15 +24,44 @@ class TestExport(unittest.TestCase):
             args=[config_path, '--count', '100000', '--projects', '10'],
             )
 
+        export_dir = '/tmp/tinytown_test_export{0}/'.format(int(time.time()))
+
         boot = ExporterBootstrap()
         args = [
             config_path, '--format', 'beacon',
             '--include-settings', '--zip',
             '--dir-length', '0', '--file-length', '0', '--max-right', '8',
             '--delete',
-            '/tmp/tinytown_test_export{0}/'.format(int(time.time())),
+            export_dir,
             ]
         boot.start(args=args)
+
+        count = 0
+
+        for filename in os.listdir(export_dir):
+            print('filename', filename)
+            with zipfile.ZipFile(os.path.join(export_dir, filename), 'r') as zip_file:
+                for name in zip_file.namelist():
+                    print(' name', name)
+
+                    if not name.endswith('.txt.xz'):
+                        continue
+
+                    in_file = zip_file.open(name)
+
+                    for line in lzma.LZMAFile(in_file):
+                        if line.startswith(b'#'):
+                            continue
+
+                        line = line.strip()
+                        if line:
+                            count += 1
+
+                            self.assertGreaterEqual(line.index(b'|'), 1)
+
+                    in_file.close()
+
+        self.assertEqual(100000, count)
 
     def test_split_shortcode(self):
         split = functools.partial(
