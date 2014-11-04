@@ -82,12 +82,14 @@ def wrapper(args):
     if not os.path.isfile(config_path):
         raise Exception('Config path is not a file.')
 
-    if has_results(args):
-        for batch_num in range(args.max_batches):
+    for batch_num in range(args.max_batches):
+        if has_results(args):
             logging.info('Starting batch #%d', batch_num + 1)
             process_batch(args)
-    else:
-        logger.info('No results. Nothing to do.')
+            time.sleep(2)
+        else:
+            logger.info('No results. Nothing to do.')
+            break
 
     os.remove(sentinel_file)
 
@@ -148,7 +150,7 @@ def process_batch(args):
         config_path, '--format', 'beacon',
         '--include-settings', '--zip',
         '--dir-length', '0', '--file-length', '0', '--max-right', '8',
-        '--delete',
+        '--delete', '--zip-filename-infix', '.{}'.format(timestamp),
         item_export_directory,
         ]
 
