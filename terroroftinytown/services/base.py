@@ -119,7 +119,8 @@ class BaseService(object):
 
     def process_unknown_code(self, response):
         raise UnhandledStatusCode(
-            'Unknown status code {0}'.format(response.status_code)
+            'Unknown status code {0} for {1}'.format(response.status_code,
+                                                     repr(response.url))
         )
 
     def process_connection_error(self, exception):
