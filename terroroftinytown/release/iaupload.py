@@ -1,54 +1,32 @@
-import os.path
+import logging
 
-from terroroftinytown.tracker.bootstrap import Bootstrap
 import internetarchive
 
+from terroroftinytown.release.baseuploader import BaseUploaderBootstrap
 
-class IAUploaderBootstrap(Bootstrap):
-    def setup_args(self):
-        super().setup_args()
-        self.arg_parser.add_argument('directory')
-        self.arg_parser.add_argument('--title', required=True)
-        self.arg_parser.add_argument('--identifier', required=True)
 
-    def start(self, args=None):
-        super().start(args=args)
+logger = logging.getLogger(__name__)
 
-        directory = self.args.directory
 
-        if not os.path.isdir(directory):
-            raise Exception('Path is not a directory')
-
-        contents = os.listdir(directory)
-
-        for filename in contents:
-            if not os.path.isfile(filename):
-                raise Exception('{} is not a file'.format(filename))
-
-        identifier = self.args.identifier
-        title = self.args.title
-        collection = self.config['iaexporter']['collection']
-        access_key = self.config['iaexporter']['access_key'],
-        secret_key = self.config['iaexporter']['secret_key'],
-
-        assert identifier
-        assert title
-
-        item = internetarchive.get_item(identifier)
+class IAUploaderBootstrap(BaseUploaderBootstrap):
+    def upload(self):
+        item = internetarchive.get_item(self.identifier)
         metadata = dict(
-            title=title,
-            collection=collection,
+            title=self.title,
+            collection=self.collection,
             mediatype='software',
             subject='urlteam;terroroftinytown',
-            description='URLTeam\'s rolling release of unshortened URLs.',
+            description=self.description,
         )
 
-        print('Begin upload', contents)
+        logger.info('Begin upload %s %s.', self.identifier, self.filenames)
 
-        item.upload(contents, metadata=metadata, verify=True, verbose=True,
-                    access_key=access_key, secret_key=secret_key, retries=10)
+        item.upload(self.filenames, metadata=metadata,
+                    verify=True, verbose=True,
+                    access_key=self.access_key, secret_key=self.secret_key,
+                    retries=10)
 
-        print('Done')
+        logger.info('Done upload.')
 
 
 if __name__ == '__main__':
