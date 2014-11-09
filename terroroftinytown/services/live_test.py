@@ -37,6 +37,14 @@ MOCK_PARAMS = {
         'banned_codes': [403, 420, 429],
         'method': 'head',
     },
+    'pub-vitrue-com': {
+        'alphabet': '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        'url_template': 'http://pub.vitrue.com/{shortcode}',
+        'redirect_codes': [301],
+        'no_redirect_codes': [302],
+        'banned_codes': [403, 420, 429],
+        'method': 'head',
+    },
 }
 
 

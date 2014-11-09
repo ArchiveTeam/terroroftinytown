@@ -4,7 +4,7 @@ terroroftinytown
 URLTeam's second generation of URL shortener archiving tools.
 
 
-Still a work-in-progress. The tracker and client code is maturing and should be ready for production. This readme will be updated once it completes.
+The tracker and client code is still maturing but useful in production.
 
 
 Running
@@ -20,7 +20,8 @@ How to run the tracker:
         pip3 install -r requirements-tracker.txt
         python3 -m terroroftinytown.tracker THE_CONFIG_FILE.conf
 
-Use `--debug` when developing.
+Use `--debug` when developing. Use `--xheaders` when running behind a web server reverse proxy.
+
 
 Export
 -------
@@ -29,7 +30,10 @@ Export
 
 The output directory will be created if it does not exists. Specify `--format urlteam` to export in old URLTeam format (no BEACON headers). You will need GNU Sort installed.
 
-A automatic script, to be run from cron, that drains the results, compress, and upload to Internet Archive is still being written.
+A automatic script, to be run from cron, that drains the results, compress, and upload to Internet Archive:
+
+        python3 -m terroroftinytown.release.supervisor config.conf \
+        EXPORT_WORKING_DIRECTORY/ --verbose --batch-size 5000000
 
 
 Test
