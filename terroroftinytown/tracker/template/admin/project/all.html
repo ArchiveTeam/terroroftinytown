@@ -11,12 +11,24 @@
 {% module Form(add_project_form, action='?action=add_project', submit='Add') %}
 
 <h2>All projects</h2>
-<ul>
-{% for project in projects %}
-	<li>
-		<a href="{{ reverse_url('project.overview', project)}}">{{ project }}</a>
-	</li>
-{% end %}
-</ul>
+
+<table class="table table-bordered table-striped">
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Enabled</th>
+			<th>AutoQueue</th>
+			<th>Lower Sequence Number</th>
+		</tr>
+	</thead>
+
+	{% for project in projects %}
+	<tr>
+		<td><a href="{{ reverse_url('project.overview', project['name']) }}">{{ project['name'] }}</a></td>
+		<td>{{ project['enabled'] }}</td>
+		<td>{{ project['autoqueue'] }}</td>
+		<td>{{ project['lower_sequence_num'] }}</td>
+	</tr>
+	{% end %}
 
 {% end %}

@@ -21,7 +21,7 @@ class AllProjectsHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
         add_project_form = AddProjectForm()
-        projects = Project.all_project_names()
+        projects = Project.all_project_infos()
 
         self.render(
             'admin/project/all.html',
@@ -54,7 +54,7 @@ class AllProjectsHandler(BaseHandler):
         self.render(
             'admin/project/all.html',
             add_project_form=add_project_form,
-            projects=Project.all_project_names(),
+            projects=Project.all_project_infos(),
             message=message
         )
 

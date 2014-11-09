@@ -188,6 +188,13 @@ class Project(Base):
             return list([project.name for project in projects])
 
     @classmethod
+    def all_project_infos(cls):
+        with new_session() as session:
+            projects = session.query(Project)
+
+            return list([project.to_dict() for project in projects])
+
+    @classmethod
     def new_project(cls, name):
         with new_session() as session:
             project = Project(name=name)
