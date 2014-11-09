@@ -12,7 +12,7 @@ from terroroftinytown.client import alphabet, VERSION
 from terroroftinytown.client.errors import (UnhandledStatusCode,
     UnexpectedNoResult, ScraperError, PleaseRetry)
 from terroroftinytown.services.status import URLStatus
-from terroroftinytown.six import u
+from terroroftinytown.six.moves import html_parser
 
 
 __all__ = ['BaseService', 'registry']
@@ -101,7 +101,7 @@ class BaseService(object):
 
     def process_redirect_body(self, response):
         pattern = self.params['body_regex']
-        match = re.search(pattern, response.text)
+        match = re.search(pattern, html_unescape(response.text))
 
         if match:
             return (URLStatus.ok, match.group(1), response.encoding)
@@ -129,3 +129,10 @@ class BaseService(object):
 
 class DefaultService(BaseService):
     pass
+
+
+_html_parser_unescaper = html_parser.HTMLParser()
+
+
+def html_unescape(text):
+    return _html_parser_unescaper.unescape(text)
