@@ -12,7 +12,7 @@ from sqlalchemy import func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, aliased
 from sqlalchemy.orm.session import make_transient
-from sqlalchemy.sql.expression import insert, update, select
+from sqlalchemy.sql.expression import insert, update, select, delete
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import String, Binary, Float, Boolean, Integer, \
     DateTime
@@ -559,11 +559,16 @@ def checkin_item(item_id, tamper_key, results):
     }
 
     with new_session() as session:
-        item = session.query(Item).filter_by(id=item_id, tamper_key=tamper_key).first()
+        row = session.query(
+            Item.project_id, Item.username, Item.upper_sequence_num,
+            Item.lower_sequence_num) \
+            .filter_by(id=item_id, tamper_key=tamper_key).first()
 
-        item_stat['project'] = item.project_id
-        item_stat['username'] = item.username
-        item_stat['scanned'] = item.upper_sequence_num - item.lower_sequence_num + 1
+        project_id, username, upper_sequence_num, lower_sequence_num = row
+
+        item_stat['project'] = project_id
+        item_stat['username'] = username
+        item_stat['scanned'] = upper_sequence_num - lower_sequence_num + 1
 
         query_args = []
         time = datetime.datetime.utcnow()
@@ -572,7 +577,7 @@ def checkin_item(item_id, tamper_key, results):
             url = results[shortcode]['url']
             encoding = results[shortcode]['encoding']
             query_args.append({
-                'project_id': item.project_id,
+                'project_id': project_id,
                 'shortcode': shortcode,
                 'url': url,
                 'encoding': encoding,
@@ -583,7 +588,7 @@ def checkin_item(item_id, tamper_key, results):
             query = insert(Result)
             session.execute(query, query_args)
 
-        session.delete(item)
+        session.execute(delete(Item).where(Item.id == item_id))
 
     if Stats.instance:
         Stats.instance.update(item_stat)
