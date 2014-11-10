@@ -151,8 +151,8 @@ class Project(Base):
     body_regex = Column(String)
     method = Column(String, default='head', nullable=False)
 
-    enabled = Column(Boolean, default=True)
-    autoqueue = Column(Boolean)
+    enabled = Column(Boolean, default=False)
+    autoqueue = Column(Boolean, default=False)
     num_count_per_item = Column(Integer, default=50, nullable=False)
     max_num_items = Column(Integer, default=100, nullable=False)
     lower_sequence_num = Column(Integer, default=0, nullable=False)
