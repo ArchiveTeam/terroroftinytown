@@ -301,7 +301,7 @@ class Item(Base):
             })
 
     @classmethod
-    def release_old(cls, project_name=None):
+    def release_old(cls, project_name=None, autoqueue_only=False):
         with new_session() as session:
             # we could probably write this in one query
             # but it would be non-portable across SQL dialects
@@ -311,6 +311,9 @@ class Item(Base):
 
             if project_name:
                 projects = projects.filter_by(name=project_name)
+
+            if autoqueue_only:
+                projects = projects.filter_by(autoqueue=True)
 
             for project in projects:
                 min_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=project.autorelease_time)

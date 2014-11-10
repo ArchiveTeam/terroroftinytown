@@ -1,4 +1,5 @@
 # encoding=utf-8
+import functools
 import os.path
 
 from tornado.web import URLSpec as U
@@ -8,9 +9,9 @@ from terroroftinytown.services.registry import registry
 from terroroftinytown.tracker import account, admin, project, api
 from terroroftinytown.tracker import model
 from terroroftinytown.tracker.base import BaseHandler
+from terroroftinytown.tracker.errors import UserIsBanned
 from terroroftinytown.tracker.model import BlockedUser
 from terroroftinytown.tracker.ui import FormUIModule
-from terroroftinytown.tracker.errors import UserIsBanned
 
 
 class Application(tornado.web.Application):
@@ -66,7 +67,8 @@ class Application(tornado.web.Application):
         )
 
         self._release_old_timer = tornado.ioloop.PeriodicCallback(
-            model.Item.release_old, 60 * 1000
+            functools.partial(model.Item.release_old, autoqueue_only=True),
+            60 * 1000
         )
         self._release_old_timer.start()
 
