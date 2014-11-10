@@ -3,6 +3,7 @@
 {% block title %} Items {% end %}
 
 {% block main %}
+{% import datetime %}
 
 <h1>Claims</h1>
 
@@ -42,7 +43,7 @@
 		<td>{{ item['id'] }}</td>
 		<td>{{ item['lower_sequence_num'] }}</td>
 		<td>{{ item['upper_sequence_num'] }}</td>
-		<td>{{ item['datetime_claimed'] }}</td>
+		<td>{{ datetime.datetime.utcfromtimestamp(item['datetime_claimed']) }}</td>
 		<td>{{ item['username'] }}</td>
 		<td>{{ item['ip_address'] }}</td>
 		<td>
