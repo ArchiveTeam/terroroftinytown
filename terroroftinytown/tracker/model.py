@@ -530,7 +530,10 @@ def checkout_item(username, ip_address, version=-1, client_version=-1):
                 Project.enabled == True,
                 (Project.min_version <= version),
                 (Project.min_client_version <= client_version),
-            ).first()
+            ) \
+            .order_by(func.random()) \
+            .first()
+        # Random is not portable
 
         if not item:
             item = generate_item(session, username, ip_address, version, client_version)
