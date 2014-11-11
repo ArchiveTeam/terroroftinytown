@@ -208,7 +208,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         element.submit()
 
         WebDriverWait(self.driver, 10).until(
-            expected_conditions.title_is('Overview')
+            expected_conditions.title_is('Projects')
         )
 
     def sign_in_bad(self):
@@ -281,7 +281,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         element.submit()
 
         WebDriverWait(self.driver, 10).until(
-            expected_conditions.title_is('Overview')
+            expected_conditions.title_is('Projects')
         )
 
     def create_project(self):
