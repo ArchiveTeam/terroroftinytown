@@ -18,7 +18,7 @@
 	</thead>
 	
 	{% for report in error_reports %}
-	<tr>
+	<tr class="{% if report['project'] %} warning {% end %}">
 		<td>{{ report['id'] }}</td>
 		<td>{{ report['item_id'] }}</td>
 		<td>{{ report['project'] }}</td>
