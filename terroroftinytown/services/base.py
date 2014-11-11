@@ -97,7 +97,10 @@ class BaseService(object):
         elif self.params.get('body_regex'):
             return self.process_redirect_body(response)
         else:
-            raise UnexpectedNoResult()
+            raise UnexpectedNoResult(
+                'Unexpectedly did not get a redirect result for {0}'
+                .format(repr(response.url))
+            )
 
     def process_redirect_body(self, response):
         pattern = self.params['body_regex']
@@ -106,7 +109,10 @@ class BaseService(object):
         if match:
             return (URLStatus.ok, match.group(1), response.encoding)
         else:
-            raise UnexpectedNoResult()
+            raise UnexpectedNoResult(
+                'Unexpectedly did not get a body result for {0}'
+                .format(repr(response.url))
+            )
 
     def process_no_redirect(self, response):
         return (URLStatus.not_found, None, None)

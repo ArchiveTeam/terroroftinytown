@@ -44,7 +44,10 @@ class Scraper(object):
                     _logger.info('Attempt %d', (try_count + 1))
 
                 if try_count > self.max_try_count:
-                    raise ScraperError('Service has banned client.')
+                    raise ScraperError(
+                        'Number of attempts exceeded for {0}.'
+                        .format(repr(item))
+                    )
 
                 try:
                     result = self.service.scrape_one(item)
