@@ -11,7 +11,7 @@ from terroroftinytown.tracker.base import BaseHandler
 from terroroftinytown.tracker.form import AddProjectForm, ProjectSettingsForm, \
     BlockUsernameForm, UnblockUsernameForm, QueueSettingsForm, ConfirmForm, \
     AddItemsForm, ReleaseClaimForm, ItemActionForm, QueueEnableForm
-from terroroftinytown.tracker.model import Project, BlockedUser, Item
+from terroroftinytown.tracker.model import Project, BlockedUser, Item, Budget
 
 
 logger = logging.getLogger(__name__)
@@ -116,6 +116,8 @@ class QueueHandler(BaseHandler):
         else:
             message = 'Error.'
 
+        Budget.calculate_budgets()
+
         self.render(
             'admin/project/queue_settings.html',
             project_name=name,
@@ -207,24 +209,36 @@ class ClaimsHandler(BaseHandler):
             seq_list.append((lower_seq_num, upper_seq_num))
 
         Item.add_items(name, seq_list)
+        Budget.calculate_budgets()
 
     def _delete_one(self):
         item_id = int(self.get_argument('id'))
+
         Item.delete(item_id)
+        Budget.calculate_budgets()
+
         logger.info('Deleted item %s', item_id)
 
     def _release_one(self):
         item_id = int(self.get_argument('id'))
+
         Item.release(item_id)
+        Budget.calculate_budgets()
+
         logger.info('Released item %s', item_id)
 
     def _release_all(self, project_name, release_form):
         time_ago = time.time() - release_form.hours.data * 60
+
         Item.release_all(project_name, datetime.datetime.utcfromtimestamp(time_ago))
+        Budget.calculate_budgets()
+
         logger.info('Released items for %s', project_name)
 
     def _delete_all(self, project_name):
         Item.delete_all(project_name)
+        Budget.calculate_budgets()
+
         logger.info('Delete all items for %s', project_name)
 
 
@@ -294,6 +308,8 @@ class DeleteHandler(BaseHandler):
 
         if form.validate():
             Project.delete_project(name)
+            Budget.calculate_budgets()
+
             logger.info('Deleted project %s', name)
             self.redirect(self.reverse_url('admin.overview'))
         else:
