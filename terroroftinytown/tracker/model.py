@@ -508,13 +508,17 @@ class Budget(object):
                                     for project in cls.projects.values())
 
     @classmethod
-    def check_out(cls, project_id, ip_address):
+    def check_out(cls, project_id, ip_address, new_item=False):
         assert project_id
         assert ip_address
 
         project_info = cls.projects[project_id]
 
-        project_info['items'] += 1
+        project_info['claims'] += 1
+
+        if new_item:
+            project_info['items'] += 1
+
         project_info['ip_addresses'].add(ip_address)
 
     @classmethod
@@ -529,6 +533,7 @@ class Budget(object):
 
         project_info = cls.projects[project_id]
 
+        project_info['claims'] -= 1
         project_info['items'] -= 1
         project_info['ip_addresses'].remove(ip_address)
 
@@ -573,6 +578,7 @@ def checkout_item(username, ip_address, version=-1, client_version=-1):
                     lower_sequence_num=project.lower_sequence_num,
                     upper_sequence_num=upper_sequence_num,
                 )
+                new_item = True
 
                 project.lower_sequence_num = upper_sequence_num + 1
 
@@ -582,6 +588,7 @@ def checkout_item(username, ip_address, version=-1, client_version=-1):
                     .filter_by(username=None) \
                     .filter_by(project_id=project_name) \
                     .first()
+                new_item = False
 
             if item:
                 item.datetime_claimed = datetime.datetime.utcnow()
@@ -593,7 +600,7 @@ def checkout_item(username, ip_address, version=-1, client_version=-1):
                 # newly generated items
                 session.commit()
 
-                Budget.check_out(project_name, ip_address)
+                Budget.check_out(project_name, ip_address, new_item=new_item)
 
                 return item.to_dict()
 
