@@ -23,7 +23,7 @@
 	</thead>
 
 	{% for project in projects %}
-	<tr>
+	<tr class="{% if project['enabled'] %} success {% end %}" >
 		<td><a href="{{ reverse_url('project.overview', project['name']) }}">{{ project['name'] }}</a></td>
 		<td>{{ project['enabled'] }}</td>
 		<td>{{ project['autoqueue'] }}</td>

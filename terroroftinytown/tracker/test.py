@@ -111,6 +111,8 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         self.sleep()
         self.populate_queue()
         self.sleep()
+        self.enable_queue()
+        self.sleep()
         self.get_project_settings()
         self.sleep()
         self.claim_with_outdated_script()
@@ -206,7 +208,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         element.submit()
 
         WebDriverWait(self.driver, 10).until(
-            expected_conditions.title_is('Overview')
+            expected_conditions.title_is('Projects')
         )
 
     def sign_in_bad(self):
@@ -279,7 +281,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         element.submit()
 
         WebDriverWait(self.driver, 10).until(
-            expected_conditions.title_is('Overview')
+            expected_conditions.title_is('Projects')
         )
 
     def create_project(self):
@@ -357,6 +359,19 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
 
         element = self.driver.find_element_by_name('items')
         element.send_keys('0-19\n20-39')
+
+        element.submit()
+
+    def enable_queue(self):
+        element = self.driver.find_element_by_link_text('Queue Settings')
+        element.click()
+
+        WebDriverWait(self.driver, 10).until(
+            expected_conditions.title_is('Queue Settings')
+        )
+
+        element = self.driver.find_element_by_name('enabled')
+        element.click()
 
         element.submit()
 

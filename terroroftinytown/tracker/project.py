@@ -62,7 +62,9 @@ class AllProjectsHandler(BaseHandler):
 class ProjectHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self, name):
-        self.render('admin/project/overview.html', project_name=name)
+        # Nothing useful to show for now
+        self.redirect(self.reverse_url('project.claims', name))
+        # self.render('admin/project/overview.html', project_name=name)
 
 
 class QueueHandler(BaseHandler):

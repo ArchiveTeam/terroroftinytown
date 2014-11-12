@@ -15,7 +15,9 @@ logger = logging.getLogger(__name__)
 class AdminHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
-        self.render('admin/overview/index.html')
+        # Nothing useful to show for now
+        self.redirect(self.reverse_url('projects.overview'))
+        # self.render('admin/overview/index.html')
 
 
 class BannedHandler(BaseHandler):
