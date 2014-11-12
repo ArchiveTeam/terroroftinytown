@@ -580,6 +580,7 @@ def checkout_item(username, ip_address, version=-1, client_version=-1):
             else:
                 item = session.query(Item) \
                     .filter_by(username=None) \
+                    .filter_by(project_id=project_name) \
                     .first()
 
             if item:
