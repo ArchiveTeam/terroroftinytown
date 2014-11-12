@@ -27,6 +27,7 @@ class AllProjectsHandler(BaseHandler):
             'admin/project/all.html',
             projects=projects,
             add_project_form=add_project_form,
+            project_budgets=Budget.projects,
         )
 
     @tornado.web.authenticated
