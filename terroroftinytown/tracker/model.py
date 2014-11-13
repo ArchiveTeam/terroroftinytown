@@ -484,7 +484,7 @@ class Budget(object):
                     version >= project_info['min_version'] and \
                     client_version >= project_info['min_client_version'] and \
                     project_info['items'] <= project_info['max_num_items'] and \
-                    project_info['claims'] < project_info['items']:
+                    project_info['claims'] < project_info['max_num_items']:
 
                 return (project_name, project_info['claims'],
                         project_info['items'], project_info['max_num_items'])
