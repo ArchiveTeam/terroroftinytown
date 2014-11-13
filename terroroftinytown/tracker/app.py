@@ -10,7 +10,6 @@ from terroroftinytown.tracker import account, admin, project, api
 from terroroftinytown.tracker import model
 from terroroftinytown.tracker.base import BaseHandler
 from terroroftinytown.tracker.errors import UserIsBanned
-from terroroftinytown.tracker.model import BlockedUser
 from terroroftinytown.tracker.ui import FormUIModule
 
 
@@ -66,14 +65,20 @@ class Application(tornado.web.Application):
             **kwargs
         )
 
-        self._release_old_timer = tornado.ioloop.PeriodicCallback(
-            functools.partial(model.Item.release_old, autoqueue_only=True),
+        def job_task():
+            model.Item.release_old(autoqueue_only=True)
+            model.Budget.calculate_budgets()
+
+        job_task()
+
+        self._job_timer = tornado.ioloop.PeriodicCallback(
+            job_task,
             60 * 1000
         )
-        self._release_old_timer.start()
+        self._job_timer.start()
 
     def checkout_item(self, username, ip_address=None, version=-1, client_version=-1):
-        if BlockedUser.is_username_blocked(username, ip_address):
+        if model.BlockedUser.is_username_blocked(username, ip_address):
             raise UserIsBanned()
 
         return model.checkout_item(username, ip_address, version, client_version)

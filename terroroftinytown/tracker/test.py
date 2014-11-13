@@ -131,6 +131,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         WebDriverWait(self.driver, 10).until(
             expected_conditions.presence_of_element_located((By.CLASS_NAME, 'ng-binding'))
         )
+        self.sleep(1)
         self.assertEqual(
             self.driver.find_element_by_xpath('id("globalstats")//strong[1]').text,
             '20'
@@ -145,6 +146,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         WebDriverWait(self.driver, 10).until(
             expected_conditions.presence_of_element_located((By.CLASS_NAME, 'ng-binding'))
         )
+        self.sleep(1)
         self.assertEqual(
             self.driver.find_element_by_xpath('id("leaderboard-recent")//tbody/tr[1]/td[1]').text,
             'SMAUG'
@@ -164,6 +166,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
 
     def live_stats_update(self):
         self.driver.get(self.get_url('/'))
+        self.sleep(1)
         WebDriverWait(self.driver, 10).until(
             expected_conditions.presence_of_element_located((By.CLASS_NAME, 'ng-binding'))
         )
@@ -171,6 +174,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         WebDriverWait(self.driver, 10).until(
             expected_conditions.presence_of_element_located((By.XPATH, 'id("leaderboard-recent")//tbody/tr[2]'))
         )
+        self.sleep(1)
         self.assertEqual(
             self.driver.find_element_by_xpath('id("leaderboard-recent")//tbody/tr[1]/td[3]').text,
             '20'

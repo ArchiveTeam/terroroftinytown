@@ -19,15 +19,26 @@
 			<th>Enabled</th>
 			<th>AutoQueue</th>
 			<th>Lower Sequence Number</th>
+			<th>Claims</th>
+			<th>Items</th>
 		</tr>
 	</thead>
 
 	{% for project in projects %}
 	<tr class="{% if project['enabled'] %} success {% end %}" >
 		<td><a href="{{ reverse_url('project.overview', project['name']) }}">{{ project['name'] }}</a></td>
-		<td>{{ project['enabled'] }}</td>
-		<td>{{ project['autoqueue'] }}</td>
+		<td>{% if project['enabled'] %} ✦ {% end %}</td>
+		<td>{% if project['autoqueue'] %} ✦ {% end %}</td>
 		<td>{{ project['lower_sequence_num'] }}</td>
+
+		{% if project['name'] in project_budgets %}
+			{% set project_budget_info = project_budgets[project['name']] %}
+			<td>{{ project_budget_info['claims'] }}</td>
+			<td>{{ project_budget_info['items'] }} </td>
+		{% else %}
+			<td>?</td>
+			<td>?</td>
+		{% end %}
 	</tr>
 	{% end %}
 
