@@ -7,6 +7,7 @@
 
 <div ng-controller="StatsController" class="container-fluid">
 	<h2>Shortener Projects</h2>
+	<p>Click on header to show project settings</p>
 	{% for project in projects %}
 	<div class="col-md-6">
 		<div class="panel panel-default">
@@ -27,9 +28,6 @@
 					</tr>
 				</tbody>
 			</table>
-			<div class="panel-body" ng-hide="body['{{project.name}}']">
-				Click on header to show project settings
-			</div>
 			<div class="panel-body" ng-show="body['{{project.name}}']">
 				{% if project.name in services %}
 				<p class="text-success">This service use custom script.</p>
