@@ -570,19 +570,24 @@ def checkout_item(username, ip_address, version=-1, client_version=-1):
             if num_claims >= num_items and num_items < max_num_items:
                 project = session.query(Project).get(project_name)
 
-                item_count = project.num_count_per_item
-                upper_sequence_num = project.lower_sequence_num + item_count - 1
+                if project.autoqueue:
+                    item_count = project.num_count_per_item
+                    upper_sequence_num = project.lower_sequence_num + item_count - 1
 
-                item = Item(
-                    project=project,
-                    lower_sequence_num=project.lower_sequence_num,
-                    upper_sequence_num=upper_sequence_num,
-                )
-                new_item = True
+                    item = Item(
+                        project=project,
+                        lower_sequence_num=project.lower_sequence_num,
+                        upper_sequence_num=upper_sequence_num,
+                    )
+                    new_item = True
 
-                project.lower_sequence_num = upper_sequence_num + 1
+                    project.lower_sequence_num = upper_sequence_num + 1
 
-                session.add(item)
+                    session.add(item)
+                else:
+                    item = None
+                    new_item = None
+
             else:
                 item = session.query(Item) \
                     .filter_by(username=None) \
