@@ -62,6 +62,7 @@ WSController.prototype.onMessage = function(message){
 };
 
 var app = angular.module("stats", []);
+var lastUpdate = new Date(0);
 
 app.constant("endpoint", "/api/live_stats");
 app.constant("max_display", 30);
@@ -91,8 +92,13 @@ app.controller("StatsController", ["$scope", "$filter", "ws", "max_display", fun
 		ws.stats.live.splice($scope.recentLimit - 1, ws.stats.live.length);
 		// somehow computing this in page cause infinite digest cycles
 		$scope.lifetime = $filter("toArray")(ws.stats.lifetime);
-		
-		$scope.$apply();
+
+		var dateNow = new Date();
+
+		if (dateNow - lastUpdate > 500) {
+			$scope.$apply();
+			lastUpdate = dateNow;
+		}
 	};
 }]);
 
