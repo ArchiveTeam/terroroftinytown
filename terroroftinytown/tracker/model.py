@@ -6,13 +6,13 @@ import datetime
 import hmac
 import json
 import os
+import random
 import subprocess
 
-from sqlalchemy import func
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship, aliased
+from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.orm.session import make_transient
-from sqlalchemy.sql.expression import insert, update, select, delete
+from sqlalchemy.sql.expression import insert, select, delete
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import String, Binary, Float, Boolean, Integer, \
     DateTime
@@ -424,6 +424,120 @@ class ErrorReport(Base):
             session.query(ErrorReport).delete()
 
 
+class Budget(object):
+    '''Budget calculator to help manage available items.
+
+    Warning: This class assumes the application is single instance.
+    '''
+
+    projects = {}
+
+    @classmethod
+    def calculate_budgets(cls):
+        cls.projects = {}
+
+        with new_session() as session:
+            query = session.query(
+                Project.name, Project.max_num_items,
+                Project.min_client_version, Project.min_version,
+                Project.max_num_items
+            ).filter_by(enabled=True)
+
+            for row in query:
+                (name, max_num_items, min_client_version, min_version,
+                 max_num_items) = row
+
+                cls.projects[name] = {
+                    'max_num_items': max_num_items,
+                    'min_client_version': min_client_version,
+                    'min_version': min_version,
+                    'items': 0,
+                    'claims': 0,
+                    'ip_addresses': set(),
+                }
+
+            query = session.query(Item.project_id, Item.ip_address)
+
+            for row in query:
+                project_id, ip_address = row
+
+                if project_id not in cls.projects:
+                    continue
+
+                project_info = cls.projects[project_id]
+
+                project_info['items'] += 1
+
+                if ip_address:
+                    project_info['ip_addresses'].add(ip_address)
+                    project_info['claims'] += 1
+
+    @classmethod
+    def get_available_project(cls, ip_address, version, client_version):
+        project_names = cls.projects.keys()
+        random.shuffle(project_names)
+
+        for project_name in project_names:
+            project_info = cls.projects[project_name]
+
+            if ip_address not in project_info['ip_addresses'] and \
+                    version >= project_info['min_version'] and \
+                    client_version >= project_info['min_client_version'] and \
+                    project_info['items'] <= project_info['max_num_items'] and \
+                    project_info['claims'] < project_info['items']:
+
+                return (project_name, project_info['claims'],
+                        project_info['items'], project_info['max_num_items'])
+
+    @classmethod
+    def is_client_outdated(cls, version, client_version):
+        if not cls.projects:
+            return
+
+        min_version = min(project['min_version']
+                          for project in cls.projects.values())
+        min_client_version = min(project['min_client_version']
+                                 for project in cls.projects.values())
+
+        if version < min_version or client_version < min_client_version:
+            return min_version, min_client_version
+
+    @classmethod
+    def is_claims_full(cls, ip_address):
+        return cls.projects and all(ip_address in project['ip_addresses']
+                                    for project in cls.projects.values())
+
+    @classmethod
+    def check_out(cls, project_id, ip_address, new_item=False):
+        assert project_id
+        assert ip_address
+
+        project_info = cls.projects[project_id]
+
+        project_info['claims'] += 1
+
+        if new_item:
+            project_info['items'] += 1
+
+        project_info['ip_addresses'].add(ip_address)
+
+    @classmethod
+    def check_in(cls, project_id, ip_address):
+        assert project_id
+        assert ip_address
+
+        if project_id not in cls.projects:
+            # Project was recently disabled but the job hasn't come back
+            # yet. Should be safe to ignore.
+            return
+
+        project_info = cls.projects[project_id]
+
+        project_info['claims'] -= 1
+        project_info['items'] -= 1
+        project_info['ip_addresses'].remove(ip_address)
+
+
 def make_hash(plaintext, salt):
     key = salt
     msg = plaintext.encode('ascii')
@@ -439,115 +553,75 @@ def new_tamper_key():
     return base64.b16encode(os.urandom(16)).decode('ascii')
 
 
-def generate_item(session, username=None, ip_address=None, version=-1, client_version=-1):
-    assert version is not None
-    assert client_version is not None
-
-    num_queue = session.query(
-        Item.project_id,
-        func.count(Item.id).label('queue_size')
-    ) \
-        .group_by(Item.project_id) \
-        .subquery()
-
-    query = session.query(Project, num_queue.c.queue_size) \
-        .filter_by(enabled=True, autoqueue=True) \
-        .filter(
-            (Project.min_version <= version),
-            (Project.min_client_version <= client_version)
-        ) \
-        .outerjoin(num_queue, Project.name == num_queue.c.project_id) \
-        .filter(func.coalesce(num_queue.c.queue_size, 0) < Project.max_num_items) \
-        .order_by(func.random())  # Not portable
-
-    if ip_address:
-        no_same_ip_proj = session.query(Item) \
-            .filter(Item.ip_address == ip_address) \
-            .filter(Item.project_id == Project.name)
-
-        query = query.filter(~(no_same_ip_proj.exists()))
-
-    query = query.first()
-
-    if not query:
-        ip_items = session.query(Item) \
-            .filter(Item.ip_address == ip_address)
-
-        if session.query(ip_items.exists()).scalar():
-            raise FullClaim()
-
-        max_version = session.query(func.max(Project.min_version), func.max(Project.min_client_version)).first()
-
-        if max_version and \
-            (
-                (max_version[0] and max_version[0] > version) or
-                (max_version[1] and max_version[1] > client_version)
-            ):
-            raise UpdateClient(
-                version=version,
-                client_version=client_version,
-                current_version=max_version[0],
-                current_client_version=max_version[1]
-            )
-
-        raise NoItemAvailable()
-
-    project, queue_size = query
-
-    item_count = project.num_count_per_item
-    upper_sequence_num = project.lower_sequence_num + item_count - 1
-
-    item = Item(
-        project=project,
-        lower_sequence_num=project.lower_sequence_num,
-        upper_sequence_num=upper_sequence_num,
-    )
-
-    project.lower_sequence_num = upper_sequence_num + 1
-
-    session.add(item)
-    return item
-
-
 def checkout_item(username, ip_address, version=-1, client_version=-1):
     assert version is not None
     assert client_version is not None
 
     check_min_version_overrides(version, client_version)
 
-    with new_session() as session:
-        item_a = aliased(Item)
-        no_same_ip_proj = session.query(item_a) \
-            .filter(Item.project_id == item_a.project_id) \
-            .filter(item_a.ip_address == ip_address) \
-            .correlate(None)
+    available = Budget.get_available_project(
+        ip_address, version, client_version
+    )
 
-        item = session.query(Item) \
-            .filter_by(username=None) \
-            .filter(~(no_same_ip_proj.exists())) \
-            .join(Item.project) \
-            .filter(
-                Project.enabled == True,
-                (Project.min_version <= version),
-                (Project.min_client_version <= client_version),
-            ) \
-            .order_by(func.random()) \
-            .first()
-        # Random is not portable
+    if available:
+        project_name, num_claims, num_items, max_num_items = available
 
-        if not item:
-            item = generate_item(session, username, ip_address, version, client_version)
+        with new_session() as session:
+            if num_claims >= num_items and num_items < max_num_items:
+                project = session.query(Project).get(project_name)
 
-        item.datetime_claimed = datetime.datetime.utcnow()
-        item.tamper_key = new_tamper_key()
-        item.username = username
-        item.ip_address = ip_address
+                item_count = project.num_count_per_item
+                upper_sequence_num = project.lower_sequence_num + item_count - 1
 
-        # Item should be committed now to generate ID for
-        # newly generated items
-        session.commit()
+                item = Item(
+                    project=project,
+                    lower_sequence_num=project.lower_sequence_num,
+                    upper_sequence_num=upper_sequence_num,
+                )
+                new_item = True
 
-        return item.to_dict()
+                project.lower_sequence_num = upper_sequence_num + 1
+
+                session.add(item)
+            else:
+                item = session.query(Item) \
+                    .filter_by(username=None) \
+                    .filter_by(project_id=project_name) \
+                    .first()
+                new_item = False
+
+            if item:
+                item.datetime_claimed = datetime.datetime.utcnow()
+                item.tamper_key = new_tamper_key()
+                item.username = username
+                item.ip_address = ip_address
+
+                # Item should be committed now to generate ID for
+                # newly generated items
+                session.commit()
+
+                Budget.check_out(project_name, ip_address, new_item=new_item)
+
+                return item.to_dict()
+
+            else:
+                raise NoItemAvailable()
+
+    else:
+        if Budget.is_claims_full(ip_address):
+            raise FullClaim()
+        elif Budget.is_client_outdated(version, client_version):
+            current_version, current_client_version = \
+                Budget.is_client_outdated(version, client_version)
+
+            raise UpdateClient(
+                version=version,
+                client_version=client_version,
+                current_version=current_version,
+                current_client_version=current_client_version
+            )
+        else:
+            raise NoItemAvailable()
 
 
 def checkin_item(item_id, tamper_key, results):
@@ -561,10 +635,12 @@ def checkin_item(item_id, tamper_key, results):
     with new_session() as session:
         row = session.query(
             Item.project_id, Item.username, Item.upper_sequence_num,
-            Item.lower_sequence_num) \
+            Item.lower_sequence_num, Item.ip_address
+            ) \
             .filter_by(id=item_id, tamper_key=tamper_key).first()
 
-        project_id, username, upper_sequence_num, lower_sequence_num = row
+        (project_id, username, upper_sequence_num, lower_sequence_num,
+         ip_address) = row
 
         item_stat['project'] = project_id
         item_stat['username'] = username
@@ -589,6 +665,8 @@ def checkin_item(item_id, tamper_key, results):
             session.execute(query, query_args)
 
         session.execute(delete(Item).where(Item.id == item_id))
+
+        Budget.check_in(project_id, ip_address)
 
     if Stats.instance:
         Stats.instance.update(item_stat)
