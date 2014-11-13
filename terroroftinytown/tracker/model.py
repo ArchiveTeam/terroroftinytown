@@ -474,7 +474,7 @@ class Budget(object):
 
     @classmethod
     def get_available_project(cls, ip_address, version, client_version):
-        project_names = cls.projects.keys()
+        project_names = list(cls.projects.keys())
         random.shuffle(project_names)
 
         for project_name in project_names:
