@@ -130,3 +130,41 @@ th{
 	overflow: auto;
 	max-width: 40vw;
 }
+
+#leaderboard-totals, #leaderboard-recent {
+	table-layout: fixed;
+}
+
+.table-number {
+	text-align: right;
+}
+.table-string {
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.nick-color-0 {
+	color: #423c00;
+}
+.nick-color-1 {
+	color: #4a2500;
+}
+.nick-color-2 {
+	color: #170f02;
+}
+.nick-color-3 {
+	color: #152604;
+}
+.nick-color-4 {
+	color: #182f4c;
+}
+.nick-color-5 {
+	color: #221724;
+}
+.nick-color-6 {
+	color: #210000;
+}
+.nick-color-7 {
+	color: #2e3436;
+}

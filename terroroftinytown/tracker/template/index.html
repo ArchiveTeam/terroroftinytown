@@ -63,6 +63,11 @@
 							Totals
 						</div>
 						<table class="table table-bordered table-striped" id="leaderboard-totals">
+							<colgroup>
+								<col style="width: 40%;">
+								<col style="width: 30%;">
+								<col style="width: 30%;">
+							</colgroup>
 							<thead>
 								<tr>
 									<th>Username</th>
@@ -72,9 +77,9 @@
 							</thead>
 							<tbody>
 								<tr ng-repeat="item in lifetime|orderBy:getScanned:true|limitTo:totalLimit">
-									<td ng-bind="item[0]"></td>
-									<td ng-bind="item[1][0]|number"></td>
-									<td ng-bind="item[1][1]|number"></td>
+									<td class="table-string" ng-class="'nick-color-' + (item[0].charCodeAt(0) + item[0].length) % 8;" ng-bind="item[0]"></td>
+									<td class="table-number" ng-bind="item[1][0]|number"></td>
+									<td class="table-number" ng-bind="item[1][1]|number"></td>
 								</tr>
 							</tbody>
 						</table>	
@@ -89,6 +94,12 @@
 							Recent
 						</div>
 						<table class="table table-bordered table-striped" id="leaderboard-recent">
+							<colgroup>
+								<col style="width: 40%; overflow:hidden;">
+								<col style="width: 15%;">
+								<col style="width: 15%;">
+								<col style="width: 30%;">
+							</colgroup>
 							<thead>
 								<tr>
 									<th>Username</th>
@@ -99,10 +110,10 @@
 							</thead>
 							<tbody>
 								<tr ng-repeat="item in stats.live">
-									<td ng-bind="item.username"></td>
-									<td ng-bind="item.found|number"></td>
-									<td ng-bind="item.scanned|number"></td>
-									<td ng-bind="item.project"></td>
+									<td class="table-string" ng-class="'nick-color-' + (item.username.charCodeAt(0) + item.username.length) % 8;" ng-bind="item.username"></td>
+									<td class="table-number" ng-bind="item.found|number"></td>
+									<td class="table-number" ng-bind="item.scanned|number"></td>
+									<td class="table-string" ng-bind="item.project"></td>
 								</tr>
 							</tbody>
 						</table>
