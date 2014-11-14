@@ -5,6 +5,7 @@ from terroroftinytown.services.isgd import IsgdService
 from terroroftinytown.services.bitly import BitlyService
 from terroroftinytown.services.xco import XCOService
 from terroroftinytown.services.vitrue import VitrueService
+from terroroftinytown.services.tighturl import TighturlService
 
 
 registry = {}
@@ -16,3 +17,4 @@ registry['isgd'] = IsgdService
 registry['bitly'] = BitlyService
 registry['xco'] = XCOService
 registry['pub-vitrue-com'] = VitrueService
+registry['tighturl-com'] = TighturlService

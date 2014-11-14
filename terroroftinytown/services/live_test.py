@@ -45,6 +45,14 @@ MOCK_PARAMS = {
         'banned_codes': [403, 420, 429],
         'method': 'head',
     },
+    'tighturl-com': {
+        'alphabet': '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        'url_template': 'http://tighturl.com/{shortcode}',
+        'redirect_codes': [301],
+        'no_redirect_codes': [404],
+        'banned_codes': [420, 429],
+        'method': 'head',
+    },
 }
 
 
