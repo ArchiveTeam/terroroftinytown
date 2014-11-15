@@ -57,7 +57,8 @@ class TrackerClient(object):
             },
             headers={
                 'User-Agent': self.user_agent
-            }
+            },
+            timeout=60,
         )
 
         response.raise_for_status()
@@ -76,6 +77,7 @@ class TrackerClient(object):
                 'tamper_key': tamper_key,
                 'results': json.dumps(results, cls=NativeStringJSONEncoder),
             },
+            timeout=60,
         )
         response.raise_for_status()
 
@@ -89,6 +91,7 @@ class TrackerClient(object):
                 'tamper_key': tamper_key,
                 'message': message,
             },
+            timeout=60,
         )
         response.raise_for_status()
 
