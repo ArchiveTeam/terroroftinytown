@@ -77,7 +77,7 @@ class TestLive(unittest.TestCase):
         for filename in filenames:
             service_name = os.path.split(filename)[-1].replace('.txt', '')
 
-            if False and service_name in ('isgd',):
+            if service_name not in ('isgd',):
                 print('Skip', service_name)
                 continue
 

@@ -1,12 +1,13 @@
 import re
+import sys
 
 from terroroftinytown.client.errors import UnexpectedNoResult, \
     UnhandledStatusCode
 from terroroftinytown.services.base import BaseService
 from terroroftinytown.services.status import URLStatus
-from terroroftinytown.six.moves.urllib import parse as urlparse
 from terroroftinytown.six.moves import html_parser
-import sys
+from terroroftinytown.six.moves.urllib import parse as urlparse
+from terroroftinytown.services.rand import HashRandMixin
 
 
 class TinyurlService(BaseService):
@@ -108,8 +109,6 @@ class TinyurlService(BaseService):
     def _scrub_url(self, code, url):
         parsed_url = urlparse.urlparse(url)
 
-        print('ajsdfkjasfjklsadfkjjasdkfkjlsdf', url, parsed_url)
-
         if parsed_url.hostname == "redirect.tinyurl.com" and parsed_url.path == "/api/click":
             if sys.version_info[0] == 2:
                 query = urlparse.parse_qs(parsed_url.query.encode('latin-1'))
@@ -122,11 +121,11 @@ class TinyurlService(BaseService):
                 else:
                     scrubbed_url = query["out"][0]
 
-                print('asjdfkasjfklsjafss', repr(scrubbed_url))
-
                 return (URLStatus.ok, scrubbed_url, 'latin-1')
 
-        print('xcvxjcvkxcjvkl', repr(url))
-
-
         return (URLStatus.ok, url, 'latin-1')
+
+
+class Tinyurl7Service(HashRandMixin, TinyurlService):
+    def get_shortcode_width(self):
+        return 7

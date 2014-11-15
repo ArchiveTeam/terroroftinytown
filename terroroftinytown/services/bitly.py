@@ -6,6 +6,7 @@ from terroroftinytown.client.errors import UnexpectedNoResult
 from terroroftinytown.services.base import BaseService
 from terroroftinytown.services.status import URLStatus
 from terroroftinytown.six.moves.urllib import parse as urlparse
+from terroroftinytown.services.rand import HashRandMixin
 
 
 class BitlyService(BaseService):
@@ -38,3 +39,8 @@ class BitlyService(BaseService):
 
         else:
             return BaseService.process_redirect(self, response)
+
+
+class Bitly6Service(HashRandMixin, BitlyService):
+    def get_shortcode_width(self):
+        return 6

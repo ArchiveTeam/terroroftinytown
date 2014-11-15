@@ -8,6 +8,7 @@ from terroroftinytown.client.errors import PleaseRetry
 from terroroftinytown.services.base import BaseService
 from terroroftinytown.services.status import URLStatus
 from terroroftinytown.six.moves import html_parser
+from terroroftinytown.services.rand import HashRandMixin
 
 
 __all__ = ['IsgdService']
@@ -49,3 +50,8 @@ class IsgdService(BaseService):
 
         url = match.group(1)
         return (URLStatus.ok, html_parser.HTMLParser().unescape(url), response.encoding)
+
+
+class Isgd6Service(HashRandMixin, IsgdService):
+    def get_shortcode_width(self):
+        return 6
