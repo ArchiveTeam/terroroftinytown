@@ -77,7 +77,7 @@ class TestLive(unittest.TestCase):
 
             print('Brought up service', service)
 
-            with codecs.open(filename, 'r', encoding='utf-8') as def_file:
+            with codecs.open(filename, 'rb') as def_file:
                 for shortcode, expected_result in iterate_definition_file(def_file):
                     service.current_shortcode = shortcode
                     url = params['url_template'].format(shortcode=shortcode)
@@ -99,8 +99,16 @@ def iterate_definition_file(file):
     for line in file:
         line = line.strip()
 
-        if not line or line.startswith('#'):
+        if not line or line.startswith(b'#'):
             continue
+
+        if line.startswith(b'?'):
+            encoding, line = line[1:].split(b'?', 1)
+            encoding = encoding.decode('ascii')
+
+            line = line.decode(encoding)
+        else:
+            line = line.decode('utf-8')
 
         shortcode, result = line.split('|', 1)
 
