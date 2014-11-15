@@ -53,6 +53,15 @@ MOCK_PARAMS = {
         'banned_codes': [420, 429],
         'method': 'head',
     },
+    'tinyurl': {
+        'alphabet': '0123456789abcdefghijklmnopqrstuvwxyz',
+        'url_template': 'http://tinyurl.com/{shortcode}',
+        'redirect_codes': [200, 301],
+        'no_redirect_codes': [404],
+        'unavailable_codes': [302],
+        'banned_codes': [420, 429],
+        'method': 'head',
+    },
 }
 
 

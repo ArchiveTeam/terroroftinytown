@@ -1,0 +1,46 @@
+# To avoid loss of data, please a hex editor when editing this file, thanks!
+
+## Standard tests
+# example.org test
+4o8vk|http://www.example.org/
+# Not found
+#oycsuls|notfound
+n0exist|notfound
+
+## Long URL returns 404
+# Normal
+cs|http://www.unicyclist.com/newgateway/get.php
+# Newline in URL - This sometimes works, sometimes doesn't.
+# Test-definition doesn't support newlines
+#0agy1|http://www.philly.com/mld/inquirer/news/local/states/pennsylvania/counties/philadelphia_county/philadelphia/14051913.htm?source=rss&channel=inquirer_philadelphia\n
+
+## Long URL is a tinyurl
+# Normal
+2uxy|http://tinyurl.com/2uxx
+# Newline in URL
+# Test-definition doesn't support newlines
+#0i61s|http://tinyurl.com/npxpr\n
+# Non-ASCII characters in URL
+c5j|http://www.macuser.co.uk/macsurfer/php3/openframe.php3?page=/newnews/newsarti¸Z ÅHÖÿ¿?Ñ@4×ÿ¿??cle.php3?id=1990
+# Was previously an error page, but now is a normal redirect
+w|http://tinyurl.com/create.php?url=http://translate.google.com/translate?hl=en&u=http%3A%2F%2Fwww.buy-tees.com&langpair=en%7Cfr
+# Special characters in long URL
+2zln|http://tinyurl.com/create.php?url=http://www.saq.com/pls/devsaq/pb_appel_page?p_iden_tran=5654289&p_modi_url=1124093923&p_code_page=info_saq_details.html&p_tab_para=vide!vide&p_tab_para=P_ID_COMM!976#montréal
+
+## Advertisement
+# Normal
+sj27|http://www.tripadvisor.com/Hotel_Review-g147278-d240967-Reviews-Hotel_Kura_Hulanda-Willemstad_Curacao.html
+# HTML-escaped characters
+sinz|http://www.bananarepublic.com/browse/product/202/product_202834.htm?cs_catalog=BR_HOLIDAY1_2003&cs_category=201002
+# Preview URL is blank, probably due to encoding trouble
+0b26k|http://www.amazon.co.jp/gp/search/ref=sr_nr_i_0/503-6843802-6055928?ie=UTF8&keywords=AVX&rh=i%3Aaps%2Ck%3AAVX%2Ci%3Ahpc&page=1
+# Preview URL is blank, but it is still advertising, so we have to parse the advertisement URL
+# ?latin-1?jr1ea|http://www.symantec.com/techsupp/asa/ss/sa/index.jsp?said=ds�&act=intro�&sess=1795708580�&docid=2004120709410739
+# Looks like the URL changes depending on the user-agent
+?latin-1?jr1ea|http://www.symantec.com/techsupp/asa/ss/sa/index.jsp?said=ds�&act=intro�&sess=1795708580�&docid=2004120709410739
+
+## Blocked
+# URL Terminated page
+dick|blocked
+# No redirect URL given
+bvkke|blocked
