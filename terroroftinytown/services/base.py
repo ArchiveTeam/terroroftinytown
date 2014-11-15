@@ -58,16 +58,19 @@ class BaseService(object):
                 'encoding': encoding or 'latin-1'
             }
 
-    def fetch_url(self, url):
+    def fetch_url(self, url, method=None):
         # this import is moved here so that tracker can import
         # registry without installing requests
         import requests
+
+        assert method in (None, 'get', 'head'), method
+
         headers = {
             'User-Agent': self.user_agent,
         }
 
         try:
-            if self.params['method'] == 'get':
+            if method == 'get' or self.params['method'] == 'get':
                 response = requests.get(
                     url, allow_redirects=False, headers=headers)
             else:
