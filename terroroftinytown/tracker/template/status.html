@@ -8,11 +8,11 @@
 <div ng-controller="StatsController" class="container-fluid">
 	<h2>Shortener Projects</h2>
 	<p>Click on header to show project settings</p>
-	{% for project in projects %}
+	{% for project in [project for project in projects if project.enabled] + [project for project in projects if not project.enabled] %}
 	<div class="col-md-6">
 		<div class="panel panel-default">
 			<div class="panel-heading" ng-click="body['{{project.name}}']=!body['{{project.name}}']">
-				{{project.name}}
+				{% if project.enabled %} ✦ {% end %} {{project.name}}
 			</div>
 			<table class="table table-bordered">
 				<thead>
