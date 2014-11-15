@@ -45,6 +45,23 @@ MOCK_PARAMS = {
         'banned_codes': [403, 420, 429],
         'method': 'head',
     },
+    'tighturl-com': {
+        'alphabet': '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        'url_template': 'http://tighturl.com/{shortcode}',
+        'redirect_codes': [301],
+        'no_redirect_codes': [404],
+        'banned_codes': [420, 429],
+        'method': 'head',
+    },
+    'tinyurl': {
+        'alphabet': '0123456789abcdefghijklmnopqrstuvwxyz',
+        'url_template': 'http://tinyurl.com/{shortcode}',
+        'redirect_codes': [200, 301],
+        'no_redirect_codes': [404],
+        'unavailable_codes': [302],
+        'banned_codes': [420, 429],
+        'method': 'head',
+    },
 }
 
 
@@ -60,7 +77,7 @@ class TestLive(unittest.TestCase):
         for filename in filenames:
             service_name = os.path.split(filename)[-1].replace('.txt', '')
 
-            if False and service_name in ('isgd',):
+            if service_name not in ('isgd',):
                 print('Skip', service_name)
                 continue
 
@@ -69,7 +86,7 @@ class TestLive(unittest.TestCase):
 
             print('Brought up service', service)
 
-            with codecs.open(filename, 'r', encoding='utf-8') as def_file:
+            with codecs.open(filename, 'rb') as def_file:
                 for shortcode, expected_result in iterate_definition_file(def_file):
                     service.current_shortcode = shortcode
                     url = params['url_template'].format(shortcode=shortcode)
@@ -91,8 +108,16 @@ def iterate_definition_file(file):
     for line in file:
         line = line.strip()
 
-        if not line or line.startswith('#'):
+        if not line or line.startswith(b'#'):
             continue
+
+        if line.startswith(b'?'):
+            encoding, line = line[1:].split(b'?', 1)
+            encoding = encoding.decode('ascii')
+
+            line = line.decode(encoding)
+        else:
+            line = line.decode('utf-8')
 
         shortcode, result = line.split('|', 1)
 

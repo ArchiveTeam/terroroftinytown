@@ -4,6 +4,7 @@
 import datetime
 import logging
 import re
+import sys
 import time
 
 from requests.exceptions import ConnectionError
@@ -13,6 +14,7 @@ from terroroftinytown.client.errors import (UnhandledStatusCode,
     UnexpectedNoResult, ScraperError, PleaseRetry)
 from terroroftinytown.services.status import URLStatus
 from terroroftinytown.six.moves import html_parser
+import terroroftinytown
 
 
 __all__ = ['BaseService', 'registry']
@@ -56,16 +58,19 @@ class BaseService(object):
                 'encoding': encoding or 'latin-1'
             }
 
-    def fetch_url(self, url):
+    def fetch_url(self, url, method=None):
         # this import is moved here so that tracker can import
         # registry without installing requests
         import requests
+
+        assert method in (None, 'get', 'head'), method
+
         headers = {
             'User-Agent': self.user_agent,
         }
 
         try:
-            if self.params['method'] == 'get':
+            if method == 'get' or self.params['method'] == 'get':
                 response = requests.get(
                     url, allow_redirects=False, headers=headers)
             else:
@@ -93,6 +98,14 @@ class BaseService(object):
     def process_redirect(self, response):
         if 'Location' in response.headers:
             result_url = response.headers['Location']
+
+            if sys.version_info[0] == 2 and \
+                    isinstance(result_url, terroroftinytown.six.binary_type):
+                # Headers are treated as latin-1
+                # This is needed so that unit tests don't need to
+                # do implicit unicode conversion. Ick!
+                result_url = result_url.decode('latin-1')
+
             return (URLStatus.ok, result_url, None)
         elif self.params.get('body_regex'):
             return self.process_redirect_body(response)

@@ -27,6 +27,6 @@ class HashRandMixin(BaseRandMixin):
         digest = hasher.digest()
         num = struct.unpack('>Q', digest[:8])[0]
         shortcode = alphabet.int_to_str(num, self.params['alphabet'])
-        shortcode = shortcode[:self.get_shortcode_width()]
+        shortcode = shortcode[-self.get_shortcode_width():]
 
         return shortcode

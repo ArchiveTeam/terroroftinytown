@@ -7,6 +7,7 @@
 
 <div ng-controller="StatsController" class="container-fluid">
 	<h2>Shortener Projects</h2>
+	<p>Click on header to show project settings</p>
 	{% for project in projects %}
 	<div class="col-md-6">
 		<div class="panel panel-default">
@@ -22,23 +23,20 @@
 				</thead>
 				<tbody>
 					<tr>
-						<td ng-bind="stats.project['{{project.name}}'][0]|number">0</td>
-						<td ng-bind="stats.project['{{project.name}}'][1]|number">0</td>
+						<td class="table-number" ng-bind="stats.project['{{project.name}}'][0]|number">0</td>
+						<td class="table-number" ng-bind="stats.project['{{project.name}}'][1]|number">0</td>
 					</tr>
 				</tbody>
 			</table>
-			<div class="panel-body" ng-hide="body['{{project.name}}']">
-				Click on header to show project settings
-			</div>
 			<div class="panel-body" ng-show="body['{{project.name}}']">
 				{% if project.name in services %}
 				<p class="text-success">This service use custom script.</p>
 				{% end %}
 				<dl>
 					<dt>Minimum library version</dt>
-					<dd>{{project.min_client_version}}</dd>
-					<dt>Minimum pipeline version</dt>
 					<dd>{{project.min_version}}</dd>
+					<dt>Minimum pipeline version</dt>
+					<dd>{{project.min_client_version}}</dd>
 					<dt>URL</dt>
 					<dd><code>{{project.url_template}}</code></dd>
 					<dt>Method</dt>

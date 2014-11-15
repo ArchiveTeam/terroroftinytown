@@ -8,6 +8,7 @@ from terroroftinytown.client.errors import PleaseRetry
 from terroroftinytown.services.base import BaseService
 from terroroftinytown.services.status import URLStatus
 from terroroftinytown.six.moves import html_parser
+from terroroftinytown.services.rand import HashRandMixin
 
 
 __all__ = ['IsgdService']
@@ -28,6 +29,8 @@ class IsgdService(BaseService):
             return self.parse_preview(response)
 
     def parse_blocked(self, response):
+        response.encoding = 'utf-8'
+
         match = re.search("<p>For reference and to help those fighting spam the original destination of this URL is given below \(we strongly recommend you don't visit it since it may damage your PC\): -<br />(.*)</p><h2>is\.gd</h2><p>is\.gd is a free service used to shorten long URLs\.", response.text)
         if not match:
             raise errors.UnexpectedNoResult("Could not find target URL in 'Link Disabled' page")
@@ -39,9 +42,16 @@ class IsgdService(BaseService):
         return (URLStatus.ok, url, response.encoding)
 
     def parse_preview(self, response):
+        response.encoding = 'utf-8'
+
         match = re.search("<b>Click the link</b> if you'd like to proceed to the destination shown: -<br /><a href=\"(.*)\" class=\"biglink\">", response.text)
         if not match:
             raise errors.UnexpectedNoResult("Could not find target URL in 'Preview' page")
 
         url = match.group(1)
         return (URLStatus.ok, html_parser.HTMLParser().unescape(url), response.encoding)
+
+
+class Isgd6Service(HashRandMixin, IsgdService):
+    def get_shortcode_width(self):
+        return 6
