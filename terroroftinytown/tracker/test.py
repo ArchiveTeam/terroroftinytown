@@ -17,10 +17,10 @@ import tornado.testing
 from terroroftinytown.tracker.app import Application
 from terroroftinytown.tracker.bootstrap import ApplicationBootstrap
 from terroroftinytown.tracker.database import Database
-from terroroftinytown.tracker.model import MIN_CLIENT_VERSION_OVERRIDE, \
-    MIN_VERSION_OVERRIDE
+from terroroftinytown.tracker.model import MIN_CLIENT_VERSION_OVERRIDE
 from terroroftinytown.tracker.stats import Stats
 from terroroftinytown.util.jsonutil import NativeStringJSONEncoder
+from terroroftinytown.client import VERSION
 
 
 class IOLoopThread(threading.Thread):
@@ -408,7 +408,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
             self.get_url('/api/get'),
             data={
                 'username': 'SMAUG',
-                'version': MIN_VERSION_OVERRIDE,
+                'version': VERSION,
                 'client_version': MIN_CLIENT_VERSION_OVERRIDE
             }
         )

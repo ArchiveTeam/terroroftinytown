@@ -21,6 +21,7 @@ from sqlalchemy.sql.type_api import TypeDecorator
 from terroroftinytown.tracker.errors import NoItemAvailable, FullClaim, UpdateClient, \
     InvalidClaim
 from terroroftinytown.tracker.stats import Stats
+from terroroftinytown.client import VERSION
 
 
 # These overrides for major api changes
@@ -135,7 +136,7 @@ class Project(Base):
     __tablename__ = 'projects'
 
     name = Column(String, primary_key=True)
-    min_version = Column(Integer, default=MIN_VERSION_OVERRIDE, nullable=False)
+    min_version = Column(Integer, default=VERSION, nullable=False)
     min_client_version = Column(Integer, default=MIN_CLIENT_VERSION_OVERRIDE, nullable=False)
     alphabet = Column(String, default='0123456789abcdefghijklmnopqrstuvwxyz'
                                       'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
