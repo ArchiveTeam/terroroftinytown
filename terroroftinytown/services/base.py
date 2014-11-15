@@ -72,10 +72,10 @@ class BaseService(object):
         try:
             if method == 'get' or self.params['method'] == 'get':
                 response = requests.get(
-                    url, allow_redirects=False, headers=headers)
+                    url, allow_redirects=False, headers=headers, timeout=60)
             else:
                 response = requests.head(
-                    url, allow_redirects=False, headers=headers)
+                    url, allow_redirects=False, headers=headers, timeout=60)
         except ConnectionError as e:
             return self.process_connection_error(e)
 
