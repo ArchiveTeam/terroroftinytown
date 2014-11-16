@@ -76,7 +76,8 @@ class Bootstrap:
             logging.basicConfig(level=logging.INFO)
 
         handler = GzipRotatingFileHandler(
-            filename=log_path, maxBytes=209715200, backupCount=1000000,
+            filename=log_path, maxBytes=209715200,
+            backupCount=self.config.get('logging', 'backup_count', fallback=200),
             encoding='utf-8')
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         handler.setFormatter(formatter)
