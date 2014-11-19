@@ -22,6 +22,7 @@ from terroroftinytown.tracker.errors import NoItemAvailable, FullClaim, UpdateCl
     InvalidClaim
 from terroroftinytown.tracker.stats import Stats
 from terroroftinytown.client import VERSION
+from sqlalchemy.sql.functions import func
 
 
 # These overrides for major api changes
@@ -388,6 +389,37 @@ class Result(Base):
             result = session.query(Result.id).first()
 
             return bool(result)
+
+    @classmethod
+    def get_count(cls):
+        with new_session() as session:
+            result = session.query(
+                func.min(Result.id), func.max(Result.id)
+                ).first()
+
+            if result:
+                return result[1] - result[0]
+            return 0
+
+    @classmethod
+    def get_results(cls, offset_id=0, limit=1000):
+        with new_session() as session:
+            rows = session.query(
+                Result.id, Result.project_id, Result.shortcode,
+                Result.url, Result.encoding, Result.datetime
+                ) \
+                .filter(Result.id > offset_id) \
+                .limit(limit)
+
+            for row in rows:
+                yield {
+                    'id': row[0],
+                    'project_id': row[1],
+                    'shortcode': row[2],
+                    'url': row[3],
+                    'encoding': row[4],
+                    'datetime': row[5]
+                }
 
 
 class ErrorReport(Base):

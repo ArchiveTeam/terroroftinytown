@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %} Results {% end %}
+
+{% block main %}
+
+<h1>Results</h1>
+
+<p>About {{ count }} results exist.</p>
+
+<a class="btn btn-default" href="{{ '{}?offset_id={}'.format(reverse_url('admin.results'), next_offset_id) }}">Show more</a>
+
+<table class="table table-bordered table-striped">
+	<thead>
+		<tr>
+			<th>ID</th>
+			<th>Project</th>
+			<th>Shortcode</th>
+			<th>URL</th>
+			<th>Encoding</th>
+			<th>Date</th>
+		</tr>
+	</thead>
+
+	{% for result in results %}
+	<tr>
+		<td>{{ result['id'] }}</td>
+		<td>{{ result['project_id'] }}</td>
+		<td>{{ result['shortcode'] }}</td>
+		<td>{{ result['url'] }}</td>
+		<td>{{ result['encoding'] }}</td>
+		<td>{{ result['datetime'] }}</td>
+	</tr>
+	{% end %}
+</table>
+
+<a class="btn btn-default" href="{{ '{}?offset_id={}'.format(reverse_url('admin.results'), next_offset_id) }}">Show more</a>
+
+{% end %}

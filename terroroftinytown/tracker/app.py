@@ -25,6 +25,7 @@ class Application(tornado.web.Application):
             U(r'/admin/banned', admin.BannedHandler, name='admin.banned'),
             U(r'/admin/login', account.LoginHandler, name='admin.login'),
             U(r'/admin/logout', account.LogoutHandler, name='admin.logout'),
+            U(r'/admin/results', admin.ResultsHandler, name='admin.results'),
             U(r'/admin/error_reports', admin.ErrorReportsListHandler,
               name='admin.error_reports'),
             U(r'/admin/error_reports/delete_all',

@@ -6,7 +6,7 @@ import tornado.web
 from terroroftinytown.tracker.base import BaseHandler
 from terroroftinytown.tracker.form import BlockUsernameForm, UnblockUsernameForm, \
     DeleteAllErrorReportsForm
-from terroroftinytown.tracker.model import BlockedUser, ErrorReport
+from terroroftinytown.tracker.model import BlockedUser, ErrorReport, Result
 
 
 logger = logging.getLogger(__name__)
@@ -76,3 +76,16 @@ class ErrorReportsDeleteAllHandler(BaseHandler):
     def post(self):
         ErrorReport.delete_all()
         self.redirect(self.reverse_url('admin.error_reports'))
+
+
+class ResultsHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+        offset_id = int(self.get_argument('offset_id', 0))
+        results = tuple(Result.get_results(offset_id=offset_id))
+        self.render(
+            'admin/overview/results.html',
+            count=Result.get_count(),
+            results=results,
+            next_offset_id=results[-1]['id'] if results else 0
+        )
