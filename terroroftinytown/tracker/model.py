@@ -393,13 +393,10 @@ class Result(Base):
     @classmethod
     def get_count(cls):
         with new_session() as session:
-            result = session.query(
-                func.min(Result.id), func.max(Result.id)
-                ).first()
+            min_id = session.query(func.min(Result.id)).scalar() or 0
+            max_id = session.query(func.max(Result.id)).scalar() or 0
 
-            if result:
-                return result[1] - result[0]
-            return 0
+            return max_id - min_id
 
     @classmethod
     def get_results(cls, offset_id=0, limit=1000):
