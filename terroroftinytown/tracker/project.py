@@ -56,7 +56,8 @@ class AllProjectsHandler(BaseHandler):
             'admin/project/all.html',
             add_project_form=add_project_form,
             projects=Project.all_project_infos(),
-            message=message
+            message=message,
+            project_budgets=Budget.projects,
         )
 
 
