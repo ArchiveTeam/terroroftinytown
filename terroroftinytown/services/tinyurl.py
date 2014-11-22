@@ -1,16 +1,27 @@
+import logging
 import re
 import sys
 
 from terroroftinytown.client.errors import UnexpectedNoResult, \
     UnhandledStatusCode
 from terroroftinytown.services.base import BaseService
+from terroroftinytown.services.rand import HashRandMixin
 from terroroftinytown.services.status import URLStatus
 from terroroftinytown.six.moves import html_parser
 from terroroftinytown.six.moves.urllib import parse as urlparse
-from terroroftinytown.services.rand import HashRandMixin
+
+
+_logger = logging.getLogger(__name__)
 
 
 class TinyurlService(BaseService):
+    def prepare(self):
+        # Try to get a 301. Sometimes it returns 200 with a meta-refresh
+        # on the first try
+        _logger.info('Knock, knock, Tinyurl!')
+        response = self.fetch_url('http://tinyurl.com/4o8vk', method='head')
+        _logger.info('Got status code %s', response.status_code)
+
     def process_redirect(self, response):
         if response.status_code == 200:
             return self._fetch_200(response)
