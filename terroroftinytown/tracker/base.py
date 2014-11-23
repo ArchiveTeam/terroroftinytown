@@ -1,5 +1,6 @@
 # encoding=utf-8
-from sqlalchemy.exc import SQLAlchemyError
+import os.path
+
 import tornado.web
 
 from terroroftinytown.tracker.model import User
@@ -18,3 +19,14 @@ class BaseHandler(tornado.web.RequestHandler):
             if username:
                 if User.is_user_exists(username):
                     return username
+
+    def prepare(self):
+        sentinel_path = self.application.settings.get('maintenance_sentinel')
+
+        if sentinel_path and os.path.exists(sentinel_path):
+            self._show_maintenance_page()
+
+    def _show_maintenance_page(self):
+        self.set_status(512, 'EXPORTING OUR SHIT')
+        self.render('maintenance.html')
+        raise tornado.web.Finish()

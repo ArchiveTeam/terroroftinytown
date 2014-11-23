@@ -100,6 +100,7 @@ class ApplicationBootstrap(Bootstrap):
             self.redis,
             debug=self.args.debug,
             cookie_secret=self.config['web']['cookie_secret'],
+            maintenance_sentinel=self.config['web'].get('maintenance_sentinel_file'),
         )
 
     def boot(self):

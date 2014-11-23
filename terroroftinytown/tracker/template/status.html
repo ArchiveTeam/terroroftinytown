@@ -27,8 +27,8 @@
 				</thead>
 				<tbody>
 					<tr>
-						<td class="table-number" ng-bind="stats.project['{{project.name}}'][0]|number">0</td>
-						<td class="table-number" ng-bind="stats.project['{{project.name}}'][1]|number">0</td>
+						<td class="table-number" ng-bind="stats.project['{{project.name}}'][0]|number">{{ project_stats.get(project.name, (0, 0))[0] }}</td>
+						<td class="table-number" ng-bind="stats.project['{{project.name}}'][1]|number">{{ project_stats.get(project.name, (0, 0))[1] }}</td>
 					</tr>
 				</tbody>
 			</table>

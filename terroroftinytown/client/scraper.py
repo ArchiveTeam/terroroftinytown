@@ -38,6 +38,8 @@ class Scraper(object):
         self.service = self.get_service()(self.params)
 
     def run(self):
+        self.service.prepare()
+
         for item in self.todo_list:
             for try_count in itertools.count():
                 if try_count > 0:

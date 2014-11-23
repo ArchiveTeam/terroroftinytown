@@ -29,6 +29,9 @@ class BaseService(object):
         self.current_shortcode = None
         self.user_agent = DEFAULT_USER_AGENT
 
+    def prepare(self):
+        pass
+
     def wait(self):
         sleep_time = self.params['request_delay']
         time.sleep(sleep_time)

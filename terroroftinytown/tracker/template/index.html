@@ -30,31 +30,10 @@
 		{% block main %}
 		<div id="stats" ng-controller="StatsController">
 			<div id="globalstats">
-				<strong ng-bind="stats.global[1]|number">0</strong> URLs scanned, <strong ng-bind="stats.global[0]|number">0</strong> saved
+				<strong ng-bind="stats.global[1]|number">{{ stats['global'][1] }}</strong> URLs scanned, <strong ng-bind="stats.global[0]|number">{{ stats['global'][0] }}</strong> saved
 			</div>
 			<div id="leaderboard" class="row">
 				<div class="col-md-6">
-					<!-- <div class="panel panel-default">
-						<div class="panel-heading">
-							Projects
-						</div>
-						<table class="table table-bordered table-striped">
-							<thead>
-								<tr>
-									<th>Project</th>
-									<th>Found</th>
-									<th>Scanned</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr ng-repeat="item in stats.project|toArray">
-									<td ng-bind="item[0]"></td>
-									<td ng-bind="item[1][0]|number"></td>
-									<td ng-bind="item[1][1]|number"></td>
-								</tr>
-							</tbody>
-						</table>
-					</div> -->
 					<div class="panel panel-default">
 						<div class="panel-heading">
 							<div class="pull-right">
@@ -81,6 +60,15 @@
 									<td class="table-number" ng-bind="item[1][0]|number"></td>
 									<td class="table-number" ng-bind="item[1][1]|number"></td>
 								</tr>
+								<noscript>
+								{% for username, found, scanned in stats['lifetime'] %}
+									<tr>
+										<td class="table-string">{{ username }}</td>
+										<td class="table-number">{{ found }}</td>
+										<td class="table-number">{{ scanned }}</td>
+									</tr>
+								{% end %}
+								</noscript>
 							</tbody>
 						</table>	
 					</div>
@@ -115,11 +103,26 @@
 									<td class="table-number" ng-bind="item.scanned|number"></td>
 									<td class="table-string" ng-bind="item.project"></td>
 								</tr>
+								<noscript>
+								{% for item in stats['live'] %}
+									<tr>
+										<td class="table-string">{{ item['username'] }}</td>
+										<td class="table-number">{{ item['found'] }}</td>
+										<td class="table-number">{{ item['scanned'] }}</td>
+										<td class="table-string">{{ item['project'] }}</td>
+									</tr>
+								{% end %}
+								</noscript>
 							</tbody>
 						</table>
 					</div>
 				</div>
 			</div>
+			<noscript>
+				<div class="bg-info">
+					<p>This dashboard is best experienced with JavaScript.</p>
+				</div>
+			</noscript>
 		</div>
 		{% end %}
 	</div>

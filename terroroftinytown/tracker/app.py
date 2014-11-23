@@ -11,6 +11,7 @@ from terroroftinytown.tracker import model
 from terroroftinytown.tracker.base import BaseHandler
 from terroroftinytown.tracker.errors import UserIsBanned
 from terroroftinytown.tracker.ui import FormUIModule
+from terroroftinytown.tracker.stats import Stats
 
 
 class Application(tornado.web.Application):
@@ -24,6 +25,7 @@ class Application(tornado.web.Application):
             U(r'/admin/banned', admin.BannedHandler, name='admin.banned'),
             U(r'/admin/login', account.LoginHandler, name='admin.login'),
             U(r'/admin/logout', account.LogoutHandler, name='admin.logout'),
+            U(r'/admin/results', admin.ResultsHandler, name='admin.results'),
             U(r'/admin/error_reports', admin.ErrorReportsListHandler,
               name='admin.error_reports'),
             U(r'/admin/error_reports/delete_all',
@@ -92,7 +94,21 @@ class Application(tornado.web.Application):
 
 class IndexHandler(BaseHandler):
     def get(self):
-        self.render('index.html')
+        lifetime_list = [
+            (username, found, scanned)
+            for username, (found, scanned)
+            in Stats.instance.get_lifetime().items()
+        ]
+        lifetime_list = sorted(lifetime_list, key=lambda item: item[2],
+                               reverse=True)
+
+        stats = {
+            'global': Stats.instance.get_global(),
+            'lifetime': lifetime_list[:300],
+            'live': Stats.instance.get_live(),
+        }
+
+        self.render('index.html', stats=stats)
 
 
 class StatusHandler(BaseHandler):
@@ -102,6 +118,8 @@ class StatusHandler(BaseHandler):
         projects = list([
             model.Project.get_plain(name)
             for name in model.Project.all_project_names()])
+        project_stats = Stats.instance.get_project()
 
         self.render('status.html', projects=projects, services=registry,
+                    project_stats=project_stats,
                     git_hash=self.GIT_HASH)
