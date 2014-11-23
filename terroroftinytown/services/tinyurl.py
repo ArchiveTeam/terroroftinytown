@@ -3,7 +3,7 @@ import re
 import sys
 
 from terroroftinytown.client.errors import UnexpectedNoResult, \
-    UnhandledStatusCode
+    UnhandledStatusCode, PleaseRetry
 from terroroftinytown.services.base import BaseService
 from terroroftinytown.services.rand import HashRandMixin
 from terroroftinytown.services.status import URLStatus
@@ -15,13 +15,6 @@ _logger = logging.getLogger(__name__)
 
 
 class TinyurlService(BaseService):
-    def prepare(self):
-        # Try to get a 301. Sometimes it returns 200 with a meta-refresh
-        # on the first try
-        _logger.info('Knock, knock, Tinyurl!')
-        response = self.fetch_url('http://tinyurl.com/4o8vk', method='head')
-        _logger.info('Got status code %s', response.status_code)
-
     def process_redirect(self, response):
         if response.status_code == 200:
             return self._fetch_200(response)
@@ -45,7 +38,7 @@ class TinyurlService(BaseService):
         new_response.encoding = 'utf-8'
 
         if new_response.status_code != 200:
-            raise UnhandledStatusCode(
+            raise PleaseRetry(
                 'Strange 200 change to {0} for {1}'.format(
                     new_response.status_code, repr(response.url))
             )
