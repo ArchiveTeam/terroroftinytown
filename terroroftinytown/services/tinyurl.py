@@ -15,6 +15,9 @@ _logger = logging.getLogger(__name__)
 
 
 class TinyurlService(BaseService):
+    def prepare(self):
+        self.user_agent = 'curl (not really) {0}'.format(self.user_agent)
+
     def process_redirect(self, response):
         if response.status_code == 200:
             return self._fetch_200(response)
