@@ -35,12 +35,16 @@ sinz|http://www.bananarepublic.com/browse/product/202/product_202834.htm?cs_cata
 # Preview URL is blank, probably due to encoding trouble
 0b26k|http://www.amazon.co.jp/gp/search/ref=sr_nr_i_0/503-6843802-6055928?ie=UTF8&keywords=AVX&rh=i%3Aaps%2Ck%3AAVX%2Ci%3Ahpc&page=1
 # Preview URL is blank, but it is still advertising, so we have to parse the advertisement URL
-# ?latin-1?jr1ea|http://www.symantec.com/techsupp/asa/ss/sa/index.jsp?said=ds�&act=intro�&sess=1795708580�&docid=2004120709410739
+?latin-1?jr1ea|http://www.symantec.com/techsupp/asa/ss/sa/index.jsp?said=ds�&act=intro�&sess=1795708580�&docid=2004120709410739
 # Looks like the URL changes depending on the user-agent
-?latin-1?jr1ea|http://www.symantec.com/techsupp/asa/ss/sa/index.jsp?said=ds�&act=intro�&sess=1795708580�&docid=2004120709410739
+# ?latin-1?jr1ea|http://www.symantec.com/techsupp/asa/ss/sa/index.jsp?said=ds�&act=intro�&sess=1795708580�&docid=2004120709410739
 
 ## Blocked
 # URL Terminated page
 dick|blocked
 # No redirect URL given
 bvkke|blocked
+
+## Sponsored user tracking redirections
+3348aak|http://www.amazon.com/Im-Not-There-Various-Artists/dp/B000VS6P9Q
+

@@ -8,6 +8,7 @@ import unittest
 from terroroftinytown.services.registry import registry
 from terroroftinytown.services.status import URLStatus
 from terroroftinytown.six import u
+import terroroftinytown
 
 
 MOCK_PARAMS = {
@@ -77,7 +78,7 @@ class TestLive(unittest.TestCase):
         for filename in filenames:
             service_name = os.path.split(filename)[-1].replace('.txt', '')
 
-            if False and service_name in ('isgd',):
+            if True and service_name not in ('tinyurl',):
                 print('Skip', service_name)
                 continue
 
@@ -85,6 +86,8 @@ class TestLive(unittest.TestCase):
             service = registry[u(service_name)](params)
 
             print('Brought up service', service)
+
+            service.prepare()
 
             with codecs.open(filename, 'rb') as def_file:
                 for shortcode, expected_result in iterate_definition_file(def_file):
@@ -95,6 +98,10 @@ class TestLive(unittest.TestCase):
 
                     response = service.fetch_url(url)
                     url_status, result_url, encoding = service.process_response(response)
+
+                    if terroroftinytown.six.PY2 and \
+                            isinstance(result_url, terroroftinytown.six.binary_type):
+                        result_url = result_url.decode(encoding)
 
                     print('  Got', url_status, result_url, encoding)
 
