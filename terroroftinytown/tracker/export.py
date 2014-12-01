@@ -10,7 +10,7 @@ import shutil
 import zipfile
 
 from sqlalchemy import func
-from sqlalchemy.sql.expression import delete
+from sqlalchemy.sql.expression import delete, bindparam
 
 from terroroftinytown.format import registry
 from terroroftinytown.format.projectsettings import ProjectSettingsWriter
@@ -156,8 +156,13 @@ class Exporter:
                             break
 
                     if self.settings['delete']:
-                        session.execute(delete(Result).where(
-                            Result.id.in_(delete_ids)))
+                        delete_query = delete(Result).where(
+                            Result.id == bindparam('id')
+                        )
+                        session.execute(
+                            delete_query,
+                            [{'id': result_id} for result_id in delete_ids]
+                        )
 
     def _feed_input_sorters(self):
         num_results = 0
