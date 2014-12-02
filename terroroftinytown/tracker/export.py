@@ -150,6 +150,13 @@ class Exporter:
                         if num_results % 10000 == 0:
                             logger.info('Drain progress: %d', num_results)
 
+                        if num_results % 100000 == 0:
+                            # Risky, but need to do this since WAL
+                            # performance is low on large transactions
+                            logger.info("Checkpoint. (Don't delete stray files if program crashes!)")
+                            work_file.flush()
+                            session.commit()
+
                         if self.max_items and num_results >= self.max_items:
                             logger.info('Reached max items %d.', self.max_items)
                             running = False
