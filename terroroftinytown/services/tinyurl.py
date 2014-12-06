@@ -78,12 +78,22 @@ class TinyurlService(BaseService):
         if query["path"][0] != ("/" + self.current_shortcode):
             raise UnexpectedNoResult("Code mismatch on \"errorhelp\" on HTTP status 200")
 
+        encoding = response.encoding
+
         if sys.version_info[0] == 2:
-            result_url = query["url"][0].decode('utf-8')
+            try:
+                result_url = query["url"][0].decode('utf-8')
+            except UnicodeError:
+                try:
+                    result_url = query["url"][0].decode('cp1252')
+                    encoding = 'cp1252'
+                except UnicodeError:
+                    result_url = query["url"][0].decode('latin-1')
+                    encoding = 'latin-1'
         else:
             result_url = query["url"][0]
 
-        return (URLStatus.ok, result_url, response.encoding)
+        return (URLStatus.ok, result_url, encoding)
 
     def _parse_tinyurl_redirect(self, response):
         match = re.search("<p class=\"intro\">The URL you followed redirects back to a TinyURL and therefore we can't directly send you to the site\\. The URL it redirects to is <a href=\"(.*?)\">", response.text, re.DOTALL)
