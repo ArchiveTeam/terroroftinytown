@@ -440,11 +440,24 @@ class ErrorReport(Base):
             'message': self.message,
             'datetime': self.datetime,
         }
+        
+    @classmethod
+    def get_count(cls):
+        with new_session() as session:
+            min_id = session.query(func.min(ErrorReport.id)).scalar() or 0
+            max_id = session.query(func.max(ErrorReport.id)).scalar() or 0
+
+            return max_id - min_id
 
     @classmethod
-    def all_reports(cls):
+    def all_reports(cls, limit=100, offset_id=None):
         with new_session() as session:
             reports = session.query(ErrorReport)
+
+            if offset_id:
+                reports = reports.filter(ErrorReport.id > offset_id)
+
+            reports = reports.limit(limit)
 
             return list(report.to_dict() for report in reports)
 

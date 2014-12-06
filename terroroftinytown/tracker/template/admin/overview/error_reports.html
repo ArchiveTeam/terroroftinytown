@@ -6,6 +6,10 @@
 
 <h1>Error Reports</h1>
 
+<p>About {{ count }} reports exist.</p>
+
+<a class="btn btn-default" href="{{ '{}?offset_id={}'.format(reverse_url('admin.error_reports'), next_offset_id) }}">Show more</a>
+
 <table class="table table-bordered table-striped">
 	<thead>
 		<tr>
@@ -27,6 +31,10 @@
 	</tr>
 	{% end %}
 </table>
+
+<a class="btn btn-default" href="{{ '{}?offset_id={}'.format(reverse_url('admin.error_reports'), next_offset_id) }}">Show more</a>
+
+<hr>
 
 {% module Form(delete_all_form, action=reverse_url('admin.error_reports.delete_all'), submit='Delete All') %}
 

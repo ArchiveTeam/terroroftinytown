@@ -64,10 +64,15 @@ class BannedHandler(BaseHandler):
 class ErrorReportsListHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
+        offset_id = int(self.get_argument('offset_id', 0))
+        error_reports = ErrorReport.all_reports(offset_id=offset_id)
+
         self.render(
             'admin/overview/error_reports.html',
-            error_reports=ErrorReport.all_reports(),
-            delete_all_form=DeleteAllErrorReportsForm()
+            error_reports=error_reports,
+            delete_all_form=DeleteAllErrorReportsForm(),
+            next_offset_id=error_reports[-1]['id'] if error_reports else 0,
+            count=ErrorReport.get_count()
         )
 
 
