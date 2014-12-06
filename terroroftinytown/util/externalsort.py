@@ -10,6 +10,7 @@ class GNUExternalSort(object):
         self._temp_file = tempfile.NamedTemporaryFile(
             prefix=temp_prefix, dir=temp_dir
         )
+        self.rows = 0
 
     def input(self, key, value):
         self.input_many([(key, value)])
@@ -23,6 +24,8 @@ class GNUExternalSort(object):
             self._temp_file.write(b' ')
             self._temp_file.write(base64.b64encode(pickle.dumps(value)))
             self._temp_file.write(b'\n')
+
+            self.rows += 1
 
     def sort(self):
         self._temp_file.flush()

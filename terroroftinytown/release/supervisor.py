@@ -100,6 +100,8 @@ def process_batch(args):
     config_path = args.config_path
     export_dir = args.export_dir
     uploader_class = UPLOADER_CLASS_MAP[args.uploader]
+    database_locked_sentinel_path = os.path.join(
+        args.export_dir, 'database_is_locked')
 
     logger.info('Loading bootstrap.')
 
@@ -151,6 +153,7 @@ def process_batch(args):
         '--include-settings', '--zip',
         '--dir-length', '0', '--file-length', '0', '--max-right', '8',
         '--delete', '--zip-filename-infix', '.{}'.format(timestamp),
+        '--database-busy-file', database_locked_sentinel_path,
         item_export_directory,
         ]
 

@@ -1,14 +1,16 @@
 # encoding=utf-8
 
+import base64
 import collections
 import itertools
 import logging
 import os, lzma
+import pickle
 import shutil
 import zipfile
 
 from sqlalchemy import func
-from sqlalchemy.sql.expression import delete
+from sqlalchemy.sql.expression import delete, bindparam
 
 from terroroftinytown.format import registry
 from terroroftinytown.format.projectsettings import ProjectSettingsWriter
@@ -63,6 +65,9 @@ class Exporter:
         self.writer = None
         self.project_result_sorters = {}
 
+        self.working_set_filename = os.path.join(output_dir,
+                                                 'current_working_set.txt')
+
     def setup_format(self, format):
         self.format = registry[format]
 
@@ -73,60 +78,127 @@ class Exporter:
     def dump(self):
         self.make_output_dir()
 
-        with new_session() as session:
-            self._input_sorters(session)
+        database_busy_file = self.settings.get('database_busy_file')
 
+        if database_busy_file:
+            with open(database_busy_file, 'w'):
+                pass
+
+        self._drain_to_working_set()
+
+        if database_busy_file:
+            os.remove(database_busy_file)
+
+        self._feed_input_sorters()
+
+        with new_session() as session:
             for project_id, sorter in self.project_result_sorters.items():
                 project = session.query(Project).filter_by(name=project_id).first()
 
                 if self.settings['include_settings']:
                     self.dump_project_settings(project)
 
-                self.dump_project(project, sorter, session)
+                self.dump_project(project, sorter)
 
                 if self.settings['zip']:
                     self.zip_project(project)
 
-    def _input_sorters(self, session, size=1000):
-        query = session.query(Result)
-        if self.after:
-            query = query.filter(Result.datetime > self.after)
+        os.remove(self.working_set_filename)
 
-        last_id = -1
+    def _drain_to_working_set(self, size=1000):
+        logger.info('Draining to working set %s', self.working_set_filename)
 
-        while True:
-            # Optimized for SQLite scrolling window
-            rows = query.filter(Result.id > last_id).limit(size).all()
+        assert not os.path.exists(self.working_set_filename)
 
-            if not rows:
-                break
+        with new_session() as session:
+            query = session.query(Result)
 
-            for result in rows:
-                if result.project_id not in self.project_result_sorters:
-                    self.project_result_sorters[result.project_id] = \
+            if self.after:
+                query = query.filter(Result.datetime > self.after)
+
+            with open(self.working_set_filename, 'wb') as work_file:
+                last_id = -1
+                num_results = 0
+                running = True
+
+                while running:
+                    # Optimized for SQLite scrolling window
+                    rows = query.filter(Result.id > last_id).limit(size).all()
+
+                    if not rows:
+                        break
+
+                    delete_ids = []
+
+                    for result in rows:
+                        line = base64.b64encode(pickle.dumps({
+                            'id': result.id,
+                            'project_id': result.project_id,
+                            'shortcode': result.shortcode,
+                            'url': result.url,
+                            'encoding': result.encoding,
+                            'datetime': result.datetime,
+                        }))
+                        work_file.write(line)
+                        work_file.write(b'\n')
+
+                        num_results += 1
+                        self.items_count += 1
+
+                        delete_ids.append(result.id)
+
+                        if num_results % 10000 == 0:
+                            logger.info('Drain progress: %d', num_results)
+
+                        if num_results % 100000 == 0:
+                            # Risky, but need to do this since WAL
+                            # performance is low on large transactions
+                            logger.info("Checkpoint. (Don't delete stray files if program crashes!)")
+                            work_file.flush()
+                            session.commit()
+
+                        if self.max_items and num_results >= self.max_items:
+                            logger.info('Reached max items %d.', self.max_items)
+                            running = False
+                            break
+
+                    if self.settings['delete']:
+                        delete_query = delete(Result).where(
+                            Result.id == bindparam('id')
+                        )
+                        session.execute(
+                            delete_query,
+                            [{'id': result_id} for result_id in delete_ids]
+                        )
+
+    def _feed_input_sorters(self):
+        num_results = 0
+
+        with open(self.working_set_filename, 'rb') as work_file:
+            for line in work_file:
+                result = pickle.loads(base64.b64decode(line))
+
+                if result['project_id'] not in self.project_result_sorters:
+                    self.project_result_sorters[result['project_id']] = \
                         GNUExternalSort(temp_dir=self.output_dir,
                                         temp_prefix='tott-{0}-'.format(
-                                            result.project_id
+                                            result['project_id']
                                             )
                                         )
                     self.projects_count += 1
 
-                sorter = self.project_result_sorters[result.project_id]
+                sorter = self.project_result_sorters[result['project_id']]
                 sorter.input(
-                    result.shortcode,
-                    (result.id, result.url, result.encoding, result.datetime)
+                    result['shortcode'],
+                    (result['id'], result['url'], result['encoding'],
+                     result['datetime'])
                 )
-                self.items_count += 1
-                last_id = result.id
+                num_results += 1
 
-                if self.items_count % 10000 == 0:
-                    logger.info('Dump progress: %d', self.items_count)
+                if num_results % 10000 == 0:
+                    logger.info('Sort progress: %d', num_results)
 
-                if self.max_items and self.items_count >= self.max_items:
-                    logger.info('Reached max items %d.', self.max_items)
-                    return
-
-    def dump_project(self, project, sorter, session):
+    def dump_project(self, project, sorter):
         logger.info('Looking in project %s', project.name)
 
         assert project.url_template.endswith('{shortcode}'), \
@@ -139,7 +211,7 @@ class Exporter:
 
         for i, (key, value) in enumerate(sorter.sort()):
             if i % 10000 == 0:
-                logger.info('Format progress: %d/%d', i, self.items_count)
+                logger.info('Format progress: %d/%d', i, sorter.rows)
 
             id_, url, encoding, datetime_ = value
             result = ResultContainer(id_, key, url, encoding, datetime_)
@@ -183,9 +255,6 @@ class Exporter:
 
             if not self.last_date or result.datetime > self.last_date:
                 self.last_date = result.datetime
-
-            if self.settings['delete']:
-                session.execute(delete(Result).where(Result.id == result.id))
 
         self.close_fp()
 
@@ -329,10 +398,17 @@ class ExporterBootstrap(Bootstrap):
             help='Insert string in filename in final zip filename.'
         )
         self.arg_parser.add_argument(
+            '--database-busy-file',
+            help='A sentinel file to indicate the database is likely busy and locked'
+        )
+        self.arg_parser.add_argument(
             'output_dir', help='Output directory (will be created)')
 
     def write_stats(self):
-        logger.info('Written %d items in %d projects', self.exporter.projects_count, self.exporter.items_count)
+        logger.info(
+            'Written %d items in %d projects',
+            self.exporter.items_count, self.exporter.projects_count
+        )
         if self.exporter.last_date:
             logger.info('Last item timestamp (use --after to dump after this item):')
             logger.info(self.exporter.last_date.isoformat())
