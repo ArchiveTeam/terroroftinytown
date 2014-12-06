@@ -524,13 +524,13 @@ class Budget(object):
         if not cls.projects:
             return
 
-        min_version = min(project['min_version']
+        max_version = max(project['min_version']
                           for project in cls.projects.values())
-        min_client_version = min(project['min_client_version']
+        max_client_version = max(project['min_client_version']
                                  for project in cls.projects.values())
 
-        if version < min_version or client_version < min_client_version:
-            return min_version, min_client_version
+        if version < max_version or client_version < max_client_version:
+            return max_version, max_client_version
 
     @classmethod
     def is_claims_full(cls, ip_address):
@@ -645,18 +645,20 @@ def checkout_item(username, ip_address, version=-1, client_version=-1):
     else:
         if Budget.is_claims_full(ip_address):
             raise FullClaim()
-        elif Budget.is_client_outdated(version, client_version):
-            current_version, current_client_version = \
-                Budget.is_client_outdated(version, client_version)
-
-            raise UpdateClient(
-                version=version,
-                client_version=client_version,
-                current_version=current_version,
-                current_client_version=current_client_version
-            )
         else:
-            raise NoItemAvailable()
+            outdated = Budget.is_client_outdated(version, client_version)
+
+            if outdated:
+                current_version, current_client_version = outdated
+
+                raise UpdateClient(
+                    version=version,
+                    client_version=client_version,
+                    current_version=current_version,
+                    current_client_version=current_client_version
+                )
+            else:
+                raise NoItemAvailable()
 
 
 def checkin_item(item_id, tamper_key, results):
