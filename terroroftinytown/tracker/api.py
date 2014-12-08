@@ -68,15 +68,37 @@ class GetHandler(BaseHandler):
                 client_version=client_version
             )
         except NoItemAvailable:
-            raise HTTPError(404, reason='No items available')
+            raise HTTPError(
+                404,
+                reason='No items available currently. Try again later.'
+            )
         except UserIsBanned:
-            raise HTTPError(403, reason='You are banned. Please contact an administrator.')
+            raise HTTPError(
+                403,
+                reason='You are banned. Please contact an administrator.'
+            )
         except FullClaim:
-            raise HTTPError(429, reason='%s has pending claims in all shorteners. Check that your client is up to date, you\'re running at most 1 client per shortener then contact a tracker administrator to release any pending claims.' % (ip_address))
+            raise HTTPError(
+                429,
+                reason=(
+                    'No more items available for %s. '
+                    'Don\'t worry; We limit 1 IP address per shortener. '
+                    'Try again later.'
+                    % (ip_address)
+                    )
+                )
         except UpdateClient as e:
-            raise HTTPError(412, reason='Update your client. Library version: %s (current %s), Pipeline version: %s (current %s -- must be manually upgraded)' % (
-                    e.version, e.current_version,
-                    e.client_version, e.current_client_version
+            raise HTTPError(
+                412,
+                reason=(
+                    'Client needs update. '
+                    'Library version: %s (current %s), '
+                    'Pipeline version: %s (current %s). '
+                    'Please restart Warrior.'
+                    % (
+                        e.version, e.current_version,
+                        e.client_version, e.current_client_version
+                    )
                 )
             )
         else:
