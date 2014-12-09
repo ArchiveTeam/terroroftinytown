@@ -6,6 +6,7 @@
 # Not found
 #oycsuls|notfound
 n0exist|notfound
+?latin?xiywu0g|http://www.amazon.com/Inside-Microsoft�-Build-Engine-PRO-Developer/dp/0735626286/ref=sr_1_1?ie=UTF8&s=books&qid=1244232689&sr=8-1
 
 ## Long URL returns 404
 # Normal
