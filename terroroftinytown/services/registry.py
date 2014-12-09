@@ -8,6 +8,7 @@ from terroroftinytown.services.vitrue import VitrueService
 from terroroftinytown.services.tighturl import TighturlService
 from terroroftinytown.services.tinyurl import TinyurlService, Tinyurl7Service
 from terroroftinytown.services.adjix import AdjixService
+from terroroftinytown.services.yatuc import YatucService
 
 
 registry = {}
@@ -25,3 +26,4 @@ registry['tighturl-com'] = TighturlService
 registry['tinyurl'] = TinyurlService
 registry['tinyurl_7'] = Tinyurl7Service
 registry['adjix'] = AdjixService
+registry['yatuc'] = YatucService

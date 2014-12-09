@@ -72,6 +72,15 @@ MOCK_PARAMS = {
         'banned_codes': [420, 429],
         'method': 'get',
     },
+    'yatuc': {
+        'alphabet': '0123456789abcdefghijklmnopqrstuvwxyz',
+        'url_template': 'http://yatuc.com/{shortcode}',
+        'redirect_codes': [302],
+        'no_redirect_codes': [],
+        'unavailable_codes': [],
+        'banned_codes': [420, 429],
+        'method': 'head',
+    },
 }
 
 
