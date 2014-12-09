@@ -63,6 +63,15 @@ MOCK_PARAMS = {
         'banned_codes': [420, 429],
         'method': 'head',
     },
+    'adjix': {
+        'alphabet': '0123456789abcdefghijklmnopqrstuvwxyz',
+        'url_template': 'http://adjix.com/{shortcode}',
+        'redirect_codes': [200],
+        'no_redirect_codes': [403, 404],
+        'unavailable_codes': [],
+        'banned_codes': [420, 429],
+        'method': 'get',
+    },
 }
 
 
