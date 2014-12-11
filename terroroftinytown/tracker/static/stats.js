@@ -3,15 +3,24 @@
 "use strict";
 
 var WSController = function(endpoint){
-	this.ws = new WebSocket("ws://" + window.location.host + endpoint);
-	this.ws.onmessage = this._onmessage.bind(this);
+	this.endpoint = endpoint;
+	this.initWebSocket();
 	this.stats = {
 		'live': [],
 		'lifetime': {},
 		'global': [0, 0],
 		'project': {}
 	};
+	this.reconnectTimer = null;
 };
+
+WSController.prototype.initWebSocket = function () {
+	this.ws = new WebSocket("ws://" + window.location.host + this.endpoint);
+	this.ws.onmessage = this._onmessage.bind(this);
+	this.ws.onopen = this.onConnect.bind(this);
+	this.ws.onerror = this.onDisconnect.bind(this);
+	this.ws.onclose = this.onDisconnect.bind(this);
+}
 
 WSController.prototype._onmessage = function(evt){
 	var message = JSON.parse(evt.data);
@@ -61,6 +70,22 @@ WSController.prototype._onmessage = function(evt){
 WSController.prototype.onMessage = function(message){
 };
 
+WSController.prototype.onConnect = function () {
+	var wsDiv = document.getElementById('websocket_message');
+	wsDiv.style.display = 'none';
+};
+
+WSController.prototype.onDisconnect = function () {
+	var wsDiv = document.getElementById('websocket_message');
+	wsDiv.style.display = 'inherit';
+	
+	if (this.reconnectTimer) {
+		clearTimeout(this.reconnectTimer);
+	}
+	this.reconnectTimer = setTimeout(this.initWebSocket.bind(this), 60000);
+};
+
+
 var app = angular.module("stats", []);
 var lastUpdate = new Date(0);
 
@@ -101,5 +126,7 @@ app.controller("StatsController", ["$scope", "$filter", "ws", "max_display", fun
 		}
 	};
 }]);
+
+document.getElementById('websocket_message').innerHTML = 'Sorry, live stat updates is currently unavailable.';
 
 })();
