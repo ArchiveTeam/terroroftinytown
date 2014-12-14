@@ -116,7 +116,11 @@ class DoneHandler(BaseHandler):
         try:
             self.application.checkin_item(claim_id, tamper_key, results)
         except InvalidClaim:
-            raise HTTPError(409, reason='Invalid item claimed')
+            raise HTTPError(
+                409,
+                reason='The item is invalid or '
+                       'may have been already done by someone else.'
+                )
         else:
             logger.info('Checked in claim %s %s', claim_id, results)
             self.write({'status': 'OK'})
