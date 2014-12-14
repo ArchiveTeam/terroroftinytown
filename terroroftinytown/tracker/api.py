@@ -56,12 +56,6 @@ class GetHandler(BaseHandler):
         username = self.get_argument('username')
         user_agent = self.request.headers.get('User-Agent')
 
-        logger.info('User request: ip=%s user=%s '
-                    'ver=%s client_ver=%s user_agent=%s',
-                    ip_address, repr(username),
-                    version, client_version, repr(user_agent)
-                    )
-
         try:
             claim = self.application.checkout_item(
                 username, ip_address=ip_address, version=version,
@@ -102,6 +96,12 @@ class GetHandler(BaseHandler):
                 )
             )
         else:
+            logger.info(
+                'User request: ip=%s user=%s '
+                'ver=%s client_ver=%s user_agent=%s',
+                ip_address, repr(username),
+                version, client_version, repr(user_agent)
+            )
             logger.info('Checked out claim %s', claim)
             self.write(claim)
 
