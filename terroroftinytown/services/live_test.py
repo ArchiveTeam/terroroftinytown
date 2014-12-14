@@ -96,9 +96,9 @@ class TestLive(unittest.TestCase):
         for filename in filenames:
             service_name = os.path.split(filename)[-1].replace('.txt', '')
 
-            if True and service_name not in ('tinyurl',):
-                print('Skip', service_name)
-                continue
+#             if service_name not in ('tinyurl',):
+#                 print('Skip', service_name)
+#                 continue
 
             params = MOCK_PARAMS[service_name]
             service = registry[u(service_name)](params)
