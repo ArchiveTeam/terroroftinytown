@@ -6,8 +6,8 @@ from terroroftinytown.services.status import URLStatus
 class AdjixService(BaseService):
     def process_redirect(self, response):
         groups = re.findall((
-            r'CONTENT="0;URL=([^"]+)"|'
-            '<frame src="([^"]+)"|'
+            r'CONTENT="0;URL=(.*)">|'
+            '<frame src="(.*)">|'
             'rel="canonical" href="(.*)"/>'
             ),
             response.text
