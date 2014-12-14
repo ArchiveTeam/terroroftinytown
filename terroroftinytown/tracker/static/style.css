@@ -50,6 +50,14 @@ nav a{
 	margin-right: 13px;
 }
 
+#websocket_message {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	opacity: 0.8;
+	z-index: 10;
+}
+
 #globalstats{
 	text-align: center;
 	font-size: 20pt;

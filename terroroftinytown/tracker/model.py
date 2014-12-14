@@ -13,16 +13,16 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.orm.session import make_transient
 from sqlalchemy.sql.expression import insert, select, delete
+from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import String, Binary, Float, Boolean, Integer, \
     DateTime
 from sqlalchemy.sql.type_api import TypeDecorator
 
+from terroroftinytown.client import VERSION
 from terroroftinytown.tracker.errors import NoItemAvailable, FullClaim, UpdateClient, \
     InvalidClaim
 from terroroftinytown.tracker.stats import Stats
-from terroroftinytown.client import VERSION
-from sqlalchemy.sql.functions import func
 
 
 # These overrides for major api changes
@@ -688,6 +688,9 @@ def checkin_item(item_id, tamper_key, results):
             Item.lower_sequence_num, Item.ip_address
             ) \
             .filter_by(id=item_id, tamper_key=tamper_key).first()
+
+        if not row:
+            raise InvalidClaim()
 
         (project_id, username, upper_sequence_num, lower_sequence_num,
          ip_address) = row

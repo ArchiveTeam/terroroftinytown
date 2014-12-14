@@ -10,7 +10,8 @@ import tornado.ioloop
 
 from terroroftinytown.tracker.app import Application
 from terroroftinytown.tracker.database import Database
-from terroroftinytown.tracker.logs import GzipRotatingFileHandler
+from terroroftinytown.tracker.logs import GzipTimedRotatingFileHandler, \
+    LogFilter
 from terroroftinytown.tracker.stats import Stats
 
 
@@ -75,13 +76,15 @@ class Bootstrap:
         else:
             logging.basicConfig(level=logging.INFO)
 
-        handler = GzipRotatingFileHandler(
-            filename=log_path, maxBytes=209715200,
-            backupCount=self.config.get('logging', 'backup_count', fallback=200),
+        handler = GzipTimedRotatingFileHandler(
+            filename=log_path,
+            backupCount=self.config.get('logging', 'backup_count', fallback=52),
             encoding='utf-8')
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         handler.setFormatter(formatter)
         logging.getLogger().addHandler(handler)
+        log_filter = LogFilter()
+        handler.addFilter(log_filter)
 
 
 class ApplicationBootstrap(Bootstrap):
