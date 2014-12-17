@@ -5,9 +5,13 @@ from terroroftinytown.services.status import URLStatus
 
 class AdjixService(BaseService):
     def process_redirect(self, response):
+        if '<title>Spammer</title>' in response.text or \
+                '<title>Phisher</title>' in response.text:
+            return (URLStatus.unavailable, None, None)
+
         groups = re.findall((
-            r'CONTENT="0;URL=([^"]+)"|'
-            '<frame src="([^"]+)"|'
+            r'CONTENT="0;URL=(.*)">|'
+            '<frame src="(.*)">|'
             'rel="canonical" href="(.*)"/>'
             ),
             response.text

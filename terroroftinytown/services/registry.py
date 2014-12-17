@@ -9,6 +9,7 @@ from terroroftinytown.services.tighturl import TighturlService
 from terroroftinytown.services.tinyurl import TinyurlService, Tinyurl7Service
 from terroroftinytown.services.adjix import AdjixService
 from terroroftinytown.services.yatuc import YatucService
+from terroroftinytown.services.shares import SharesService
 
 
 registry = {}
@@ -27,3 +28,4 @@ registry['tinyurl'] = TinyurlService
 registry['tinyurl_7'] = Tinyurl7Service
 registry['adjix'] = AdjixService
 registry['yatuc'] = YatucService
+registry['shar-es'] = SharesService

@@ -81,6 +81,16 @@ MOCK_PARAMS = {
         'banned_codes': [420, 429],
         'method': 'head',
     },
+    'shar-es': {
+        'alphabet': '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        'url_template': 'http://shar.es/{shortcode}',
+        'redirect_codes': [200, 301],
+        'no_redirect_codes': [404],
+        'unavailable_codes': [],
+        'banned_codes': [403, 420, 429],
+        'method': 'get',
+        'body_regex': r'<a id="clickthrough"\s+href="([^"]*)">',
+    },
 }
 
 
