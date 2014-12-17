@@ -6,7 +6,8 @@ from terroroftinytown.services.status import URLStatus
 class AdjixService(BaseService):
     def process_redirect(self, response):
         if '<title>Spammer</title>' in response.text or \
-                '<title>Phisher</title>' in response.text:
+                '<title>Phisher</title>' in response.text or \
+                'It has automatically been terminated.' in response.text:
             return (URLStatus.unavailable, None, None)
 
         groups = re.findall((
