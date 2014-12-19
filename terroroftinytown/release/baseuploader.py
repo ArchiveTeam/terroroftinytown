@@ -32,12 +32,23 @@ class BaseUploaderBootstrap(Bootstrap):
         secret_key = self.config['iaexporter']['secret_key']
         description = self.config['iaexporter']['description']
 
+        subject_items = ['urlteam', 'terroroftinytown', 'archiveteam']
+
+        for path in filenames:
+            filename = os.path.basename(path)
+            assert '/' not in filename
+            shortener_id = filename.split('.', 1)[0]
+            subject_items.append(shortener_id)
+
+        subject = ';'.join(subject_items)
+
         assert identifier
         assert title
         assert collection
         assert access_key
         assert secret_key
         assert description
+        assert subject
 
         self.identifier = identifier
         self.title = title
@@ -46,6 +57,7 @@ class BaseUploaderBootstrap(Bootstrap):
         self.secret_key = secret_key
         self.description = description
         self.filenames = filenames
+        self.subject = subject
 
         self.upload()
 

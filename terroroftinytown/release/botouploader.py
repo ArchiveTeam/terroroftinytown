@@ -48,7 +48,7 @@ class BotoUploaderBootstrap(BaseUploaderBootstrap):
                 'x-archive-meta-collection': self.collection,
                 'x-archive-meta-mediatype': 'software',
                 'x-archive-meta-subject':
-                    'urlteam;terroroftinytown'.encode('utf-8'),
+                    self.subject.encode('utf-8'),
                 'x-archive-meta-description': self.description.encode('utf-8'),
                 'x-archive-ignore-preexisting-bucket': '1'
             })
