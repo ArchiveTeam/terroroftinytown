@@ -12,6 +12,8 @@ from terroroftinytown.tracker.base import BaseHandler
 from terroroftinytown.tracker.errors import UserIsBanned
 from terroroftinytown.tracker.ui import FormUIModule
 from terroroftinytown.tracker.stats import Stats
+from terroroftinytown.tracker.form import CalculatorForm
+from terroroftinytown.client.alphabet import str_to_int, int_to_str
 
 
 class Application(tornado.web.Application):
@@ -45,6 +47,7 @@ class Application(tornado.web.Application):
             U(r'/api/done', api.DoneHandler, name='api.done'),
             U(r'/api/error', api.ErrorHandler, name='api.error'),
             U(r'/status', StatusHandler, name='index.status'),
+            U(r'/calculator', CalculatorHandler, name='index.calculator'),
         ]
 
         static_path = os.path.join(
@@ -123,3 +126,39 @@ class StatusHandler(BaseHandler):
         self.render('status.html', projects=projects, services=registry,
                     project_stats=project_stats,
                     git_hash=self.GIT_HASH)
+
+
+class CalculatorHandler(BaseHandler):
+    def get_current_user(self):
+        # No need for database access
+        pass
+
+    def _show_maintenance_page(self):
+        pass
+
+    def get(self):
+        form = CalculatorForm(self.request.arguments)
+
+        convert_direction = self.get_argument('convert', None)
+
+        if convert_direction:
+            form.validate()
+
+            if convert_direction == 'up':
+                source_number = self.get_argument('number_2')
+                source_alphabet = self.get_argument('alphabet_2')
+                target_alphabet = self.get_argument('alphabet_1')
+
+                num = str_to_int(source_number, source_alphabet)
+
+                form.number_1.data = int_to_str(num, target_alphabet)
+            else:
+                source_number = self.get_argument('number_1')
+                source_alphabet = self.get_argument('alphabet_1')
+                target_alphabet = self.get_argument('alphabet_2')
+
+                num = str_to_int(source_number, source_alphabet)
+
+                form.number_2.data = int_to_str(num, target_alphabet)
+
+        self.render('calculator.html', form=form)

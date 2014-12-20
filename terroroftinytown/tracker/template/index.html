@@ -26,6 +26,8 @@
 			<a class="index-nav-item"
 				href="https://github.com/ArchiveTeam/terroroftinytown">
 				Source code</a>
+			<a class="index-nav-item"
+				href="{{ reverse_url('index.calculator') }}">Calculator</a>
 		</nav>
 		{% block main %}
 		<div id="stats" ng-controller="StatsController">
@@ -127,6 +129,10 @@
 		{% end %}
 	</div>
 </div>
+
+{% block index_scripts %}
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.19/angular.min.js"></script>
 <script src="{{ static_url('stats.js') }}"></script>
+{% end %}
+
 {% end %}

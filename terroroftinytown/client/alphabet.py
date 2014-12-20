@@ -26,7 +26,7 @@ def str_to_int(string, alphabet):
     idx = 0
     for char in string:
         power = (strlen - (idx + 1))
-        num += alphabet.index(char) * (base ** power)
+        num += alphabet.rindex(char) * (base ** power)
         idx += 1
 
     return num
