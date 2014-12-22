@@ -100,6 +100,15 @@ MOCK_PARAMS = {
         'banned_codes': [403, 420, 429],
         'method': 'head',
     },
+    'awe-sm': {
+        'alphabet': '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        'url_template': 'http://awe.sm/{shortcode}',
+        'redirect_codes': [301],
+        'no_redirect_codes': [],
+        'unavailable_codes': [],
+        'banned_codes': [403, 420, 429],
+        'method': 'head',
+    },
 }
 
 
