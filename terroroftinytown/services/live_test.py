@@ -91,6 +91,24 @@ MOCK_PARAMS = {
         'method': 'get',
         'body_regex': r'<a id="clickthrough"\s+href="([^"]*)">',
     },
+    'feedly': {
+        'alphabet': '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_',
+        'url_template': 'http://feedly.com/e/{shortcode}',
+        'redirect_codes': [302],
+        'no_redirect_codes': [],
+        'unavailable_codes': [],
+        'banned_codes': [403, 420, 429],
+        'method': 'head',
+    },
+    'awe-sm': {
+        'alphabet': '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        'url_template': 'http://awe.sm/{shortcode}',
+        'redirect_codes': [301],
+        'no_redirect_codes': [],
+        'unavailable_codes': [],
+        'banned_codes': [403, 420, 429],
+        'method': 'head',
+    },
 }
 
 

@@ -138,3 +138,20 @@ class ItemActionForm(Form):
 
 class DeleteAllErrorReportsForm(Form):
     pass
+
+
+class CalculatorForm(Form):
+    number_1 = StringField(
+        'Number', [validators.Length(min=0, max=100)]
+    )
+    alphabet_1 = StringField(
+        'Alphabet', [validators.Length(min=1, max=100)],
+        default='0123456789'
+    )
+    number_2 = StringField(
+        'Number', [validators.Length(min=0, max=100)]
+    )
+    alphabet_2 = StringField(
+        'Alphabet', [validators.Length(min=1, max=100)],
+        default='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    )

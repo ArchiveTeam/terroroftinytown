@@ -1,0 +1,58 @@
+{% extends 'index.html' %}
+
+{% block title %} Infinite Arbitrary Base Conversion Calculator {% end %}
+
+{% block main %}
+
+<div class="container-fluid">
+	<h2>Infinite Arbitrary Base Conversion Calculator</h2>
+	
+	<form action="" method="GET" class="form-inline" role="form">
+	{% if message %}
+	<div class="bg-danger">Error in your calculation: {{ message }}</div>
+	{% end %}
+	
+	{% for index, field in enumerate(form) %}
+		<div class="form-group ' {{ ' has-error' if len(field.errors) > 0 else '' }}'">
+			{% raw field.label(class_='control-label') %}
+			<div>
+				{% raw field(class_='form-control') %}
+				{% for error in field.errors %}
+					<div class="text-danger">
+					{{ error }}
+					</div>
+				{% end %}
+			</div>
+		</div>
+		{% if index == 1 %}
+			<button class="btn btn-primary btn-sm" name="convert" value="down">Convert Down ↓</button>
+			<br>
+		{% elif index == 3 %}
+			<button class="btn btn-primary btn-sm" name="convert" value="up">Convert Up ↑</button>
+		{% end %}
+	{% end %}
+	
+	</form>
+	
+	<br>
+	<p>
+		Examples:
+		<ul>
+			<li>01234567890abcdef</li>
+			<li>0123456789abcdefghijklmnopqrstuvwxyz</li>
+			<li>00123456789abcdefghijklmnopqrstuvwxyz (An extra 0 to keep the leading 0 but the mapping is no longer one-to-one!)</li>
+			<li>0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</li>
+			<li>0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_</li>
+			<li>0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_</li>
+		</ul>
+	</p>
+	<p>
+		This is a form to convert numbers in arbitrary bases with no limits in integers. The computation is done on the server side.
+		It uses the algorithm described in <a href="http://stackoverflow.com/a/1119769/1524507">here</a> except <code>rindex</code> is used instead for duplicate letters such as extra 0.
+		Inspired by this <a href="http://elenzil.com/esoterica/baseConversion.html">JavaScript implementation</a>.
+	</p>
+</div>
+
+{% block index_scripts %}{% end %}
+
+{% end %}

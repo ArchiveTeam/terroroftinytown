@@ -10,6 +10,8 @@ from terroroftinytown.services.tinyurl import TinyurlService, Tinyurl7Service
 from terroroftinytown.services.adjix import AdjixService
 from terroroftinytown.services.yatuc import YatucService
 from terroroftinytown.services.shares import SharesService
+from terroroftinytown.services.feedly import FeedlyService, Feedly8Service
+from terroroftinytown.services.awesm import AwesmService
 
 
 registry = {}
@@ -29,3 +31,6 @@ registry['tinyurl_7'] = Tinyurl7Service
 registry['adjix'] = AdjixService
 registry['yatuc'] = YatucService
 registry['shar-es'] = SharesService
+registry['feedly'] = FeedlyService
+registry['feedly_8'] = Feedly8Service
+registry['awe-sm'] = AwesmService

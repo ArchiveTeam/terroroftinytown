@@ -15,7 +15,7 @@ class IAUploaderBootstrap(BaseUploaderBootstrap):
             title=self.title,
             collection=self.collection,
             mediatype='software',
-            subject='urlteam;terroroftinytown',
+            subject=self.subject,
             description=self.description,
         )
 
