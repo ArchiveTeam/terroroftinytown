@@ -8,6 +8,10 @@
 	<h2>Infinite Arbitrary Base Conversion Calculator</h2>
 	
 	<form action="" method="GET" class="form-inline" role="form">
+	{% if message %}
+	<div class="bg-danger">Error in your calculation: {{ message }}</div>
+	{% end %}
+	
 	{% for index, field in enumerate(form) %}
 		<div class="form-group ' {{ ' has-error' if len(field.errors) > 0 else '' }}'">
 			{% raw field.label(class_='control-label') %}

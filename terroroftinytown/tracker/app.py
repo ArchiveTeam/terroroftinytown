@@ -138,27 +138,29 @@ class CalculatorHandler(BaseHandler):
 
     def get(self):
         form = CalculatorForm(self.request.arguments)
+        message = None
 
         convert_direction = self.get_argument('convert', None)
 
-        if convert_direction:
-            form.validate()
+        if convert_direction and form.validate():
+            try:
+                if convert_direction == 'up':
+                    source_number = self.get_argument('number_2')
+                    source_alphabet = self.get_argument('alphabet_2')
+                    target_alphabet = self.get_argument('alphabet_1')
 
-            if convert_direction == 'up':
-                source_number = self.get_argument('number_2')
-                source_alphabet = self.get_argument('alphabet_2')
-                target_alphabet = self.get_argument('alphabet_1')
+                    num = str_to_int(source_number, source_alphabet)
 
-                num = str_to_int(source_number, source_alphabet)
+                    form.number_1.data = int_to_str(num, target_alphabet)
+                else:
+                    source_number = self.get_argument('number_1')
+                    source_alphabet = self.get_argument('alphabet_1')
+                    target_alphabet = self.get_argument('alphabet_2')
 
-                form.number_1.data = int_to_str(num, target_alphabet)
-            else:
-                source_number = self.get_argument('number_1')
-                source_alphabet = self.get_argument('alphabet_1')
-                target_alphabet = self.get_argument('alphabet_2')
+                    num = str_to_int(source_number, source_alphabet)
 
-                num = str_to_int(source_number, source_alphabet)
+                    form.number_2.data = int_to_str(num, target_alphabet)
+            except ValueError as error:
+                message = str(error)
 
-                form.number_2.data = int_to_str(num, target_alphabet)
-
-        self.render('calculator.html', form=form)
+        self.render('calculator.html', form=form, message=message)
