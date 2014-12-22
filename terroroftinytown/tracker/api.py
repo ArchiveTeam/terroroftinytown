@@ -122,7 +122,7 @@ class DoneHandler(BaseHandler):
                        'may have been already done by someone else.'
                 )
         else:
-            logger.info('Checked in claim %s', claim_id)
+            logger.info('Checked in claim %s. Len=%d', claim_id, len(results))
             self.write({'status': 'OK'})
 
 
