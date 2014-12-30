@@ -97,6 +97,7 @@ class TrackerClient(object):
 
     def bind_address(self, source_host):
         '''Set **all, global** socket connections to be outbound from this address'''
+        # https://stackoverflow.com/questions/1150332/source-interface-with-python-and-urllib2
         real_socket_socket = socket.socket
         def bound_socket(*a, **k):
             sock = real_socket_socket(*a, **k)
