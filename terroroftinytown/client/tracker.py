@@ -97,12 +97,19 @@ class TrackerClient(object):
 
     def bind_address(self, source_host):
         '''Set **all, global** socket connections to be outbound from this address'''
-        # https://stackoverflow.com/questions/12585317/requests-bind-to-an-ip
-        real_create_conn = socket.create_connection
-
-        def set_src_addr(*args):
-            address, timeout = args[0], args[1]
-            source_address = (source_host, 0)
-            return real_create_conn(address, timeout, source_address)
-
-        socket.create_connection = set_src_addr
+        # https://stackoverflow.com/questions/1150332/source-interface-with-python-and-urllib2
+        real_socket_socket = socket.socket
+        def bound_socket(*a, **k):
+            sock = real_socket_socket(*a, **k)
+            sock.bind((source_host, 0))
+            return sock
+        socket.socket = bound_socket
+#        # https://stackoverflow.com/questions/12585317/requests-bind-to-an-ip
+#        real_create_conn = socket.create_connection
+#
+#        def set_src_addr(*args):
+#            address, timeout = args[0], args[1]
+#            source_address = (source_host, 0)
+#            return real_create_conn(address, timeout, source_address)
+#
+#        socket.create_connection = set_src_addr
