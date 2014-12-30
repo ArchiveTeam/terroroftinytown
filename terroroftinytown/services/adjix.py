@@ -7,11 +7,12 @@ class AdjixService(BaseService):
     def process_redirect(self, response):
         if '<title>Spammer</title>' in response.text or \
                 '<title>Phisher</title>' in response.text or \
-                'It has automatically been terminated.' in response.text:
+                'It has automatically been terminated.' in response.text or \
+                'This link was created by a spammer' in response.text:
             return (URLStatus.unavailable, None, None)
 
         groups = re.findall((
-            r'CONTENT="0;URL=(.*)">|'
+            r'CONTENT="\d+;URL=(.*)">|'
             '<frame src="(.*)">|'
             'rel="canonical" href="(.*)"/>'
             ),
