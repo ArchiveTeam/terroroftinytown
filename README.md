@@ -1,10 +1,9 @@
 terroroftinytown
 ================
 
-URLTeam's second generation of URL shortener archiving tools.
+[URLTeam](http://urlte.am)'s second generation of URL shortener archiving tools.
 
-
-The tracker and client code is still maturing but useful in production.
+For details, please see the [wiki page](http://archiveteam.org/index.php?title=URLTeam).
 
 
 Running

@@ -18,8 +18,10 @@ import terroroftinytown
 
 
 __all__ = ['BaseService', 'registry']
-DEFAULT_USER_AGENT = 'ArchiveTeam TerrorOfTinyTown/{0} ({1})'.format(
-    VERSION, datetime.datetime.utcnow())
+DEFAULT_USER_AGENT = (
+    'URLTeam TerrorOfTinyTown/{version} (ArchiveTeam; '
+    '+http://archiveteam.org/index.php?title=URLTeam/Appeal)'
+).format(version=VERSION)
 
 
 class BaseService(object):
