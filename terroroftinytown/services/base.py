@@ -111,10 +111,14 @@ class BaseService(object):
                 # do implicit unicode conversion. Ick!
                 result_url = result_url.decode('latin-1')
 
+            response.content  # read the response to allow connection reuse
+
             return (URLStatus.ok, result_url, None)
         elif self.params.get('body_regex'):
             return self.process_redirect_body(response)
         else:
+            response.content  # read the response to allow connection reuse
+
             raise UnexpectedNoResult(
                 'Unexpectedly did not get a redirect result for {0}'
                 .format(repr(response.url))
