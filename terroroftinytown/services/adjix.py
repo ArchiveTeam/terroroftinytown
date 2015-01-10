@@ -1,6 +1,7 @@
 from terroroftinytown.services.base import BaseService, html_unescape
 import re
 from terroroftinytown.services.status import URLStatus
+from terroroftinytown.client.errors import UnexpectedNoResult
 
 
 class AdjixService(BaseService):
@@ -8,11 +9,12 @@ class AdjixService(BaseService):
         if '<title>Spammer</title>' in response.text or \
                 '<title>Phisher</title>' in response.text or \
                 'It has automatically been terminated.' in response.text or \
-                'This link was created by a spammer' in response.text:
+                'This link was created by a spammer' in response.text or \
+                'This link was created by an unknown spammer' in response.text:
             return (URLStatus.unavailable, None, None)
 
         groups = re.findall((
-            r'CONTENT="\d+;URL=(.*)">|'
+            r'CONTENT="\d+;URL=(.*)(?:\r\n|">)|'
             '<frame src="(.*)">|'
             'rel="canonical" href="(.*)"/>'
             ),
@@ -27,3 +29,6 @@ class AdjixService(BaseService):
                 continue
 
             return (URLStatus.ok, link, response.encoding)
+
+        raise UnexpectedNoResult(
+            "Didn't get anything for {0}".format(self.current_shortcode))
