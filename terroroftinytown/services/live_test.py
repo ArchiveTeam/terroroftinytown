@@ -89,7 +89,7 @@ MOCK_PARAMS = {
         'unavailable_codes': [],
         'banned_codes': [403, 420, 429],
         'method': 'get',
-        'body_regex': r'<a id="clickthrough"\s+href="([^"]*)">',
+        'body_regex': r'<a id="clickthrough"\s+href="(.*)">',
     },
     'feedly': {
         'alphabet': '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_',

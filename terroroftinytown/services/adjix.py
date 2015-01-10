@@ -10,12 +10,15 @@ class AdjixService(BaseService):
                 '<title>Phisher</title>' in response.text or \
                 'It has automatically been terminated.' in response.text or \
                 'This link was created by a spammer' in response.text or \
-                'This link was created by an unknown spammer' in response.text:
+                'This link was created by an unknown spammer' in response.text or \
+                'This link was abused by' in response.text or \
+                '<title>Abuse</title>' in response.text or \
+                '<title>Link Removed</title>' in response.text:
             return (URLStatus.unavailable, None, None)
 
         groups = re.findall((
             r'CONTENT="\d+;URL=(.*)(?:\r\n|">)|'
-            '<frame src="(.*)">|'
+            '<frame src="(.*)(?:\r\n|">)|'
             'rel="canonical" href="(.*)"/>'
             ),
             response.text
