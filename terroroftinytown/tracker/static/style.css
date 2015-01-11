@@ -60,9 +60,11 @@ nav a{
 
 #globalstats{
 	text-align: center;
-	font-size: 20pt;
 	text-shadow: gray 1px 1px 0.1em;
 	margin-bottom: 20px;
+}
+#mainstats {
+	font-size: 20pt;
 }
 
 .panel{

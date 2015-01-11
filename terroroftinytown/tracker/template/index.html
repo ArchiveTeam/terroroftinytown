@@ -32,7 +32,12 @@
 		{% block main %}
 		<div id="stats" ng-controller="StatsController">
 			<div id="globalstats">
-				<strong ng-bind="stats.global[1]|number">{{ stats['global'][1] }}</strong> URLs scanned, <strong ng-bind="stats.global[0]|number">{{ stats['global'][0] }}</strong> saved
+				<div id="mainstats">
+					<strong ng-bind="stats.global[1]|number">{{ stats['global'][1] }}</strong> URLs scanned, <strong ng-bind="stats.global[0]|number">{{ stats['global'][0] }}</strong> saved<br>
+				</div>
+				<div id="extrastats" ng-if="::stats">
+					<span ng-bind="stats.currentScanRate|number:0">--</span> scans per second
+				</div>
 			</div>
 			<div id="leaderboard" class="row">
 				<div class="col-md-6">
