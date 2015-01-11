@@ -120,9 +120,17 @@ app.controller("StatsController", ["$scope", "$filter", "ws", "max_display", fun
 
 		var dateNow = new Date();
 
-		if (dateNow - lastUpdate > 500) {
+		if (dateNow - lastUpdate > ws.updateInterval) {
 			$scope.$apply();
 			lastUpdate = dateNow;
+			var afterDate = new Date();
+			var applyDifference = afterDate - dateNow;
+
+			if (applyDifference > 50) {
+				ws.updateInterval = 1000 + Math.min(10000, applyDifference * 2);
+			} else {
+				ws.updateInterval = 500;
+			}
 		}
 	};
 }]);
