@@ -9,6 +9,7 @@ from terroroftinytown.services.registry import registry
 from terroroftinytown.services.status import URLStatus
 from terroroftinytown.six import u
 import terroroftinytown
+import time
 
 
 MOCK_PARAMS = {
@@ -155,6 +156,8 @@ class TestLive(unittest.TestCase):
                         self.assertEqual(expected_result, result_url)
                     else:
                         self.assertEqual(expected_result, url_status)
+
+                    time.sleep(0.7)
 
 
 def iterate_definition_file(file):

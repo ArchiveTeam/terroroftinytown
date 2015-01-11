@@ -13,7 +13,8 @@ class AdjixService(BaseService):
                 'This link was created by an unknown spammer' in response.text or \
                 'This link was abused by' in response.text or \
                 '<title>Abuse</title>' in response.text or \
-                '<title>Link Removed</title>' in response.text:
+                '<title>Link Removed</title>' in response.text or \
+                '<title>Phishing Link</title>' in response.text:
             return (URLStatus.unavailable, None, None)
 
         groups = re.findall((
