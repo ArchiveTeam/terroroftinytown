@@ -1,0 +1,12 @@
+## Standard tests
+# example.org test
+dUmbJ|http://example.org/
+HoAyN|http://www.charlotteobserver.com/2015/01/15/5449154/franklin-graham-slams-duke-over.html#storylink=rss
+
+# Not found
+shadows|notfound
+
+## Blocked
+## doesn't work anymore:
+# aU90|http://susanberland.yolasite.com/index/my-gay-marriage-project
+aU90|notfound

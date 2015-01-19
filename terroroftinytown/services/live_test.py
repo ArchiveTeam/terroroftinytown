@@ -110,6 +110,15 @@ MOCK_PARAMS = {
         'banned_codes': [403, 420, 429],
         'method': 'head',
     },
+    'ow-ly': {
+        'alphabet': '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        'url_template': 'http://ow.ly/{shortcode}',
+        'redirect_codes': [301, 302],
+        'no_redirect_codes': [404],
+        'unavailable_codes': [410],
+        'banned_codes': [403, 420, 429],
+        'method': 'head',
+    },
 }
 
 
