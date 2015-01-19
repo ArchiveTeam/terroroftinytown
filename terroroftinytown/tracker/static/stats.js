@@ -9,9 +9,17 @@ var WSController = function(endpoint){
 		'live': [],
 		'lifetime': {},
 		'global': [0, 0],
-		'project': {}
+		'project': {},
+		'currentScanRate': 0
 	};
 	this.reconnectTimer = null;
+	this.scanRateBucket = [];
+	this.prevScanBucketIndex = 0;
+	this.updateInterval = 500;
+
+	for (var i = 0; i < 60; i++) {
+		this.scanRateBucket.push(0);
+	}
 };
 
 WSController.prototype.initWebSocket = function () {
@@ -62,6 +70,22 @@ WSController.prototype._onmessage = function(evt){
 		}
 		project[0] += message.live_new.found;
 		project[1] += message.live_new.scanned;
+
+		var dateNow = new Date();
+		var bucketIndex = dateNow.getUTCSeconds();
+
+		if (this.prevScanBucketIndex != bucketIndex) {
+			this.prevScanBucketIndex = bucketIndex;
+			this.scanRateBucket[bucketIndex] = message.live_new.scanned;
+		} else {
+			this.scanRateBucket[bucketIndex] += message.live_new.scanned;
+		}
+
+		var sum = 0;
+		for (var i = 0; i < 60; i++) {
+			sum += this.scanRateBucket[i];
+		}
+		this.stats.currentScanRate = sum / 60.0;
 	}
 
 	this.onMessage(message);
@@ -120,9 +144,17 @@ app.controller("StatsController", ["$scope", "$filter", "ws", "max_display", fun
 
 		var dateNow = new Date();
 
-		if (dateNow - lastUpdate > 500) {
+		if (dateNow - lastUpdate > ws.updateInterval) {
 			$scope.$apply();
 			lastUpdate = dateNow;
+			var afterDate = new Date();
+			var applyDifference = afterDate - dateNow;
+
+			if (applyDifference > 50) {
+				ws.updateInterval = 1000 + Math.min(10000, applyDifference * 2);
+			} else {
+				ws.updateInterval = 500;
+			}
 		}
 	};
 }]);

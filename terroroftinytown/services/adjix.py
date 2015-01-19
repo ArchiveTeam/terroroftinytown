@@ -17,6 +17,9 @@ class AdjixService(BaseService):
                 '<title>Phishing Link</title>' in response.text:
             return (URLStatus.unavailable, None, None)
 
+        if not response.text.strip():
+            return (URLStatus.not_found, None, None)
+
         groups = re.findall((
             r'CONTENT="\d+;URL=(.*)(?:\r\n|">)|'
             '<frame src="(.*)(?:\r\n|">)|'
@@ -32,6 +35,11 @@ class AdjixService(BaseService):
             if 'ad.adjix.com' in link:
                 continue
 
+            return (URLStatus.ok, link, response.encoding)
+
+        for group in groups:
+            text = group[0] or group[1] or group[2]
+            link = html_unescape(text)
             return (URLStatus.ok, link, response.encoding)
 
         raise UnexpectedNoResult(

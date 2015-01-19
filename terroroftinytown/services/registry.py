@@ -12,6 +12,7 @@ from terroroftinytown.services.yatuc import YatucService
 from terroroftinytown.services.shares import SharesService
 from terroroftinytown.services.feedly import FeedlyService, Feedly8Service
 from terroroftinytown.services.awesm import AwesmService
+from terroroftinytown.services.owly import OwlyService
 
 
 registry = {}
@@ -34,3 +35,4 @@ registry['shar-es'] = SharesService
 registry['feedly'] = FeedlyService
 registry['feedly_8'] = Feedly8Service
 registry['awe-sm'] = AwesmService
+registry['ow-ly'] = OwlyService
