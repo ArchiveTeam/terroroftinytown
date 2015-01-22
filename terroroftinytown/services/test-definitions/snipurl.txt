@@ -1,0 +1,24 @@
+## Standard tests
+# Random URLs
+baaa|http://www.ebuyer.com/customer/products/index.html?rb=3712779864&action=UFNQcm9kdWN0U2VhcmNoUmVzdWx0cw%3D%3D&cat_uid=33&mfr_uid=6
+snort_outrage|http://www.garynorth.com/public/2057.cfm
+rists|http://www.battlegroundeurope.com/index.php/component/content/article/10-production-notes/2968-v131-preview-upgrade-includes-variable-weather-and-rag-doll-physics
+27wio7a|http://io9.com/a-new-photo-emerges-of-lincoln-at-gettysburg-1411779373?
+
+# Not found
+oycsuls|notfound
+
+## Password-protected pages
+25ssuzl|blocked
+
+## Preview(?) page
+# no example!
+
+## Deleted
+# Is supposed to be a preview page:
+#   20wa718|http://www.docstoc.com/docs/1636646/Staining-Techniques-in-Microbiology-SDL?
+20wa718|notfound
+# 20wa6rx|http://bl147w.blu147.mail.live.com/mail/InboxLight.aspx?n=1954423074
+20wa6rx|notfound
+# 4cb2a|http://traxad.com/r/bsem89_ytlf
+4cb2a|notfound
