@@ -13,6 +13,7 @@ from terroroftinytown.services.shares import SharesService
 from terroroftinytown.services.feedly import FeedlyService, Feedly8Service
 from terroroftinytown.services.awesm import AwesmService
 from terroroftinytown.services.owly import OwlyService
+from terroroftinytown.services.snipurl import SnipurlService
 
 
 registry = {}
@@ -36,3 +37,4 @@ registry['feedly'] = FeedlyService
 registry['feedly_8'] = Feedly8Service
 registry['awe-sm'] = AwesmService
 registry['ow-ly'] = OwlyService
+registry['snipurl'] = SnipurlService
