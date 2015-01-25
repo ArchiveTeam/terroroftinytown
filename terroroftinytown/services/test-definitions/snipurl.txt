@@ -12,7 +12,7 @@ oycsuls|notfound
 25ssuzl|blocked
 
 ## Preview(?) page
-# no example!
+1nl|http://profitspace.hypermart.net/isl1.exe
 
 ## Deleted
 # Is supposed to be a preview page:
