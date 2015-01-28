@@ -46,9 +46,14 @@ class Scraper(object):
                     _logger.info('Attempt %d', (try_count + 1))
 
                 if try_count > self.max_try_count:
+                    if hasattr(self.service, 'current_shortcode'):
+                        shortcode = self.service.current_shortcode
+                    else:
+                        shortcode = ''
+
                     raise ScraperError(
-                        'Number of attempts exceeded for {0}.'
-                        .format(repr(item))
+                        'Number of attempts exceeded for {0} ({1}).'
+                        .format(repr(item), shortcode)
                     )
 
                 try:

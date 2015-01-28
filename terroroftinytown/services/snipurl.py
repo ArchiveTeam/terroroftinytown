@@ -17,17 +17,22 @@ class SnipurlService(BaseService):
             return url_status, link, encoding
 
     def process_unknown_code(self, response):
-        if response.status_code != 500:
+        first_status_code = response.status_code
+
+        if first_status_code not in (200, 500):
             return BaseService.process_unknown_code(self, response)
 
         url = self.params['url_template'].format(
             shortcode=self.current_shortcode)
         response = self.fetch_url(url, 'get')
+        second_status_code = response.status_code
 
-        if response.status_code != 500:
+        if second_status_code not in (200, 500):
             raise UnhandledStatusCode(
-                "HTTP status changed from 500 to %i on second request for %s"
-                % (response.status_code, self.current_shortcode))
+                "HTTP status changed from %s to %i on second request for %s"
+                % (first_status_code, second_status_code,
+                   self.current_shortcode)
+                )
 
         match = re.search("<p>You clicked on a snipped URL, which will take you to the following looong URL: </p> <div class=\"quote\"><span class=\"quotet\"></span><br/>(.*?)</div> <br />", response.text)
 
