@@ -128,6 +128,16 @@ MOCK_PARAMS = {
         'banned_codes': [403, 420, 429],
         'method': 'head',
     },
+    'sharedby-co': {
+        'alphabet': '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        'url_template': 'http://sharedby.co/{shortcode}',
+        'redirect_codes': [200, 301],
+        'no_redirect_codes': [302],
+        'unavailable_codes': [],
+        'banned_codes': [403, 420, 429],
+        'method': 'get',
+        'body_regex': r'<iframe id="[^"]+" src="([^"]+)">'
+    },
 }
 
 
