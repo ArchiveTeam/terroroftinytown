@@ -5,6 +5,10 @@ snort_outrage|http://www.garynorth.com/public/2057.cfm
 rists|http://www.battlegroundeurope.com/index.php/component/content/article/10-production-notes/2968-v131-preview-upgrade-includes-variable-weather-and-rag-doll-physics
 27wio7a|http://io9.com/a-new-photo-emerges-of-lincoln-at-gettysburg-1411779373?
 
+# Contains a <br />\n in the <div>
+7od|http://www.cyberguys.com/cgi-bin/sgin0101.exe?GEN6=00&GEN9=5CG01&HKW=5CG01&T1=1060150&UREQA=1&UREQB=2&UREQC=3&UREQD=4
+6cw|http://service4.symantec.com/SUPPORT/ent-security.nsf/552ba2f7636bedf088256818006f78bf/61c10dd296fb1f1988256a220026a774?OpenDocument&prev=http://search.symantec.com/custom/us/techsupp/enterprise/kb/query.html?*col=kbus*st=1*nh=10*pcode=*qp=url:/ent-security.nsf/552ba2f7636bedf088256818006f78bf*qt=+dwhwizrd.exe*miniver=nav_76_ce*sone=nav_76_ce_tasks.html*stg=*prod=NortonAntiVirus*ver=7.6 CorporateEdition*base=http://www.symantec.com/techsupp/enterprise/products/nav/nav_76_ce/*next=*boolean=and&sone=nav_76_ce_tasks.html&stg=&prod=NortonAntiVirus&ver=7.6 CorporateEdition&base=http://www.symantec.com/techsupp/enterprise/products/nav/nav_76_ce/&next=&src=ent&pcode=&dtype=corp&svy=
+
 # Not found
 oycsuls|notfound
 
