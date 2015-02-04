@@ -34,7 +34,12 @@ class SnipurlService(BaseService):
                    self.current_shortcode)
                 )
 
-        match = re.search("<p>You clicked on a snipped URL, which will take you to the following looong URL: </p> <div class=\"quote\"><span class=\"quotet\"></span><br/>(.*?)</div> <br />", response.text)
+        pattern = "<p>You clicked on a snipped URL, which will take you to the following looong URL: </p> <div class=\"quote\"><span class=\"quotet\"></span><br/>(.*?)</div> <br />"
+        match = re.search(pattern, response.text)
+
+        if not match:
+            text = response.text.replace("<br />\n", "")
+            match = re.search(pattern, text)
 
         if not match:
             raise UnexpectedNoResult(
