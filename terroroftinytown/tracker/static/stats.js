@@ -24,7 +24,7 @@ var WSController = function(endpoint){
 
 WSController.prototype.initWebSocket = function () {
 	var scheme = window.location.protocol == "https:" ? "wss://" : "ws://";
-	this.ws = new WebSocket("ws://" + window.location.host + this.endpoint);
+	this.ws = new WebSocket("" + scheme + window.location.host + this.endpoint);
 	this.ws.onmessage = this._onmessage.bind(this);
 	this.ws.onopen = this.onConnect.bind(this);
 	this.ws.onerror = this.onDisconnect.bind(this);
