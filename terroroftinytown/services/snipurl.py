@@ -8,8 +8,14 @@ from terroroftinytown.services.status import URLStatus
 
 class SnipurlService(BaseService):
     def process_redirect(self, response):
-        url_status, link, encoding = BaseService.process_redirect(
-            self, response)
+        try:
+            url_status, link, encoding = BaseService.process_redirect(
+                self, response)
+        except UnexpectedNoResult:
+            if 'Location' not in response.headers:
+                return URLStatus.not_found, None, None
+            else:
+                raise
 
         if link == "/site/getprivate?snip=" + self.current_shortcode:
             return URLStatus.unavailable, None, None

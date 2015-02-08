@@ -25,3 +25,7 @@ oycsuls|notfound
 20wa718|notfound
 # 20wa6rx|http://bl147w.blu147.mail.live.com/mail/InboxLight.aspx?n=1954423074
 20wa6rx|notfound
+
+## Missing Location header
+1x77q|notfound
+28wo6|notfound
