@@ -15,6 +15,7 @@ from terroroftinytown.services.awesm import AwesmService
 from terroroftinytown.services.owly import OwlyService
 from terroroftinytown.services.snipurl import SnipurlService
 from terroroftinytown.services.sharedby import SharedBy6Service, SharedByService
+from terroroftinytown.services.myspac import MyspAcService
 
 
 registry = {}
@@ -41,3 +42,4 @@ registry['ow-ly'] = OwlyService
 registry['snipurl'] = SnipurlService
 registry['sharedby-co'] = SharedByService
 registry['sharedby-co_6'] = SharedBy6Service
+registry['mysp-ac'] = MyspAcService
