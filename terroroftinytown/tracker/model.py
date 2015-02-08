@@ -464,7 +464,7 @@ class ErrorReport(Base):
     @classmethod
     def delete_all(cls):
         with new_session() as session:
-            session.query(ErrorReport).delete()
+            session.query(ErrorReport.id).delete()
 
 
 class Budget(object):

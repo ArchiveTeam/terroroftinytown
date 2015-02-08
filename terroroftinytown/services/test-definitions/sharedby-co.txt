@@ -1,3 +1,6 @@
 4znOyA|http://www.federaltimes.com/story/government/management/oversight/2014/12/29/prouty-weller-reinstated/21004309/
 ZoZX58|http://t3n.de/news/google-tips-life-hacks-tricks-516885/
 ZvZX58|notfound
+
+# Scrape link with newline from PHP error page
+fQS4Pr|http://#fanime%0Ahttp://lockerz.com/s/105979839
