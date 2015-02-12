@@ -14,6 +14,7 @@ import terroroftinytown.tracker.util
 
 
 ACCOUNT_COOKIE_NAME = 'tottu'
+ACCOUNT_TOKEN_COOKIE_NAME = 'tottt'
 logger = logging.getLogger(__name__)
 
 
@@ -45,12 +46,17 @@ class LoginHandler(BaseHandler):
             self.set_secure_cookie(
                 ACCOUNT_COOKIE_NAME, username, expires_days=30
             )
+            self.set_secure_cookie(
+                ACCOUNT_TOKEN_COOKIE_NAME, User.get_user_token(username),
+                expires_days=30
+            )
             return True
 
 
 class LogoutHandler(BaseHandler):
     def get(self):
         self.clear_cookie(ACCOUNT_COOKIE_NAME)
+        self.clear_cookie(ACCOUNT_TOKEN_COOKIE_NAME)
         self.redirect('/')
 
 
@@ -115,16 +121,16 @@ class UserHandler(BaseHandler):
         password_form = ChangePasswordForm(self.request.arguments)
 
         if action == 'delete':
-            self._delete(username, delete_form)
+            message = self._delete(username, delete_form)
         elif action == 'password':
-            self._password(username, password_form)
+            message = self._password(username, password_form)
         else:
             raise HTTPError(400, 'Unknown action')
 
         self.render(
             'admin/account/user.html',
             username=username, delete_form=delete_form,
-            password_form=password_form
+            password_form=password_form, message=message
         )
 
     def _delete(self, username, form):
@@ -132,9 +138,16 @@ class UserHandler(BaseHandler):
             logger.info('Deleted user %s', username)
             User.delete_user(username)
             self.redirect(self.reverse_url('users.overview'))
+        else:
+            return 'Error'
 
     def _password(self, username, form):
         if form.validate():
+            if form.username.data != username:
+                return 'Wrong username'
+
             logger.info('Updated user %s password', username)
             User.update_password(username, form.password.data)
             self.redirect(self.reverse_url('users.overview'))
+        else:
+            return 'Error'

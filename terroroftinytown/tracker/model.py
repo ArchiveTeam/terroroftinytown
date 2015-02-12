@@ -74,16 +74,15 @@ class User(Base):
     def check_password(self, password):
         test_hash = make_hash(password, self.salt)
 
-        if len(self.hash) != len(test_hash):
-            return False
+        return compare_digest(self.hash, test_hash)
 
-        iterable = [a == b for a, b in zip(self.hash, test_hash)]
-        ok = True
+    def get_token(self):
+        return make_hash(self.username, self.salt)
 
-        for result in iterable:
-            ok &= result
+    def check_token(self, test_token):
+        token = self.get_token()
 
-        return ok
+        return compare_digest(token, test_token)
 
     @classmethod
     def no_users_exist(cls):
@@ -130,6 +129,22 @@ class User(Base):
     def delete_user(cls, username):
         with new_session() as session:
             session.query(User).filter_by(username=username).delete()
+
+    @classmethod
+    def get_user_token(cls, username):
+        with new_session() as session:
+            return session.query(User).filter_by(username=username)\
+                .first().get_token()
+
+    @classmethod
+    def check_account_session(cls, username, token):
+        with new_session() as session:
+            user = session.query(User).filter_by(username=username).first()
+
+            if not user:
+                return
+
+            return user.check_token(token)
 
 
 class Project(Base):
@@ -440,7 +455,7 @@ class ErrorReport(Base):
             'message': self.message,
             'datetime': self.datetime,
         }
-        
+
     @classmethod
     def get_count(cls):
         with new_session() as session:
@@ -753,3 +768,16 @@ def get_git_hash():
         return subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip()
     except (subprocess.CalledProcessError, OSError) as error:
         return str(error)
+
+
+def compare_digest(value_1, value_2):
+    if len(value_1) != len(value_2):
+        return False
+
+    iterable = [a == b for a, b in zip(value_1, value_2)]
+    ok = True
+
+    for result in iterable:
+        ok &= result
+
+    return ok
