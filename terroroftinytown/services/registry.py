@@ -1,21 +1,22 @@
 from __future__ import unicode_literals
 
+from terroroftinytown.services.adjix import AdjixService
+from terroroftinytown.services.awesm import AwesmService
 from terroroftinytown.services.base import DefaultService
-from terroroftinytown.services.isgd import IsgdService, Isgd6Service
 from terroroftinytown.services.bitly import BitlyService, Bitly6Service
-from terroroftinytown.services.xco import XCOService
-from terroroftinytown.services.vitrue import VitrueService
+from terroroftinytown.services.feedly import FeedlyService, Feedly8Service
+from terroroftinytown.services.isgd import IsgdService, Isgd6Service
+from terroroftinytown.services.myspac import MyspAcService
+from terroroftinytown.services.owly import OwlyService
+from terroroftinytown.services.sharedby import SharedBy6Service, SharedByService
+from terroroftinytown.services.shares import SharesService
+from terroroftinytown.services.snipurl import SnipurlService
 from terroroftinytown.services.tighturl import TighturlService
 from terroroftinytown.services.tinyurl import TinyurlService, Tinyurl7Service
-from terroroftinytown.services.adjix import AdjixService
+from terroroftinytown.services.vgd import VgdService, Vgd6Service
+from terroroftinytown.services.vitrue import VitrueService
+from terroroftinytown.services.xco import XCOService
 from terroroftinytown.services.yatuc import YatucService
-from terroroftinytown.services.shares import SharesService
-from terroroftinytown.services.feedly import FeedlyService, Feedly8Service
-from terroroftinytown.services.awesm import AwesmService
-from terroroftinytown.services.owly import OwlyService
-from terroroftinytown.services.snipurl import SnipurlService
-from terroroftinytown.services.sharedby import SharedBy6Service, SharedByService
-from terroroftinytown.services.myspac import MyspAcService
 
 
 registry = {}
@@ -25,6 +26,8 @@ registry = {}
 registry['_default'] = DefaultService
 registry['isgd'] = IsgdService
 registry['isgd_6'] = Isgd6Service
+registry['vgd'] = VgdService
+registry['vgd_6'] = Vgd6Service
 registry['bitly'] = BitlyService
 registry['bitly_6'] = Bitly6Service
 registry['xco'] = XCOService

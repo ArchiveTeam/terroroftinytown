@@ -11,10 +11,12 @@ from terroroftinytown.six.moves import html_parser
 from terroroftinytown.services.rand import HashRandMixin
 
 
-__all__ = ['IsgdService']
+# __all__ = ['IsgdService']
 
 
 class IsgdService(BaseService):
+    # NOTE: VgdService inherits from this class!
+
     # unavailable status code: 200 410
     # banned status code: 502
 
