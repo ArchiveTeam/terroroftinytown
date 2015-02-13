@@ -7,18 +7,19 @@ from terroroftinytown.tracker.model import User
 
 
 ACCOUNT_COOKIE_NAME = 'tottu'
+ACCOUNT_TOKEN_COOKIE_NAME = 'tottt'
 
 
 class BaseHandler(tornado.web.RequestHandler):
     def get_current_user(self):
         username_raw = self.get_secure_cookie(ACCOUNT_COOKIE_NAME)
+        token = self.get_secure_cookie(ACCOUNT_TOKEN_COOKIE_NAME)
 
-        if username_raw:
+        if username_raw and token:
             username = username_raw.decode('ascii')
 
             if username:
-                if User.is_user_exists(username):
-                    return username
+                return User.check_account_session(username, token)
 
     def prepare(self):
         sentinel_path = self.application.settings.get('maintenance_sentinel')

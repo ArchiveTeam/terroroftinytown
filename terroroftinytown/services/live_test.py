@@ -22,6 +22,15 @@ MOCK_PARAMS = {
         'banned_codes': [403, 420, 429, 502],
         'method': 'get',
     },
+    'vgd': {
+        'alphabet': '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_',
+        'url_template': 'http://v.gd/{shortcode}',
+        'redirect_codes': [301, 302],
+        'no_redirect_codes': [404],
+        'unavailable_codes': [200, 410],
+        'banned_codes': [403, 420, 429, 502],
+        'method': 'get',
+    },
     'bitly': {
         'alphabet': '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_',
         'url_template': 'http://bit.ly/{shortcode}',
@@ -141,7 +150,7 @@ MOCK_PARAMS = {
     'mysp-ac': {
         'alphabet': '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
         'url_template': 'https://mysp.ac/{shortcode}',
-        'redirect_codes': [302],
+        'redirect_codes': [301, 302],
         'no_redirect_codes': [0],
         'unavailable_codes': [],
         'banned_codes': [403, 420, 429],
