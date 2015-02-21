@@ -579,7 +579,7 @@ class Budget(object):
             if ip_address not in project_info['ip_addresses'] and \
                     version >= project_info['min_version'] and \
                     client_version >= project_info['min_client_version'] and \
-                    project_info['claims'] < project_info['items'] and \
+                    project_info['claims'] <= project_info['items'] and \
                     project_info['claims'] < project_info['max_num_items']:
 
                 return (project_name, project_info['claims'],
