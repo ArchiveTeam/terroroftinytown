@@ -140,6 +140,10 @@ class DeleteAllErrorReportsForm(Form):
     pass
 
 
+class AutoDeleteErrorReportsForm(Form):
+    enabled = BooleanField('Automatically delete orphaned error reports.')
+
+
 class CalculatorForm(Form):
     number_1 = StringField(
         'Number', [validators.Length(min=0, max=100)]

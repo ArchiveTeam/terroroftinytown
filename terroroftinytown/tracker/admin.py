@@ -5,8 +5,10 @@ import tornado.web
 
 from terroroftinytown.tracker.base import BaseHandler
 from terroroftinytown.tracker.form import BlockUsernameForm, UnblockUsernameForm, \
-    DeleteAllErrorReportsForm
-from terroroftinytown.tracker.model import BlockedUser, ErrorReport, Result
+    DeleteAllErrorReportsForm, AutoDeleteErrorReportsForm
+from terroroftinytown.tracker.model import BlockedUser, ErrorReport, Result,\
+    GlobalSetting
+from tornado.web import HTTPError
 
 
 logger = logging.getLogger(__name__)
@@ -66,11 +68,16 @@ class ErrorReportsListHandler(BaseHandler):
     def get(self):
         offset_id = int(self.get_argument('offset_id', 0))
         error_reports = ErrorReport.all_reports(offset_id=offset_id)
+        auto_delete_form = AutoDeleteErrorReportsForm(
+            enabled=GlobalSetting.get_value(
+                GlobalSetting.AUTO_DELETE_ERROR_REPORTS)
+        )
 
         self.render(
             'admin/overview/error_reports.html',
             error_reports=error_reports,
             delete_all_form=DeleteAllErrorReportsForm(),
+            auto_delete_form=auto_delete_form,
             next_offset_id=error_reports[-1]['id'] if error_reports else 0,
             count=ErrorReport.get_count()
         )
@@ -79,8 +86,27 @@ class ErrorReportsListHandler(BaseHandler):
 class ErrorReportsDeleteAllHandler(BaseHandler):
     @tornado.web.authenticated
     def post(self):
-        ErrorReport.delete_all()
-        self.redirect(self.reverse_url('admin.error_reports'))
+        form = DeleteAllErrorReportsForm(self.request.arguments)
+
+        if form.validate():
+            ErrorReport.delete_all()
+            self.redirect(self.reverse_url('admin.error_reports'))
+        else:
+            raise HTTPError(400)
+
+
+class AutoDeleteErrorReportsSettingHandler(BaseHandler):
+    @tornado.web.authenticated
+    def post(self):
+        form = AutoDeleteErrorReportsForm(self.request.arguments)
+
+        if form.validate():
+            GlobalSetting.set_value(
+                GlobalSetting.AUTO_DELETE_ERROR_REPORTS, form.enabled.data
+            )
+            self.redirect(self.reverse_url('admin.error_reports'))
+        else:
+            raise HTTPError(400)
 
 
 class ResultsHandler(BaseHandler):

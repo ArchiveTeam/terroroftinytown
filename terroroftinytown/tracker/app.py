@@ -5,15 +5,16 @@ import os.path
 from tornado.web import URLSpec as U
 import tornado.web
 
+from terroroftinytown.client.alphabet import str_to_int, int_to_str
 from terroroftinytown.services.registry import registry
 from terroroftinytown.tracker import account, admin, project, api
 from terroroftinytown.tracker import model
 from terroroftinytown.tracker.base import BaseHandler
 from terroroftinytown.tracker.errors import UserIsBanned
-from terroroftinytown.tracker.ui import FormUIModule
-from terroroftinytown.tracker.stats import Stats
 from terroroftinytown.tracker.form import CalculatorForm
-from terroroftinytown.client.alphabet import str_to_int, int_to_str
+from terroroftinytown.tracker.model import GlobalSetting, ErrorReport
+from terroroftinytown.tracker.stats import Stats
+from terroroftinytown.tracker.ui import FormUIModule
 
 
 class Application(tornado.web.Application):
@@ -33,6 +34,9 @@ class Application(tornado.web.Application):
             U(r'/admin/error_reports/delete_all',
               admin.ErrorReportsDeleteAllHandler,
               name='admin.error_reports.delete_all'),
+            U(r'/admin/error_reports/auto_delete_setting',
+              admin.AutoDeleteErrorReportsSettingHandler,
+              name='admin.error_reports.auto_delete_setting'),
             U(r'/users/', account.AllUsersHandler, name='users.overview'),
             U(r'/user/([a-z0-9_-]*)', account.UserHandler, name='user.overview'),
             U(r'/projects/overview', project.AllProjectsHandler, name='projects.overview'),
@@ -81,6 +85,21 @@ class Application(tornado.web.Application):
             60 * 1000
         )
         self._job_timer.start()
+
+        def clean_error_reports():
+            enabled = GlobalSetting.get_value(
+                GlobalSetting.AUTO_DELETE_ERROR_REPORTS)
+
+            if enabled:
+                ErrorReport.delete_orphaned()
+
+        clean_error_reports()
+
+        self._clean_error_reports_timer = tornado.ioloop.PeriodicCallback(
+            clean_error_reports,
+            300 * 1000
+        )
+        self._clean_error_reports_timer.start()
 
     def checkout_item(self, username, ip_address=None, version=-1, client_version=-1):
         if model.BlockedUser.is_username_blocked(username, ip_address):
