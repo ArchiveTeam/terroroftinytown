@@ -12,7 +12,7 @@ import subprocess
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.orm.session import make_transient
-from sqlalchemy.sql.expression import insert, select, delete
+from sqlalchemy.sql.expression import insert, select, delete, exists
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import String, Binary, Float, Boolean, Integer, \
@@ -57,6 +57,34 @@ class JsonType(TypeDecorator):
             return json.loads(value)
         else:
             return None
+
+
+class GlobalSetting(Base):
+    __tablename__ = 'global_settings'
+
+    key = Column(String, primary_key=True)
+    value = Column(JsonType)
+
+    AUTO_DELETE_ERROR_REPORTS = 'auto_delete_error_reports'
+
+    @classmethod
+    def set_value(cls, key, value):
+        with new_session() as session:
+            setting = session.query(GlobalSetting).filter_by(key=key).first()
+
+            if setting:
+                setting.value = value
+            else:
+                setting = GlobalSetting(key=key, value=value)
+                session.add(setting)
+
+    @classmethod
+    def get_value(cls, key):
+        with new_session() as session:
+            setting = session.query(GlobalSetting).filter_by(key=key).first()
+
+            if setting:
+                return setting.value
 
 
 class User(Base):
@@ -481,6 +509,16 @@ class ErrorReport(Base):
         with new_session() as session:
             session.query(ErrorReport.id).delete()
 
+    @classmethod
+    def delete_orphaned(cls):
+        with new_session() as session:
+            subquery = select([ErrorReport.id])\
+                .where(ErrorReport.item_id == Item.id)\
+                .limit(1)
+
+            query = delete(ErrorReport).where(~exists(subquery))
+            session.execute(query)
+
 
 class Budget(object):
     '''Budget calculator to help manage available items.
@@ -541,7 +579,7 @@ class Budget(object):
             if ip_address not in project_info['ip_addresses'] and \
                     version >= project_info['min_version'] and \
                     client_version >= project_info['min_client_version'] and \
-                    project_info['items'] <= project_info['max_num_items'] and \
+                    project_info['claims'] <= project_info['items'] and \
                     project_info['claims'] < project_info['max_num_items']:
 
                 return (project_name, project_info['claims'],
