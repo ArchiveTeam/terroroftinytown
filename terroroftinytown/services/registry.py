@@ -43,6 +43,7 @@ registry['feedly_8'] = Feedly8Service
 registry['awe-sm'] = AwesmService
 registry['ow-ly'] = OwlyService
 registry['snipurl'] = SnipurlService
+registry['snipurl_range2'] = SnipurlService
 registry['sharedby-co'] = SharedByService
 registry['sharedby-co_6'] = SharedBy6Service
 registry['mysp-ac'] = MyspAcService
