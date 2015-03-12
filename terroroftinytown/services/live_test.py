@@ -156,6 +156,15 @@ MOCK_PARAMS = {
         'banned_codes': [403, 420, 429],
         'method': 'head',
     },
+    'alturl-com': {
+        'alphabet': '0123456789abcdefghijklmnopqrstuvwxyz',
+        'url_template': 'http://alturl.com/{shortcode}',
+        'redirect_codes': [302],
+        'no_redirect_codes': [200],
+        'unavailable_codes': [301, 410],
+        'banned_codes': [403, 420, 429],
+        'method': 'get',
+    },
 }
 
 
