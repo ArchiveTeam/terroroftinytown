@@ -139,7 +139,8 @@ def process_batch(args):
     upload_meta_path = os.path.join(export_dir, 'current.json')
     upload_meta = {
         'identifier': identifier,
-        'title': title
+        'title': title,
+        'work_directory': item_export_directory,
     }
 
     with open(upload_meta_path, 'w') as out_file:
