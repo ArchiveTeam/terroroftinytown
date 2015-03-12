@@ -75,6 +75,9 @@ class Application(tornado.web.Application):
         )
 
         def job_task():
+            if self.is_maintenance_in_progress():
+                return
+
             model.Item.release_old(autoqueue_only=True)
             model.Budget.calculate_budgets()
 
@@ -87,6 +90,9 @@ class Application(tornado.web.Application):
         self._job_timer.start()
 
         def clean_error_reports():
+            if self.is_maintenance_in_progress():
+                return
+
             enabled = GlobalSetting.get_value(
                 GlobalSetting.AUTO_DELETE_ERROR_REPORTS)
 
@@ -112,6 +118,11 @@ class Application(tornado.web.Application):
 
     def report_error(self, item_id, tamper_key, message):
         model.report_error(item_id, tamper_key, message)
+
+    def is_maintenance_in_progress(self):
+        sentinel_path = self.settings.get('maintenance_sentinel')
+
+        return sentinel_path and os.path.exists(sentinel_path)
 
 
 class IndexHandler(BaseHandler):

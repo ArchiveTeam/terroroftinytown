@@ -17,6 +17,7 @@ from terroroftinytown.services.vgd import VgdService, Vgd6Service
 from terroroftinytown.services.vitrue import VitrueService
 from terroroftinytown.services.xco import XCOService
 from terroroftinytown.services.yatuc import YatucService
+from terroroftinytown.services.alturl import AlturlService
 
 
 registry = {}
@@ -47,3 +48,4 @@ registry['snipurl_range2'] = SnipurlService
 registry['sharedby-co'] = SharedByService
 registry['sharedby-co_6'] = SharedBy6Service
 registry['mysp-ac'] = MyspAcService
+registry['alturl-com'] = AlturlService

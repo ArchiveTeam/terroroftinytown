@@ -48,10 +48,15 @@ class SnipurlService(BaseService):
             match = re.search(pattern, text)
 
         if not match:
+            pattern = "<p>You clicked on a snipped URL, which will take you to the following looong URL: </p> <div class=\"quote\"><span class=\"quotet\"></span><br/>(.*?)</div> <br />"
+            match = re.search(pattern, response.text, re.DOTALL)
+
+        if not match:
             raise UnexpectedNoResult(
                 "Could not find target URL on preview page for {0}"
                 .format(self.current_shortcode))
 
         url = html_unescape(match.group(1))
+        url = url.replace('\n', '').replace('\r', '')
 
         return URLStatus.ok, url, response.encoding
