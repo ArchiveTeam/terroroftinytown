@@ -1,6 +1,4 @@
 # encoding=utf-8
-import os.path
-
 import tornado.web
 
 from terroroftinytown.tracker.model import User
@@ -22,9 +20,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 return User.check_account_session(username, token)
 
     def prepare(self):
-        sentinel_path = self.application.settings.get('maintenance_sentinel')
-
-        if sentinel_path and os.path.exists(sentinel_path):
+        if self.application.is_maintenance_in_progress():
             self._show_maintenance_page()
 
     def _show_maintenance_page(self):
