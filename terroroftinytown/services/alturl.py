@@ -12,6 +12,10 @@ class AlturlService(BaseService):
         match = re.search(r'was forwarding to: <BR> <font color=red>(.*)</font>', response.text)
 
         if not match:
+            if re.search(r'This shortURL address was REMOVED for SPAMMING', response.text):
+                return URLStatus.unavailable, None, None
+
+        if not match:
             raise UnexpectedNoResult(
                 "Could not find target URL on blocked page for {0}"
                 .format(self.current_shortcode))
