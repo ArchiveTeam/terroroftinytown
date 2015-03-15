@@ -86,8 +86,8 @@ class GetHandler(BaseHandler):
                 412,
                 reason=(
                     'Client needs update. '
-                    'Library version: %s (current %s), '
-                    'Pipeline version: %s (current %s). '
+                    'Library version: %s, min %s; '
+                    'Pipeline version: %s, min %s. '
                     'Please restart Warrior.'
                     % (
                         e.version, e.current_version,
