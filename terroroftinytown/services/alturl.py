@@ -15,6 +15,9 @@ class AlturlService(BaseService):
             if re.search(r'This shortURL address was REMOVED for SPAMMING', response.text):
                 return URLStatus.unavailable, None, None
 
+        if not match and 'REMOVED FOR SPAMMING' in response.text:
+            return URLStatus.unavailable, None, None
+
         if not match:
             raise UnexpectedNoResult(
                 "Could not find target URL on blocked page for {0}"
