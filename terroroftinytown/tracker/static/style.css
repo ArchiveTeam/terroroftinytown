@@ -9,11 +9,41 @@
 	src: url("pixelmix_bold.woff") format("woff"), url("pixelmix_bold.ttf") format("truetype");
 }
 
+@-webkit-keyframes april1 {
+	0% {
+		transform: scaleX(0.8) skewX(10deg);
+	}
+	
+	100% {
+		transform: scaleX(0.8) skewX(-10deg);
+	}
+}
+@keyframes april1 {
+	0% {
+		transform: scaleX(0.8) skewX(10deg);
+	}
+	
+	100% {
+		transform: scaleX(0.8) skewX(-10deg);
+	}
+}
+
 body{
 	font-family: "pixelmix";
 	background-color: #F2EEF2;
 	color: black;
 	-webkit-font-smoothing: none;;
+
+	-webkit-animation-duration: 10s;
+	-webkit-animation-name: april1;
+	-webkit-animation-timing-function: ease-in-out;
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-direction: alternate;
+	animation-duration: 10s;
+	animation-name: april1;
+	animation-timing-function: ease-in-out;
+	animation-iteration-count: infinite;
+	animation-direction: alternate;
 }
 
 a{

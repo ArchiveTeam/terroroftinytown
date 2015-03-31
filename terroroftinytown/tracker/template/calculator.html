@@ -1,11 +1,11 @@
 {% extends 'index.html' %}
 
-{% block title %} Infinite Arbitrary Base Conversion Calculator {% end %}
+{% block title %} Bitcoin Calculator {% end %}
 
 {% block main %}
 
 <div class="container-fluid">
-	<h2>Infinite Arbitrary Base Conversion Calculator</h2>
+	<h2>Bitcoin Conversion Calculator</h2>
 	
 	<form action="" method="GET" class="form-inline" role="form">
 	{% if message %}
@@ -47,9 +47,9 @@
 		</ul>
 	</p>
 	<p>
-		This is a form to convert numbers in arbitrary bases with no limits in integers. The computation is done on the server side.
+		This is a form to convert BITCOIN in arbitrary bases with no limits in BITS. The computation is done on the server side for your Security.
 		It uses the algorithm described in <a href="http://stackoverflow.com/a/1119769/1524507">here</a> except <code>rindex</code> is used instead for duplicate letters such as extra 0.
-		Inspired by this <a href="http://elenzil.com/esoterica/baseConversion.html">JavaScript implementation</a>.
+		Inspired by this <a href="http://elenzil.com/esoterica/baseConversion.html">JavaScript Bitcoin client implementation</a>.
 	</p>
 </div>
 

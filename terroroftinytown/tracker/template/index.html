@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %} URLTeam Tracker {% end %}
+{% block title %} BitcoinTeam Tracker {% end %}
 
 {% block body %}
 <div class="pull-right">
@@ -9,8 +9,8 @@
 
 <div class="container">
 	<div class="hero">
-		<h1>URLTeam Tracker</h1>
-		<h2>The Terror of Tiny Town</h2>
+		<h1><img src="{{ static_url('logo.png')}}" height="50">BitcoinTeam Tracker</h1>
+		<h2>Bitcoin: The Currency of the Future!</h2>
 	</div>
 	
 	<div role="main" ng-app="stats">
@@ -18,7 +18,7 @@
 			<a class="index-nav-item"
 				href="{{ reverse_url('index') }}">Status</a>
 			<a class="index-nav-item"
-				href="{{ reverse_url('index.status') }}">Projects</a>
+				href="{{ reverse_url('index.status') }}">Pools</a>
 			<a class="index-nav-item"
 				href="http://archiveteam.org/index.php?title=Warrior">How to help</a>
 			<a class="index-nav-item"
@@ -33,10 +33,10 @@
 		<div id="stats" ng-controller="StatsController">
 			<div id="globalstats">
 				<div id="mainstats">
-					<strong ng-bind="stats.global[1]|number">{{ stats['global'][1] }}</strong> URLs scanned, <strong ng-bind="stats.global[0]|number">{{ stats['global'][0] }}</strong> saved<br>
+					<strong ng-bind="stats.global[1]|number">{{ stats['global'][1] }}</strong> Mhashes, <strong ng-bind="stats.global[0] / 1000000000|number">{{ stats['global'][0] / 1000000000 }}</strong> BTC mined<br>
 				</div>
 				<div id="extrastats" ng-if="::stats">
-					<span ng-bind="stats.currentScanRate|number:0">--</span> scans per second
+					<!-- <span ng-bind="stats.currentScanRate|number:0"></span> -->
 				</div>
 			</div>
 			<div id="leaderboard" class="row">
@@ -57,22 +57,22 @@
 							<thead>
 								<tr>
 									<th>Username</th>
-									<th>Found</th>
-									<th>Scanned</th>
+									<th>Mhashes</th>
+									<th>BTC</th>
 								</tr>
 							</thead>
 							<tbody>
 								<tr ng-repeat="item in lifetime|orderBy:getScanned:true|limitTo:totalLimit">
 									<td class="table-string" ng-class="'nick-color-' + (item[0].charCodeAt(0) + item[0].length) % 8;" ng-bind="item[0]"></td>
 									<td class="table-number" ng-bind="item[1][0]|number"></td>
-									<td class="table-number" ng-bind="item[1][1]|number"></td>
+									<td class="table-number" ng-bind="item[1][1] / 1000000000 | number"></td>
 								</tr>
 								<noscript>
 								{% for username, found, scanned in stats['lifetime'] %}
 									<tr>
 										<td class="table-string">{{ username }}</td>
 										<td class="table-number">{{ found }}</td>
-										<td class="table-number">{{ scanned }}</td>
+										<td class="table-number">{{ scanned / 1000000000 }}</td>
 									</tr>
 								{% end %}
 								</noscript>
@@ -98,16 +98,16 @@
 							<thead>
 								<tr>
 									<th>Username</th>
-									<th>Found</th>
-									<th>Scanned</th>
-									<th>Service</th>
+									<th>Mhashes</th>
+									<th>BTC</th>
+									<th>Pool</th>
 								</tr>
 							</thead>
 							<tbody>
 								<tr ng-repeat="item in stats.live">
 									<td class="table-string" ng-class="'nick-color-' + (item.username.charCodeAt(0) + item.username.length) % 8;" ng-bind="item.username"></td>
 									<td class="table-number" ng-bind="item.found|number"></td>
-									<td class="table-number" ng-bind="item.scanned|number"></td>
+									<td class="table-number" ng-bind="item.scanned / 1000000000|number"></td>
 									<td class="table-string" ng-bind="item.project"></td>
 								</tr>
 								<noscript>
@@ -115,7 +115,7 @@
 									<tr>
 										<td class="table-string">{{ item['username'] }}</td>
 										<td class="table-number">{{ item['found'] }}</td>
-										<td class="table-number">{{ item['scanned'] }}</td>
+										<td class="table-number">{{ item['scanned'] / 1000000000}}</td>
 										<td class="table-string">{{ item['project'] }}</td>
 									</tr>
 								{% end %}

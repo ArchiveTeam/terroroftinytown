@@ -1,13 +1,13 @@
 {% extends 'index.html' %}
 
-{% block title %} URLTeam Status {% end %}
+{% block title %} BitcoinTeam Status {% end %}
 
 {% block main %}
 {% from terroroftinytown.tracker.model import MIN_VERSION_OVERRIDE, MIN_CLIENT_VERSION_OVERRIDE %}
 
 <div ng-controller="StatsController" class="container-fluid">
-	<h2>Shortener Projects</h2>
-	<p>Click on header to show project settings</p>
+	<h2>Pools</h2>
+	<p>Click on header to show pool settings</p>
 	{% for project in [project for project in projects if project.enabled] + [project for project in projects if not project.enabled] %}
 	<div class="col-md-6">
 		<div class="panel panel-default">
@@ -21,14 +21,14 @@
 				</colgroup>
 				<thead>
 					<tr>
-						<th>Found</th>
-						<th>Scanned</th>
+						<th>Mhashes</th>
+						<th>BTC</th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr>
 						<td class="table-number" ng-bind="stats.project['{{project.name}}'][0]|number">{{ project_stats.get(project.name, (0, 0))[0] }}</td>
-						<td class="table-number" ng-bind="stats.project['{{project.name}}'][1]|number">{{ project_stats.get(project.name, (0, 0))[1] }}</td>
+						<td class="table-number" ng-bind="stats.project['{{project.name}}'][1] / 1000000000 |number">{{ project_stats.get(project.name, (0, 0))[1] / 1000000000 }}</td>
 					</tr>
 				</tbody>
 			</table>
