@@ -165,6 +165,16 @@ MOCK_PARAMS = {
         'banned_codes': [403, 420, 429],
         'method': 'get',
     },
+    'tinyurl-hu': {
+        'alphabet': '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        'url_template': 'http://tinyurl.hu/{shortcode}/',
+        'redirect_codes': [200],
+        'no_redirect_codes': [],
+        'unavailable_codes': [],
+        'banned_codes': [403, 420, 429],
+        'method': 'get',
+        'body_regex': r'<b></b> <a href="(.*)">',
+    },
 }
 
 

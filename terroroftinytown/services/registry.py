@@ -18,6 +18,8 @@ from terroroftinytown.services.vitrue import VitrueService
 from terroroftinytown.services.xco import XCOService
 from terroroftinytown.services.yatuc import YatucService
 from terroroftinytown.services.alturl import AlturlService
+from terroroftinytown.services.tinyurlhu import TinyurlHu4Service,\
+    TinyurlHuService
 
 
 registry = {}
@@ -49,3 +51,5 @@ registry['sharedby-co'] = SharedByService
 registry['sharedby-co_6'] = SharedBy6Service
 registry['mysp-ac'] = MyspAcService
 registry['alturl-com'] = AlturlService
+registry['tinyurl-hu'] = TinyurlHuService
+registry['tinyurl-hu_4'] = TinyurlHu4Service
