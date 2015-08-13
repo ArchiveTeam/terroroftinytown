@@ -68,8 +68,8 @@ class ProjectSettingsForm(Form):
         [
             validators.InputRequired(),
             validators.Regexp(
-                '^https?://.+/{shortcode}$',
-                message='Template does not look like a URL prefix.'),
+                '^https?://.+/{shortcode}',
+                message='Template does not look like a URL template.'),
         ]
     )
     request_delay = FloatField(

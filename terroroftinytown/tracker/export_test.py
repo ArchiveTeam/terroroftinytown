@@ -48,9 +48,16 @@ class TestExport(unittest.TestCase):
                         continue
 
                     in_file = zip_file.open(name)
+                    is_prefix = False
 
                     for line in lzma.LZMAFile(in_file):
                         if line.startswith(b'#'):
+                            if b'PREFIX' in line:
+                                is_prefix = True
+
+                                # Check if "{shortcode}" was accidentally replaced out
+                                self.assertNotIn(b'//', line.replace(b'http://', b''))
+
                             continue
 
                         line = line.strip()
@@ -58,6 +65,11 @@ class TestExport(unittest.TestCase):
                             count += 1
 
                             self.assertGreaterEqual(line.index(b'|'), 1)
+
+                            if is_prefix:
+                                self.assertFalse(line.startswith(b'http'))
+                            else:
+                                self.assertTrue(line.startswith(b'http'))
 
                     in_file.close()
 

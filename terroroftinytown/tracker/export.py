@@ -201,11 +201,10 @@ class Exporter:
     def dump_project(self, project, sorter):
         logger.info('Looking in project %s', project.name)
 
-        assert project.url_template.endswith('{shortcode}'), \
-            'Writer only supports URL with prefix'
-
-        # XXX: Use regex \{shortcode\}$ instead?
-        site = project.url_template.replace('{shortcode}', '')
+        if project.url_template.endswith('{shortcode}'):
+            site = project.url_template.replace('{shortcode}', '')
+        else:
+            site = project.url_template
 
         last_filename = None
 

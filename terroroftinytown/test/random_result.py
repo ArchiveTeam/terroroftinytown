@@ -34,6 +34,9 @@ class MockProject(Bootstrap):
 
                 project = Project(name=project_id)
 
+                if project_num == 2:
+                    project.url_template = 'http://example.com/{shortcode}/slash/'
+
                 print('Running insertion')
                 session.add(project)
 
