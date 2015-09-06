@@ -28,3 +28,7 @@ class UpdateClient(TrackerError):
         self.client_version = client_version
         self.current_version = current_version
         self.current_client_version = current_client_version
+
+
+class NoResourcesAvailable(TrackerError):
+    pass
