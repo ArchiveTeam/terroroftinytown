@@ -811,7 +811,9 @@ def check_min_version_overrides(version, client_version):
 
 def get_git_hash():
     try:
-        return subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip()
+        return subprocess.check_output(
+            ['git', 'rev-parse', 'HEAD'],
+            cwd=os.path.dirname(__file__)).strip()
     except (subprocess.CalledProcessError, OSError) as error:
         return str(error)
 
