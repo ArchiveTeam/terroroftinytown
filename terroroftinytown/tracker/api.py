@@ -7,7 +7,7 @@ import tornado.websocket
 
 from terroroftinytown.tracker.base import BaseHandler
 from terroroftinytown.tracker.errors import (NoItemAvailable, UserIsBanned,
-    InvalidClaim, FullClaim, UpdateClient)
+    InvalidClaim, FullClaim, UpdateClient, NoResourcesAvailable)
 from terroroftinytown.tracker.model import Project
 from terroroftinytown.tracker.stats import Stats, stats_bus
 from terroroftinytown.util.jsonutil import NativeStringJSONDecoder
@@ -95,6 +95,11 @@ class GetHandler(BaseHandler):
                     )
                 )
             )
+        except NoResourcesAvailable as e:
+            raise HTTPError(
+                507,
+                reason='The tracker is out of resources. Try again later.'
+                )
         else:
             logger.info(
                 'User request: ip=%s user=%s '

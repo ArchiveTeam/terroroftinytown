@@ -31,6 +31,7 @@ def main():
     arg_parser.add_argument('--uploader',
                             choices=['ia', 'boto'], default='boto')
     arg_parser.add_argument('--batch-size', type=int)
+    arg_parser.add_argument('--min-batch-size', type=int)
     arg_parser.add_argument('--max-batches', type=int, default=1)
 
     args = arg_parser.parse_args()
@@ -197,7 +198,11 @@ def has_results(args):
     bootstrap.load_config()
     bootstrap.setup_database()
 
-    return Result.has_results()
+    if Result.has_results():
+        if args.min_batch_size:
+            return Result.get_count() >= args.min_batch_size
+        else:
+            return True
 
 
 def get_dir_size(path):

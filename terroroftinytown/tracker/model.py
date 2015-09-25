@@ -21,13 +21,15 @@ from sqlalchemy.sql.type_api import TypeDecorator
 
 from terroroftinytown.client import VERSION
 from terroroftinytown.tracker.errors import NoItemAvailable, FullClaim, UpdateClient, \
-    InvalidClaim
+    InvalidClaim, NoResourcesAvailable
 from terroroftinytown.tracker.stats import Stats
 
 
 # These overrides for major api changes
 MIN_VERSION_OVERRIDE = 8  # for terroroftinytown.client
 MIN_CLIENT_VERSION_OVERRIDE = 1  # for terrofoftinytown-client-grab/pipeline.py
+DEADMAN_MAX_ERROR_REPORTS = 4000
+DEADMAN_MAX_RESULTS = 40000000
 
 Base = declarative_base()
 Session = sessionmaker()
@@ -655,6 +657,12 @@ def checkout_item(username, ip_address, version=-1, client_version=-1):
 
     check_min_version_overrides(version, client_version)
 
+    if ErrorReport.get_count() > DEADMAN_MAX_ERROR_REPORTS:
+        raise NoResourcesAvailable()
+
+    if Result.get_count() > DEADMAN_MAX_RESULTS:
+        raise NoResourcesAvailable()
+
     available = Budget.get_available_project(
         ip_address, version, client_version
     )
@@ -803,7 +811,9 @@ def check_min_version_overrides(version, client_version):
 
 def get_git_hash():
     try:
-        return subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip()
+        return subprocess.check_output(
+            ['git', 'rev-parse', 'HEAD'],
+            cwd=os.path.dirname(__file__)).strip()
     except (subprocess.CalledProcessError, OSError) as error:
         return str(error)
 
