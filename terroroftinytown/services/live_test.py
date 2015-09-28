@@ -10,6 +10,7 @@ from terroroftinytown.services.status import URLStatus
 from terroroftinytown.six import u
 import terroroftinytown
 import time
+from terroroftinytown.client.errors import MalformedResponse
 
 
 MOCK_PARAMS = {
@@ -207,9 +208,13 @@ class TestLive(unittest.TestCase):
                     url = params['url_template'].format(shortcode=shortcode)
 
                     print('Requesting', url, 'Expect:', expected_result)
-
-                    response = service.fetch_url(url)
-                    url_status, result_url, encoding = service.process_response(response)
+                    
+                    try:
+                        response = service.fetch_url(url)
+                    except MalformedResponse:
+                        url_status, result_url, encoding = (URLStatus.unavailable, None, None)
+                    else:
+                        url_status, result_url, encoding = service.process_response(response)
 
                     if terroroftinytown.six.PY2 and \
                             isinstance(result_url, terroroftinytown.six.binary_type):
