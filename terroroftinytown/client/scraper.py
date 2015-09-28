@@ -3,7 +3,8 @@ import itertools
 import logging
 import time
 
-from terroroftinytown.client.errors import PleaseRetry, ScraperError
+from terroroftinytown.client.errors import PleaseRetry, ScraperError,\
+    MalformedResponse
 from terroroftinytown.services.registry import registry
 from terroroftinytown.six import u
 
@@ -60,6 +61,8 @@ class Scraper(object):
                     result = self.service.scrape_one(item)
                 except PleaseRetry:
                     time.sleep(10 * try_count)
+                except MalformedResponse:
+                    _logger.info('Skipped URL due to malformed response.')
                 else:
                     if result:
                         self.results[result['shortcode']] = result

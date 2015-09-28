@@ -11,7 +11,7 @@ from requests.exceptions import ConnectionError
 
 from terroroftinytown.client import alphabet, VERSION
 from terroroftinytown.client.errors import (UnhandledStatusCode,
-    UnexpectedNoResult, ScraperError, PleaseRetry)
+    UnexpectedNoResult, ScraperError, PleaseRetry, MalformedResponse)
 from terroroftinytown.services.status import URLStatus
 from terroroftinytown.six.moves import html_parser
 import terroroftinytown
@@ -152,7 +152,11 @@ class BaseService(object):
         )
 
     def process_connection_error(self, exception):
-        raise PleaseRetry('Connection error: {0}'.format(repr(exception.args)))
+        if 'ProtocolError' in repr(exception.args):
+            raise MalformedResponse(
+                'Malformed response: {0}'.format(repr(exception.args)))
+        else:
+            raise PleaseRetry('Connection error: {0}'.format(repr(exception.args)))
 
 
 class DefaultService(BaseService):

@@ -49,3 +49,6 @@ bvkke|blocked
 ## Sponsored user tracking redirections
 3348aak|http://www.amazon.com/Im-Not-There-Various-Artists/dp/B000VS6P9Q
 
+## HTTP Header too big
+36otfml|blocked
+

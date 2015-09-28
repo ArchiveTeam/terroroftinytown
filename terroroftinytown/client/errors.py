@@ -15,3 +15,7 @@ class UnexpectedNoResult(ScraperError):
 
 class PleaseRetry(ScraperError):
     '''We are banned and should try again later.'''
+
+
+class MalformedResponse(ScraperError):
+    '''Server returned garbage data'''
