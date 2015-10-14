@@ -63,6 +63,8 @@ class Scraper(object):
                     time.sleep(10 * try_count)
                 except MalformedResponse:
                     _logger.info('Skipped URL due to malformed response.')
+                    self.service.wait()
+                    break
                 else:
                     if result:
                         self.results[result['shortcode']] = result
