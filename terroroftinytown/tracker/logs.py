@@ -16,11 +16,11 @@ class LogFilter(object):
 
 class GzipTimedRotatingFileHandler(TimedRotatingFileHandler):
     def __init__(self, filename, when='midnight', interval=1, backupCount=52,
-                 encoding=None, delay=False, utc=False, atTime=None):
+                 encoding=None, delay=False, utc=False):
         TimedRotatingFileHandler.__init__(
             self, filename, when=when, interval=interval,
             backupCount=backupCount, encoding=encoding,
-            delay=delay, utc=utc, atTime=atTime
+            delay=delay, utc=utc
         )
         self.rotator = self._rotator
 
