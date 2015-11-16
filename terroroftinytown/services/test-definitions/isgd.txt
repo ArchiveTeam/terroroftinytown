@@ -22,3 +22,7 @@ meIw|blocked
 
 ## is.gd is too stupid to do input checking
 ms7x|blocked
+
+## Blocked by Cloudflare phishing protection
+cQgWSe|notfound
+
