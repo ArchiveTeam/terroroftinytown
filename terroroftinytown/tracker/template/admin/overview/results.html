@@ -6,9 +6,9 @@
 
 <h1>Results</h1>
 
-<p>About {{ count }} results exist.</p>
+<p>{{ '{:,}'.format(count) }} results exist{{ ' for the "{}" project'.format(project_id) if project_id is not None else '' }}.</p>
 
-<a class="btn btn-default" href="{{ '{}?offset_id={}'.format(reverse_url('admin.results'), next_offset_id) }}">Show more</a>
+<a class="btn btn-default" href="{{ '{}?offset_id={}&limit={}&project_id={}'.format(reverse_url('admin.results'), next_higher_offset_id, limit, project_id) }}">Show later</a>
 
 <table class="table table-bordered table-striped">
 	<thead>
@@ -34,6 +34,6 @@
 	{% end %}
 </table>
 
-<a class="btn btn-default" href="{{ '{}?offset_id={}'.format(reverse_url('admin.results'), next_offset_id) }}">Show more</a>
+<a class="btn btn-default" href="{{ '{}?offset_id={}&limit={}&project_id={}'.format(reverse_url('admin.results'), next_lower_offset_id, limit, project_id) }}">Show earlier</a>
 
 {% end %}

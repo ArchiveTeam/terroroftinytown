@@ -22,6 +22,9 @@
 			<a href="{{ reverse_url('project.settings', project_name) }}">Shortener Settings</a>
 		</li>
 		<li class="list-group-item">
+			<a href="{{ reverse_url('admin.results')+'?limit=10&project_id='+project_name }}">Results</a>
+		</li>
+		<li class="list-group-item">
 			<a href="{{ reverse_url('project.delete', project_name) }}">Delete</a>
 		</li>
 	</ul>
