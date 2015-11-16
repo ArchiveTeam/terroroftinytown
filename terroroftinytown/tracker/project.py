@@ -51,6 +51,8 @@ class AllProjectsHandler(BaseHandler):
                 logger.info('Created project %s', name)
                 self.redirect(self.reverse_url('project.overview', name))
                 return
+        else:
+            message = 'Error'
 
         self.render(
             'admin/project/all.html',
@@ -98,8 +100,9 @@ class QueueHandler(BaseHandler):
                     project.enabled = enable_form.enabled.data
                     logger.info('Project %s enabled=%s',
                                 name, project.enabled)
+                    message = ('Enabled' if project.enabled else 'Disabled')
             else:
-                message = 'Error.'
+                message = 'Error in Queue Enable Form.'
 
         elif action == 'autoqueue':
             form = QueueSettingsForm(self.request.arguments)
@@ -114,9 +117,9 @@ class QueueHandler(BaseHandler):
                 logger.debug('Project %s queue settings changed.', name)
                 message = 'Settings saved.'
             else:
-                message = 'Error.'
+                message = 'Error in Auto Queue Form.'
         else:
-            message = 'Error.'
+            message = 'Error: unrecognized action argument.'
 
         Budget.calculate_budgets()
 
