@@ -6,7 +6,7 @@
 
 <h1>Results</h1>
 
-<p>{{ '{:,}'.format(count) }} results exist{{ ' for the "{}" project'.format(project_id) if project_id is not None else '' }}.</p>
+<p>{{ 'The "{}" project has {:,} results.'.format(project_id, count) if project_id is not None else 'There are about {:,} results total.'.format(count) }}.</p>
 
 <a class="btn btn-default" href="{{ '{}?offset_id={}&limit={}&project_id={}'.format(reverse_url('admin.results'), next_higher_offset_id, limit, project_id) }}">Show later</a>
 

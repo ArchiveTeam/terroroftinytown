@@ -116,7 +116,7 @@ class ResultsHandler(BaseHandler):
         results = tuple(Result.get_results(**args))
         self.render(
             'admin/overview/results.html',
-            count=Result.get_count(**args),
+            count=Result.get_count(args['project_id']),
             results=results,
             next_higher_offset_id=int(results[0]['id'])+int(args['limit']) if results else 0,
             next_lower_offset_id=int(results[-1]['id'])-1 if results else 0,
