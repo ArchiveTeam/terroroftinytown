@@ -205,7 +205,7 @@ class Project(Base):
     lower_sequence_num = Column(Integer, default=0, nullable=False)
     autorelease_time = Column(Integer, default=60 * 30)
 
-    def to_dict(self):
+    def to_dict(self, with_shortcode=False):
         return {
             'name': self.name,
             'min_version': self.min_version,
@@ -224,6 +224,7 @@ class Project(Base):
             'num_count_per_item': self.num_count_per_item,
             'max_num_items': self.max_num_items,
             'lower_sequence_num': self.lower_sequence_num,
+            'lower_shortcode': int_to_str(self.lower_sequence_num, self.alphabet),
             'autorelease_time': self.autorelease_time,
         }
 
@@ -239,7 +240,7 @@ class Project(Base):
         with new_session() as session:
             projects = session.query(Project)
 
-            return list([project.to_dict() for project in projects])
+            return list([project.to_dict(with_shortcode=True) for project in projects])
 
     @classmethod
     def new_project(cls, name):
