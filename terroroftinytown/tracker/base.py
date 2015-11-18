@@ -16,10 +16,11 @@ class BaseHandler(tornado.web.RequestHandler):
         if username_raw and token:
             username = username_raw.decode('ascii')
 
-            if username:
-                return User.check_account_session(username, token)
+            if username and User.check_account_session(username, token):
+                return username
 
     def prepare(self):
+        self.application.log_filter.username = self.get_current_user()
         if self.application.is_maintenance_in_progress():
             self._show_maintenance_page()
 
