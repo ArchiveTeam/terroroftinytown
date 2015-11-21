@@ -20,6 +20,7 @@ from sqlalchemy.sql.sqltypes import String, Binary, Float, Boolean, Integer, \
 from sqlalchemy.sql.type_api import TypeDecorator
 
 from terroroftinytown.client import VERSION
+from terroroftinytown.client.alphabet import int_to_str
 from terroroftinytown.tracker.errors import NoItemAvailable, FullClaim, UpdateClient, \
     InvalidClaim, NoResourcesAvailable
 from terroroftinytown.tracker.stats import Stats
