@@ -438,20 +438,26 @@ class Result(Base):
     @classmethod
     def get_count(cls):
         with new_session() as session:
-            min_id = session.query(func.min(Result.id)).scalar() or 0
-            max_id = session.query(func.max(Result.id)).scalar() or 0
+            return (session.query(func.max(Result.id)).scalar() or 0) \
+                   - (session.query(func.min(Result.id)).scalar() or 0)
 
-            return max_id - min_id
+
 
     @classmethod
-    def get_results(cls, offset_id=0, limit=1000):
+    def get_results(cls, offset_id=0, limit=1000, project_id=None):
         with new_session() as session:
+            if int(offset_id) == 0:
+                offset_id = session.query(func.max(Result.id)).scalar() or 0
             rows = session.query(
                 Result.id, Result.project_id, Result.shortcode,
                 Result.url, Result.encoding, Result.datetime
                 ) \
-                .filter(Result.id > offset_id) \
-                .limit(limit)
+                .filter(Result.id <= int(offset_id))
+
+            if project_id is not None and project_id != 'None':
+                rows = rows.filter(Result.project_id == project_id)
+
+            rows = rows.order_by(Result.id.desc()).limit(int(limit))
 
             for row in rows:
                 yield {
