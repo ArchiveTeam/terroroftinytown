@@ -18,6 +18,7 @@
 			<th>Name</th>
 			<th>Enabled</th>
 			<th>AutoQueue</th>
+                        <th>Lower Shortcode</th>
 			<th>Lower Sequence Number</th>
 			<th>Claims</th>
 			<th>Items</th>
@@ -29,6 +30,7 @@
 		<td><a href="{{ reverse_url('project.overview', project['name']) }}">{{ project['name'] }}</a></td>
 		<td>{% if project['enabled'] %} ✦ {% end %}</td>
 		<td>{% if project['autoqueue'] %} ✦ {% end %}</td>
+		<td>{{ project['lower_shortcode'] }}</td>
 		<td>{{ project['lower_sequence_num'] }}</td>
 
 		{% if project['name'] in project_budgets %}
