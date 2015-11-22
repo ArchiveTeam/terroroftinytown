@@ -20,7 +20,7 @@ from sqlalchemy.sql.sqltypes import String, Binary, Float, Boolean, Integer, \
 from sqlalchemy.sql.type_api import TypeDecorator
 
 from terroroftinytown.client import VERSION
-from terroroftinytown.client.alphabet import int_to_str
+from terroroftinytown.client.alphabet import str_to_int, int_to_str
 from terroroftinytown.tracker.errors import NoItemAvailable, FullClaim, UpdateClient, \
     InvalidClaim, NoResourcesAvailable
 from terroroftinytown.tracker.stats import Stats
@@ -313,7 +313,7 @@ class Item(Base):
         with new_session() as session:
             rows = session.query(Item).filter_by(project_id=project_name).order_by(Item.datetime_claimed)
 
-            return list([item.to_dict(with_shortcode=True) for item in rows])
+            return list([item.to_dict() for item in rows])
 
     @classmethod
     def add_items(cls, project_name, sequence_list):
@@ -469,11 +469,14 @@ class Result(Base):
 
             if project_id is not None and project_id != 'None':
                 rows = rows.filter(Result.project_id == project_id)
+                alphabet = Project.get_plain(project_id).alphabet
+            else:
+                alphabet = None
 
             rows = rows.order_by(Result.id.desc()).limit(int(limit))
 
             for row in rows:
-                yield {
+                ans = {
                     'id': row[0],
                     'project_id': row[1],
                     'shortcode': row[2],
@@ -481,6 +484,9 @@ class Result(Base):
                     'encoding': row[4],
                     'datetime': row[5]
                 }
+                if alphabet:
+                    ans['seq_num'] = str_to_int(row[2], alphabet)
+                yield ans
 
 
 class ErrorReport(Base):
