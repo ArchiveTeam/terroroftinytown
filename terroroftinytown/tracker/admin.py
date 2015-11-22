@@ -112,11 +112,12 @@ class AutoDeleteErrorReportsSettingHandler(BaseHandler):
 class ResultsHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
-        offset_id = int(self.get_argument('offset_id', 0))
-        results = tuple(Result.get_results(offset_id=offset_id))
+        args = {k: self.get_argument(k, default) for (k, default) in [('offset_id', 0), ('limit',1000), ('project_id',None)]}
+        results = tuple(Result.get_results(**args))
         self.render(
             'admin/overview/results.html',
-            count=Result.get_count(),
+            count=Result.get_count(**args),
             results=results,
-            next_offset_id=results[-1]['id'] if results else 0
-        )
+            next_higher_offset_id=int(results[0]['id'])+int(args['limit']) if results else 0,
+            next_lower_offset_id=int(results[-1]['id'])-1 if results else 0,
+            **args)
