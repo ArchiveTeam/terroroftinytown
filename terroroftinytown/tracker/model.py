@@ -20,6 +20,7 @@ from sqlalchemy.sql.sqltypes import String, Binary, Float, Boolean, Integer, \
 from sqlalchemy.sql.type_api import TypeDecorator
 
 from terroroftinytown.client import VERSION
+from terroroftinytown.client.alphabet import str_to_int, int_to_str
 from terroroftinytown.tracker.errors import NoItemAvailable, FullClaim, UpdateClient, \
     InvalidClaim, NoResourcesAvailable
 from terroroftinytown.tracker.stats import Stats
@@ -205,8 +206,8 @@ class Project(Base):
     lower_sequence_num = Column(Integer, default=0, nullable=False)
     autorelease_time = Column(Integer, default=60 * 30)
 
-    def to_dict(self):
-        return {
+    def to_dict(self, with_shortcode=False):
+        ans = {
             'name': self.name,
             'min_version': self.min_version,
             'min_client_version': self.min_client_version,
@@ -226,6 +227,12 @@ class Project(Base):
             'lower_sequence_num': self.lower_sequence_num,
             'autorelease_time': self.autorelease_time,
         }
+        if with_shortcode:
+            ans['lower_shortcode'] = self.lower_shortcode()
+        return ans
+
+    def lower_shortcode(self):
+        return int_to_str(self.lower_sequence_num, self.alphabet)
 
     @classmethod
     def all_project_names(cls):
@@ -239,7 +246,7 @@ class Project(Base):
         with new_session() as session:
             projects = session.query(Project)
 
-            return list([project.to_dict() for project in projects])
+            return list([project.to_dict(with_shortcode=True) for project in projects])
 
     @classmethod
     def new_project(cls, name):
@@ -283,8 +290,8 @@ class Item(Base):
     username = Column(String)
     ip_address = Column(String)
 
-    def to_dict(self):
-        return {
+    def to_dict(self, with_shortcode=False):
+        ans = {
             'id': self.id,
             'project': self.project.to_dict(),
             'lower_sequence_num': self.lower_sequence_num,
@@ -294,13 +301,17 @@ class Item(Base):
             'username': self.username,
             'ip_address': self.ip_address,
         }
+        if with_shortcode:
+            ans['lower_shortcode'] = int_to_str(self.lower_sequence_num, self.project.alphabet)
+            ans['upper_shortcode'] = int_to_str(self.upper_sequence_num, self.project.alphabet)
+        return ans
 
     @classmethod
     def get_items(cls, project_name):
         with new_session() as session:
             rows = session.query(Item).filter_by(project_id=project_name).order_by(Item.datetime_claimed)
 
-            return list([item.to_dict() for item in rows])
+            return list([item.to_dict(with_shortcode=True) for item in rows])
 
     @classmethod
     def add_items(cls, project_name, sequence_list):
@@ -438,23 +449,32 @@ class Result(Base):
     @classmethod
     def get_count(cls):
         with new_session() as session:
-            min_id = session.query(func.min(Result.id)).scalar() or 0
-            max_id = session.query(func.max(Result.id)).scalar() or 0
+            return (session.query(func.max(Result.id)).scalar() or 0) \
+                   - (session.query(func.min(Result.id)).scalar() or 0)
 
-            return max_id - min_id
+
 
     @classmethod
-    def get_results(cls, offset_id=0, limit=1000):
+    def get_results(cls, offset_id=0, limit=1000, project_id=None):
         with new_session() as session:
+            if int(offset_id) == 0:
+                offset_id = session.query(func.max(Result.id)).scalar() or 0
             rows = session.query(
                 Result.id, Result.project_id, Result.shortcode,
                 Result.url, Result.encoding, Result.datetime
                 ) \
-                .filter(Result.id > offset_id) \
-                .limit(limit)
+                .filter(Result.id <= int(offset_id))
+
+            if project_id is not None and project_id != 'None':
+                rows = rows.filter(Result.project_id == project_id)
+                alphabet = Project.get_plain(project_id).alphabet
+            else:
+                alphabet = None
+
+            rows = rows.order_by(Result.id.desc()).limit(int(limit))
 
             for row in rows:
-                yield {
+                ans = {
                     'id': row[0],
                     'project_id': row[1],
                     'shortcode': row[2],
@@ -462,6 +482,9 @@ class Result(Base):
                     'encoding': row[4],
                     'datetime': row[5]
                 }
+                if alphabet:
+                    ans['seq_num'] = str_to_int(row[2], alphabet)
+                yield ans
 
 
 class ErrorReport(Base):

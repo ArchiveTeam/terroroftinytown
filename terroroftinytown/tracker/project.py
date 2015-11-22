@@ -51,6 +51,8 @@ class AllProjectsHandler(BaseHandler):
                 logger.info('Created project %s', name)
                 self.redirect(self.reverse_url('project.overview', name))
                 return
+        else:
+            message = 'Error'
 
         self.render(
             'admin/project/all.html',
@@ -78,6 +80,7 @@ class QueueHandler(BaseHandler):
         self.render(
             'admin/project/queue_settings.html',
             project_name=name,
+            lower_shortcode=project.lower_shortcode(),
             form=form,
             enable_form=enable_form
         )
@@ -87,6 +90,7 @@ class QueueHandler(BaseHandler):
         project = Project.get_plain(name)
         enable_form = QueueEnableForm(data=self.get_enable_form(project))
         form = QueueSettingsForm(data=self.get_queue_settings_form(project))
+        lower_shortcode = project.lower_shortcode()
 
         message = None
         action = self.get_argument('action', None)
@@ -98,8 +102,9 @@ class QueueHandler(BaseHandler):
                     project.enabled = enable_form.enabled.data
                     logger.info('Project %s enabled=%s',
                                 name, project.enabled)
+                    message = ('Enabled' if project.enabled else 'Disabled')
             else:
-                message = 'Error.'
+                message = 'Error in Queue Enable Form.'
 
         elif action == 'autoqueue':
             form = QueueSettingsForm(self.request.arguments)
@@ -111,18 +116,21 @@ class QueueHandler(BaseHandler):
                     project.lower_sequence_num = form.lower_sequence_num.data or 0
                     project.autorelease_time = form.autorelease_time.data * 60 or 0
 
+                    lower_shortcode = project.lower_shortcode()
+
                 logger.debug('Project %s queue settings changed.', name)
                 message = 'Settings saved.'
             else:
-                message = 'Error.'
+                message = 'Error in Auto Queue Form.'
         else:
-            message = 'Error.'
+            message = 'Error: unrecognized action argument.'
 
         Budget.calculate_budgets()
 
         self.render(
             'admin/project/queue_settings.html',
             project_name=name,
+            lower_shortcode=lower_shortcode,
             form=form,
             enable_form=enable_form,
             message=message
