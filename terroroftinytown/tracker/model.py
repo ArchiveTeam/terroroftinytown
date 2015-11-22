@@ -306,14 +306,12 @@ class Item(Base):
             ans['upper_shortcode'] = int_to_str(self.upper_sequence_num, self.project.alphabet)
         return ans
 
-
-
     @classmethod
     def get_items(cls, project_name):
         with new_session() as session:
             rows = session.query(Item).filter_by(project_id=project_name).order_by(Item.datetime_claimed)
 
-            return list([item.to_dict() for item in rows])
+            return list([item.to_dict(with_shortcode=True) for item in rows])
 
     @classmethod
     def add_items(cls, project_name, sequence_list):
