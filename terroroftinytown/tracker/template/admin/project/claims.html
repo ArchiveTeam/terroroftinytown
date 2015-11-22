@@ -14,6 +14,8 @@
 			<th>ID</th>
 			<th>Lower Seq Num</th>
 			<th>Upper Seq Num</th>
+                        <th>Lower Shortcode</th>
+                        <th>Upper Shortcode</th>
 			<th>Date</th>
 			<th>Username</th>
 			<th>IP</th>
@@ -26,6 +28,8 @@
 		<td>{{ item['id'] }}</td>
 		<td>{{ item['lower_sequence_num'] }}</td>
 		<td>{{ item['upper_sequence_num'] }}</td>
+		<td>{{ item['lower_shortcode'] }}</td>
+		<td>{{ item['upper_shortcode'] }}</td>
 		<td>{{ item['datetime_claimed'] }}</td>
 		<td>{{ item['username'] }}</td>
 		<td>{{ item['ip_address'] }}</td>
@@ -43,6 +47,8 @@
 		<td>{{ item['id'] }}</td>
 		<td>{{ item['lower_sequence_num'] }}</td>
 		<td>{{ item['upper_sequence_num'] }}</td>
+		<td>{{ item['lower_shortcode'] }}</td>
+		<td>{{ item['upper_shortcode'] }}</td>
 		<td>{{ datetime.datetime.utcfromtimestamp(item['datetime_claimed']) }}</td>
 		<td>{{ item['username'] }}</td>
 		<td>{{ item['ip_address'] }}</td>

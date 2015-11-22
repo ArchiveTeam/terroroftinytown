@@ -20,6 +20,7 @@ from sqlalchemy.sql.sqltypes import String, Binary, Float, Boolean, Integer, \
 from sqlalchemy.sql.type_api import TypeDecorator
 
 from terroroftinytown.client import VERSION
+from terroroftinytown.client.alphabet import int_to_str
 from terroroftinytown.tracker.errors import NoItemAvailable, FullClaim, UpdateClient, \
     InvalidClaim, NoResourcesAvailable
 from terroroftinytown.tracker.stats import Stats
@@ -205,8 +206,8 @@ class Project(Base):
     lower_sequence_num = Column(Integer, default=0, nullable=False)
     autorelease_time = Column(Integer, default=60 * 30)
 
-    def to_dict(self):
-        return {
+    def to_dict(self, with_shortcode=False):
+        ans = {
             'name': self.name,
             'min_version': self.min_version,
             'min_client_version': self.min_client_version,
@@ -226,6 +227,12 @@ class Project(Base):
             'lower_sequence_num': self.lower_sequence_num,
             'autorelease_time': self.autorelease_time,
         }
+        if with_shortcode:
+            ans['lower_shortcode'] = self.lower_shortcode()
+        return ans
+
+    def lower_shortcode(self):
+        return int_to_str(self.lower_sequence_num, self.alphabet)
 
     @classmethod
     def all_project_names(cls):
@@ -239,7 +246,7 @@ class Project(Base):
         with new_session() as session:
             projects = session.query(Project)
 
-            return list([project.to_dict() for project in projects])
+            return list([project.to_dict(with_shortcode=True) for project in projects])
 
     @classmethod
     def new_project(cls, name):
@@ -283,8 +290,8 @@ class Item(Base):
     username = Column(String)
     ip_address = Column(String)
 
-    def to_dict(self):
-        return {
+    def to_dict(self, with_shortcode=False):
+        ans = {
             'id': self.id,
             'project': self.project.to_dict(),
             'lower_sequence_num': self.lower_sequence_num,
@@ -294,13 +301,19 @@ class Item(Base):
             'username': self.username,
             'ip_address': self.ip_address,
         }
+        if with_shortcode:
+            ans['lower_shortcode'] = int_to_str(self.lower_sequence_num, self.project.alphabet)
+            ans['upper_shortcode'] = int_to_str(self.upper_sequence_num, self.project.alphabet)
+        return ans
+
+
 
     @classmethod
     def get_items(cls, project_name):
         with new_session() as session:
             rows = session.query(Item).filter_by(project_id=project_name).order_by(Item.datetime_claimed)
 
-            return list([item.to_dict() for item in rows])
+            return list([item.to_dict(with_shortcode=True) for item in rows])
 
     @classmethod
     def add_items(cls, project_name, sequence_list):

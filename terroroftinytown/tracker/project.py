@@ -80,6 +80,7 @@ class QueueHandler(BaseHandler):
         self.render(
             'admin/project/queue_settings.html',
             project_name=name,
+            lower_shortcode=project.lower_shortcode(),
             form=form,
             enable_form=enable_form
         )
@@ -89,6 +90,7 @@ class QueueHandler(BaseHandler):
         project = Project.get_plain(name)
         enable_form = QueueEnableForm(data=self.get_enable_form(project))
         form = QueueSettingsForm(data=self.get_queue_settings_form(project))
+        lower_shortcode = project.lower_shortcode()
 
         message = None
         action = self.get_argument('action', None)
@@ -114,6 +116,8 @@ class QueueHandler(BaseHandler):
                     project.lower_sequence_num = form.lower_sequence_num.data or 0
                     project.autorelease_time = form.autorelease_time.data * 60 or 0
 
+                    lower_shortcode = project.lower_shortcode()
+
                 logger.debug('Project %s queue settings changed.', name)
                 message = 'Settings saved.'
             else:
@@ -126,6 +130,7 @@ class QueueHandler(BaseHandler):
         self.render(
             'admin/project/queue_settings.html',
             project_name=name,
+            lower_shortcode=lower_shortcode,
             form=form,
             enable_form=enable_form,
             message=message
