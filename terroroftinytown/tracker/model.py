@@ -449,12 +449,10 @@ class Result(Base):
             return bool(result)
 
     @classmethod
-    def get_count(cls, project_id=None, **unused_kwargs):
+    def get_count(cls):
         with new_session() as session:
-            q = session.query(func.count(Result.id))
-            if project_id is not None and project_id != 'None':
-                q = q.filter(Result.project_id == project_id)
-            return q.scalar()
+            return (session.query(func.max(Result.id)).scalar() or 0) \
+                   - (session.query(func.min(Result.id)).scalar() or 0)
 
 
 
