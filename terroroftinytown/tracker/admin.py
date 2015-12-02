@@ -66,8 +66,10 @@ class BannedHandler(BaseHandler):
 class ErrorReportsListHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
-        offset_id = int(self.get_argument('offset_id', 0))
-        error_reports = ErrorReport.all_reports(offset_id=offset_id)
+        project_id=self.get_argument('project_id', None)
+        error_reports = ErrorReport.all_reports(
+            offset_id=int(self.get_argument('offset_id', 0)),
+            project_id=project_id)
         auto_delete_form = AutoDeleteErrorReportsForm(
             enabled=GlobalSetting.get_value(
                 GlobalSetting.AUTO_DELETE_ERROR_REPORTS)
@@ -79,7 +81,8 @@ class ErrorReportsListHandler(BaseHandler):
             delete_all_form=DeleteAllErrorReportsForm(),
             auto_delete_form=auto_delete_form,
             next_offset_id=error_reports[-1]['id'] if error_reports else 0,
-            count=ErrorReport.get_count()
+            project_id=project_id,
+            count=ErrorReport.get_count() if project_id is None else 0
         )
 
 
