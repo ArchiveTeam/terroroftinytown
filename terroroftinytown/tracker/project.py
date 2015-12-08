@@ -110,9 +110,7 @@ class QueueHandler(BaseHandler):
             form = QueueSettingsForm(self.request.arguments)
             if form.validate():
                 with Project.get_session_object(name) as project:
-                    project.autoqueue = form.autoqueue.data
-                    project.num_count_per_item = form.num_count_per_item.data
-                    project.max_num_items = form.max_num_items.data
+                    form.populate_obj(project)
                     project.lower_sequence_num = form.lower_sequence_num.data or 0
                     project.autorelease_time = form.autorelease_time.data * 60 or 0
 
@@ -256,19 +254,7 @@ class SettingsHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self, name):
         project = Project.get_plain(name)
-        form = ProjectSettingsForm(
-            alphabet=project.alphabet,
-            banned_codes=project.banned_codes,
-            body_regex=project.body_regex,
-            method=project.method,
-            min_version=project.min_version,
-            min_client_version=project.min_client_version,
-            no_redirect_codes=project.no_redirect_codes,
-            redirect_codes=project.redirect_codes,
-            request_delay=project.request_delay,
-            url_template=project.url_template,
-            unavailable_codes=project.unavailable_codes,
-        )
+        form = ProjectSettingsForm(**project.to_dict())
 
         self.render(
             'admin/project/shortener_settings.html',
@@ -282,17 +268,7 @@ class SettingsHandler(BaseHandler):
 
         if form.validate():
             with Project.get_session_object(name) as project:
-                project.alphabet = form.alphabet.data
-                project.min_version = form.min_version.data
-                project.min_client_version = form.min_client_version.data
-                project.url_template = form.url_template.data
-                project.request_delay = form.request_delay.data
-                project.redirect_codes = form.redirect_codes.data
-                project.no_redirect_codes = form.no_redirect_codes.data
-                project.unavailable_codes = form.unavailable_codes.data
-                project.banned_codes = form.banned_codes.data
-                project.body_regex = form.body_regex.data
-                project.method = form.method.data
+                form.populate_obj(project)
 
             logger.info('Changed project %s shortener settings', name)
             message = 'Settings saved.'

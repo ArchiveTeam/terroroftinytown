@@ -12,6 +12,7 @@ import subprocess
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.orm.session import make_transient
+from sqlalchemy.orm.util import object_state
 from sqlalchemy.sql.expression import insert, select, delete, exists
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column, ForeignKey
@@ -207,26 +208,7 @@ class Project(Base):
     autorelease_time = Column(Integer, default=60 * 30)
 
     def to_dict(self, with_shortcode=False):
-        ans = {
-            'name': self.name,
-            'min_version': self.min_version,
-            'min_client_version': self.min_client_version,
-            'alphabet': self.alphabet,
-            'url_template': self.url_template,
-            'request_delay': self.request_delay,
-            'redirect_codes': self.redirect_codes,
-            'no_redirect_codes': self.no_redirect_codes,
-            'unavailable_codes': self.unavailable_codes,
-            'banned_codes': self.banned_codes,
-            'body_regex': self.body_regex,
-            'method': self.method,
-            'enabled': self.enabled,
-            'autoqueue': self.autoqueue,
-            'num_count_per_item': self.num_count_per_item,
-            'max_num_items': self.max_num_items,
-            'lower_sequence_num': self.lower_sequence_num,
-            'autorelease_time': self.autorelease_time,
-        }
+        ans = {x.key:x.value for x in object_state(self).attrs}
         if with_shortcode:
             ans['lower_shortcode'] = self.lower_shortcode()
         return ans
@@ -291,16 +273,11 @@ class Item(Base):
     ip_address = Column(String)
 
     def to_dict(self, with_shortcode=False):
-        ans = {
-            'id': self.id,
+        ans = {x.key:x.value for x in object_state(self).attrs}
+        ans.update({
             'project': self.project.to_dict(),
-            'lower_sequence_num': self.lower_sequence_num,
-            'upper_sequence_num': self.upper_sequence_num,
             'datetime_claimed': calendar.timegm(self.datetime_claimed.utctimetuple()) if self.datetime_claimed else None,
-            'tamper_key': self.tamper_key,
-            'username': self.username,
-            'ip_address': self.ip_address,
-        }
+        })
         if with_shortcode:
             ans['lower_shortcode'] = int_to_str(self.lower_sequence_num, self.project.alphabet)
             ans['upper_shortcode'] = int_to_str(self.upper_sequence_num, self.project.alphabet)
@@ -501,13 +478,11 @@ class ErrorReport(Base):
                       default=datetime.datetime.utcnow)
 
     def to_dict(self):
-        return {
-            'id': self.id,
-            'item_id': self.item_id,
+        ans = {x.key:x.value for x in object_state(self).attrs}
+        ans.update({
             'project': self.item.project_id if self.item else None,
-            'message': self.message,
-            'datetime': self.datetime,
-        }
+        })
+        return ans
 
     @classmethod
     def get_count(cls):
