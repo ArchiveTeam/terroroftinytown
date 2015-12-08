@@ -198,6 +198,7 @@ class Project(Base):
     unavailable_codes = Column(JsonType, default=[200])
     banned_codes = Column(JsonType, default=[403, 420, 429])
     body_regex = Column(String)
+    location_regex = Column(String)
     method = Column(String, default='head', nullable=False)
 
     enabled = Column(Boolean, default=False)

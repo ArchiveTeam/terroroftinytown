@@ -351,6 +351,10 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         element.clear()
         element.send_keys('<a id="redir_link" href="[^"]+">')
 
+        element = self.driver.find_element_by_name('location_regex')
+        element.clear()
+        element.send_keys('^/error.php$')
+
         element.submit()
 
     def populate_queue(self):

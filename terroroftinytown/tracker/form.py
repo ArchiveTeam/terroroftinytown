@@ -96,7 +96,7 @@ class ProjectSettingsForm(Form):
         'Banned status codes:',
     )
     body_regex = StringField('Content body regular expression:')
-
+    location_regex = StringField('Location header regular expression:')
 
 class BlockUsernameForm(Form):
     username = StringField(
