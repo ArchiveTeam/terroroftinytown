@@ -29,6 +29,8 @@ class ExampleHandler(tornado.web.RequestHandler):
             self.write(b'continue</a></html><body>')
         elif shortcode == 'd':
             self.set_status(420, 'banned')
+        elif shortcode == 'e':
+            self.redirect('/404.php', status=301)
         else:
             self.redirect('http://example.com', status=303)
 
@@ -78,11 +80,12 @@ class TestTracker(unittest.TestCase):
                 'unavailable_codes': [],
                 'banned_codes': [420],
                 'body_regex': r'id="contlink" href="([^"]+)',
+                'location_regex': r'^/404.php$',
                 'custom_code_required': False,
                 'method': 'get',
                 'name': 'blah',
             },
-            [0, 1, 2]
+            [0, 1, 2, 4]
         )
 
         scraper.run()
