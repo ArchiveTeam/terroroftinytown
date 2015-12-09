@@ -431,7 +431,7 @@ class Result(Base):
 
     id = Column(Integer, primary_key=True)
 
-    project_id = Column(Integer, ForeignKey('projects.name'), nullable=False)
+    project_id = Column(Integer, ForeignKey('projects.name'), nullable=False, index=True)
     project = relationship('Project')
 
     shortcode = Column(String, nullable=False)
