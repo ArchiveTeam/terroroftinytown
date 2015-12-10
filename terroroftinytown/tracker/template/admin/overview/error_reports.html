@@ -4,15 +4,15 @@
 
 {% block main %}
 
-<h1>Error Reports</h1>
+<h1>Error Reports{{ ' for "{}" '.format(project_id) if project_id is not None else '' }}</h1>
 
 {% module Form(auto_delete_form, action=reverse_url('admin.error_reports.auto_delete_setting'), submit='Apply') %}
 
 <hr>
 
-<p>About {{ count }} reports exist.</p>
+<p>{{ 'There are about {:,} error reports total.'.format(count) if project_id is None else ''}}</p>
 
-<a class="btn btn-default" href="{{ '{}?offset_id={}'.format(reverse_url('admin.error_reports'), next_offset_id) }}">Show more</a>
+<a class="btn btn-default" href="{{ '{}?offset_id={}&project_id={}'.format(reverse_url('admin.error_reports'), next_offset_id, project_id) }}">Show more</a>
 
 <table class="table table-bordered table-striped">
 	<thead>
@@ -36,7 +36,7 @@
 	{% end %}
 </table>
 
-<a class="btn btn-default" href="{{ '{}?offset_id={}'.format(reverse_url('admin.error_reports'), next_offset_id) }}">Show more</a>
+<a class="btn btn-default" href="{{ '{}?offset_id={}&project_id={}'.format(reverse_url('admin.error_reports'), next_offset_id, project_id) }}">Show more</a>
 
 <hr>
 

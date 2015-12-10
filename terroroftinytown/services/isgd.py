@@ -30,8 +30,13 @@ class IsgdService(BaseService):
     def process_unavailable(self, response):
         if not response.text:
             return (URLStatus.unavailable, None, None)
-        if '<div id="main"><p>Rate limit exceeded - please wait 1 minute before accessing more shortened URLs</p></div>' in response.text:
+
+        # Catch both types encountered in the wild:
+        # <div id="main"><p>Rate limit exceeded - you must wait at least 1798 seconds before we'll service this request.</p></div>
+        # <div id="main"><p>Rate limit exceeded - please wait 1 minute before accessing more shortened URLs</p></div>
+        if '<div id="main"><p>Rate limit exceeded - ' in response.text:
             raise PleaseRetry()
+
         if "<div id=\"disabled\"><h2>Link Disabled</h2>" in response.text:
             return self.parse_blocked(response)
         if "<p>The full original link is shown below. <b>Click the link</b> if you'd like to proceed to the destination shown:" in response.text:

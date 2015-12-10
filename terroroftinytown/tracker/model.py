@@ -431,7 +431,7 @@ class Result(Base):
 
     id = Column(Integer, primary_key=True)
 
-    project_id = Column(Integer, ForeignKey('projects.name'), nullable=False)
+    project_id = Column(Integer, ForeignKey('projects.name'), nullable=False, index=True)
     project = relationship('Project')
 
     shortcode = Column(String, nullable=False)
@@ -518,12 +518,15 @@ class ErrorReport(Base):
             return max_id - min_id
 
     @classmethod
-    def all_reports(cls, limit=100, offset_id=None):
+    def all_reports(cls, limit=100, offset_id=None, project_id=None):
         with new_session() as session:
             reports = session.query(ErrorReport)
 
             if offset_id:
                 reports = reports.filter(ErrorReport.id > offset_id)
+
+            if project_id is not None and project_id != 'None':
+                reports = reports.join(Item).filter(Item.project_id == project_id)
 
             reports = reports.limit(limit)
 
