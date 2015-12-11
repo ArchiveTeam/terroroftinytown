@@ -81,7 +81,7 @@ class ErrorReportsListHandler(BaseHandler):
             delete_all_form=DeleteAllErrorReportsForm(),
             auto_delete_form=auto_delete_form,
             next_offset_id=error_reports[-1]['id'] if error_reports else 0,
-            project_id=project_id,
+            project_name=project_id,
             count=ErrorReport.get_count() if project_id is None else 0
         )
 

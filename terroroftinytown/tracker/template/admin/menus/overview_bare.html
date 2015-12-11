@@ -1,0 +1,25 @@
+<div class="panel panel-default">
+	<div class="panel-heading">
+		Tracker admin
+	</div>
+	<ul class="list-group">
+		<li class="list-group-item">
+			<a href="{{ reverse_url('admin.overview') }}">Overview</a>
+		</li>
+		<li class="list-group-item">
+			<a href="{{ reverse_url('projects.overview') }}">Projects</a>
+		</li>
+		<li class="list-group-item">
+			<a href="{{ reverse_url('users.overview') }}">Users</a>
+		</li>
+		<li class="list-group-item">
+			<a href="{{ reverse_url('admin.banned') }}">Banned Clients</a>
+		</li>
+		<li class="list-group-item">
+			<a href="{{ reverse_url('admin.results') }}">Results</a>
+		</li>
+		<li class="list-group-item">
+			<a href="{{ reverse_url('admin.error_reports') }}">Error Reports</a>
+		</li>
+	</ul>
+</div>

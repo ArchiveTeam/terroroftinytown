@@ -1,33 +1,3 @@
 {% block menu %}
-<div class="panel panel-default">
-	<div class="panel-heading">
-		{{project_name}}
-	</div>
-	<ul class="list-group">
-		<li class="list-group-item">
-			<a href="{{ reverse_url('admin.overview') }}">Global Admin</a>
-		</li>
-		<li class="list-group-item">
-			<a href="{{ reverse_url('project.overview', project_name) }}">Overview</a>
-		</li>
-		<li class="list-group-item">
-			<a href="{{ reverse_url('project.claims', project_name) }}">Claims</a>
-		</li>
-		<li class="list-group-item">
-			<a href="{{ reverse_url('project.queue', project_name) }}">Queue Settings</a>
-		</li>
-		<li class="list-group-item">
-			<a href="{{ reverse_url('project.settings', project_name) }}">Shortener Settings</a>
-		</li>
-		<li class="list-group-item">
-			<a href="{{ reverse_url('admin.results')+'?limit=10&project_id='+project_name }}">Results</a>
-		</li>
-		<li class="list-group-item">
-			<a href="{{ reverse_url('admin.error_reports')+'?project_id='+project_name }}">Error Reports</a>
-		</li>
-		<li class="list-group-item">
-			<a href="{{ reverse_url('project.delete', project_name) }}">Delete</a>
-		</li>
-	</ul>
-</div>
+{% include project_bare.html %}
 {% end %}

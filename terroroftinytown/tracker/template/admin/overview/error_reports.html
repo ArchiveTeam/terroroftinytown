@@ -1,20 +1,26 @@
 {% extends '../base.html' %}
 
-{% include '../menus/overview.html' %}
+{% block menu %}
+{% if project_name is None %}
+{% include '../menus/overview_bare.html' %}
+{% else %}
+{% include '../menus/project_bare.html' %}
+{% end %}
+{% end %}
 
 {% block title %} Error Reports {% end %}
 
 {% block main %}
 
-<h1>Error Reports{{ ' for "{}" '.format(project_id) if project_id is not None else '' }}</h1>
+<h1>Error Reports{{ ' for "{}" '.format(project_name) if project_name is not None else '' }}</h1>
 
 {% module Form(auto_delete_form, action=reverse_url('admin.error_reports.auto_delete_setting'), submit='Apply') %}
 
 <hr>
 
-<p>{{ 'There are about {:,} error reports total.'.format(count) if project_id is None else ''}}</p>
+<p>{{ 'There are about {:,} error reports total.'.format(count) if project_name is None else ''}}</p>
 
-<a class="btn btn-default" href="{{ '{}?offset_id={}&project_id={}'.format(reverse_url('admin.error_reports'), next_offset_id, project_id) }}">Show more</a>
+<a class="btn btn-default" href="{{ '{}?offset_id={}&project_id={}'.format(reverse_url('admin.error_reports'), next_offset_id, project_name) }}">Show more</a>
 
 <table class="table table-bordered table-striped">
 	<thead>
@@ -38,7 +44,7 @@
 	{% end %}
 </table>
 
-<a class="btn btn-default" href="{{ '{}?offset_id={}&project_id={}'.format(reverse_url('admin.error_reports'), next_offset_id, project_id) }}">Show more</a>
+<a class="btn btn-default" href="{{ '{}?offset_id={}&project_id={}'.format(reverse_url('admin.error_reports'), next_offset_id, project_name) }}">Show more</a>
 
 <hr>
 
