@@ -80,7 +80,7 @@ class TestTracker(unittest.TestCase):
                 'unavailable_codes': [],
                 'banned_codes': [420],
                 'body_regex': r'id="contlink" href="([^"]+)',
-                'location_regex': r'^/404.php$',
+                'location_anti_regex': r'^/404.php$',
                 'custom_code_required': False,
                 'method': 'get',
                 'name': 'blah',
