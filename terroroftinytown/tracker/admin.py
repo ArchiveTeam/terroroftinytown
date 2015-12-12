@@ -66,10 +66,10 @@ class BannedHandler(BaseHandler):
 class ErrorReportsListHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
-        project_name=self.get_argument('project_id', None)
+        project_id=self.get_argument('project_id', None)
         error_reports = ErrorReport.all_reports(
             offset_id=int(self.get_argument('offset_id', 0)),
-            project_id=project_name)
+            project_id=project_id)
         auto_delete_form = AutoDeleteErrorReportsForm(
             enabled=GlobalSetting.get_value(
                 GlobalSetting.AUTO_DELETE_ERROR_REPORTS)
@@ -81,8 +81,8 @@ class ErrorReportsListHandler(BaseHandler):
             delete_all_form=DeleteAllErrorReportsForm(),
             auto_delete_form=auto_delete_form,
             next_offset_id=error_reports[-1]['id'] if error_reports else 0,
-            project_name=project_name,
-            count=ErrorReport.get_count() if project_name is None else 0
+            project_id=project_id,
+            count=ErrorReport.get_count() if project_id is None else 0
         )
 
 
@@ -115,11 +115,11 @@ class AutoDeleteErrorReportsSettingHandler(BaseHandler):
 class ResultsHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
-        args = {k: self.get_argument(k, default) for (k, default) in [('offset_id', 0), ('limit',1000), ('project_name',None)]}
+        args = {k: self.get_argument(k, default) for (k, default) in [('offset_id', 0), ('limit',1000), ('project_id',None)]}
         results = tuple(Result.get_results(**args))
         self.render(
             'admin/overview/results.html',
-            count=Result.get_count() if args['project_name'] is None else 0,
+            count=Result.get_count() if args['project_id'] is None else 0,
             results=results,
             next_higher_offset_id=int(results[0]['id'])+int(args['limit']) if results else 0,
             next_lower_offset_id=int(results[-1]['id'])-1 if results else 0,

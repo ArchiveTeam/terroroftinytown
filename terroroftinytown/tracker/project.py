@@ -65,29 +65,29 @@ class AllProjectsHandler(BaseHandler):
 
 class ProjectHandler(BaseHandler):
     @tornado.web.authenticated
-    def get(self, name):
+    def get(self, project_id):
         # Nothing useful to show for now
-        self.redirect(self.reverse_url('project.claims', name))
-        # self.render('admin/project/overview.html', project_name=name)
+        self.redirect(self.reverse_url('project.claims', project_id))
+        # self.render('admin/project/overview.html', project_id=name)
 
 
 class QueueHandler(BaseHandler):
     @tornado.web.authenticated
-    def get(self, name):
-        project = Project.get_plain(name)
+    def get(self, project_id):
+        project = Project.get_plain(project_id)
         enable_form = QueueEnableForm(data=self.get_enable_form(project))
         form = QueueSettingsForm(data=self.get_queue_settings_form(project))
         self.render(
             'admin/project/queue_settings.html',
-            project_name=name,
+            project_id=project_id,
             lower_shortcode=project.lower_shortcode(),
             form=form,
             enable_form=enable_form
         )
 
     @tornado.web.authenticated
-    def post(self, name):
-        project = Project.get_plain(name)
+    def post(self, project_id):
+        project = Project.get_plain(project_id)
         enable_form = QueueEnableForm(data=self.get_enable_form(project))
         form = QueueSettingsForm(data=self.get_queue_settings_form(project))
         lower_shortcode = project.lower_shortcode()
@@ -98,10 +98,10 @@ class QueueHandler(BaseHandler):
         if action == 'enable':
             enable_form = QueueEnableForm(self.request.arguments)
             if enable_form.validate():
-                with Project.get_session_object(name) as project:
+                with Project.get_session_object(project_id) as project:
                     project.enabled = enable_form.enabled.data
                     logger.info('Project %s enabled=%s',
-                                name, project.enabled)
+                                project_id, project.enabled)
                     message = ('Enabled' if project.enabled else 'Disabled')
             else:
                 message = 'Error in Queue Enable Form.'
@@ -109,14 +109,14 @@ class QueueHandler(BaseHandler):
         elif action == 'autoqueue':
             form = QueueSettingsForm(self.request.arguments)
             if form.validate():
-                with Project.get_session_object(name) as project:
+                with Project.get_session_object(project_id) as project:
                     form.populate_obj(project)
                     project.lower_sequence_num = form.lower_sequence_num.data or 0
                     project.autorelease_time = form.autorelease_time.data * 60 or 0
 
                     lower_shortcode = project.lower_shortcode()
 
-                logger.debug('Project %s queue settings changed.', name)
+                logger.debug('Project %s queue settings changed.', project_id)
                 message = 'Settings saved.'
             else:
                 message = 'Error in Auto Queue Form.'
@@ -127,7 +127,7 @@ class QueueHandler(BaseHandler):
 
         self.render(
             'admin/project/queue_settings.html',
-            project_name=name,
+            project_id=project_id,
             lower_shortcode=lower_shortcode,
             form=form,
             enable_form=enable_form,
@@ -151,15 +151,15 @@ class QueueHandler(BaseHandler):
 
 class ClaimsHandler(BaseHandler):
     @tornado.web.authenticated
-    def get(self, name):
+    def get(self, project_id):
         delete_form = ConfirmForm()
         manual_add_form = AddItemsForm()
         release_form = ReleaseClaimForm()
         item_action_form = ItemActionForm()
-        items = Item.get_items(name)
+        items = Item.get_items(project_id)
 
         self.render(
-            'admin/project/claims.html', project_name=name,
+            'admin/project/claims.html', project_id=project_id,
             delete_form=delete_form,
             manual_add_form=manual_add_form,
             release_form=release_form,
@@ -168,36 +168,36 @@ class ClaimsHandler(BaseHandler):
         )
 
     @tornado.web.authenticated
-    def post(self, name):
+    def post(self, project_id):
         delete_form = ConfirmForm(self.request.arguments)
         manual_add_form = AddItemsForm(self.request.arguments)
         release_form = ReleaseClaimForm(self.request.arguments)
         item_action_form = ItemActionForm(self.request.arguments)
-        items = Item.get_items(name)
+        items = Item.get_items(project_id)
         action = self.get_argument('action')
 
         if action == 'manual_add' and manual_add_form.validate():
-            self._add_items(name)
-            self.redirect(self.reverse_url('project.claims', name))
+            self._add_items(project_id)
+            self.redirect(self.reverse_url('project.claims', project_id))
             return
         elif action == 'delete_one' and item_action_form.validate():
             self._delete_one()
-            self.redirect(self.reverse_url('project.claims', name))
+            self.redirect(self.reverse_url('project.claims', project_id))
             return
         elif action == 'release_one' and item_action_form.validate():
             self._release_one()
-            self.redirect(self.reverse_url('project.claims', name))
+            self.redirect(self.reverse_url('project.claims', project_id))
             return
         elif action == 'release' and release_form.validate():
-            self._release_all(name, release_form)
-            self.redirect(self.reverse_url('project.claims', name))
+            self._release_all(project_id, release_form)
+            self.redirect(self.reverse_url('project.claims', project_id))
         elif action == 'delete' and delete_form.validate():
-            self._delete_all(name)
-            self.redirect(self.reverse_url('project.claims', name))
+            self._delete_all(project_id)
+            self.redirect(self.reverse_url('project.claims', project_id))
             return
 
         self.render(
-            'admin/project/claims.html', project_name=name,
+            'admin/project/claims.html', project_id=project_id,
             delete_form=delete_form,
             manual_add_form=manual_add_form,
             release_form=release_form,
@@ -205,18 +205,18 @@ class ClaimsHandler(BaseHandler):
             items=items,
         )
 
-    def _add_items(self, name):
+    def _add_items(self, project_id):
         items = self.get_argument('items').split()
         seq_list = []
 
         for item in items:
-            logger.info('Adding to project %s item', name)
+            logger.info('Adding to project %s item', project_id)
             lower_seq_num, upper_seq_num = item.split('-')
             lower_seq_num = int(lower_seq_num)
             upper_seq_num = int(upper_seq_num)
             seq_list.append((lower_seq_num, upper_seq_num))
 
-        Item.add_items(name, seq_list)
+        Item.add_items(project_id, seq_list)
         Budget.calculate_budgets()
 
     def _delete_one(self):
@@ -235,68 +235,68 @@ class ClaimsHandler(BaseHandler):
 
         logger.info('Released item %s', item_id)
 
-    def _release_all(self, project_name, release_form):
+    def _release_all(self, project_id, release_form):
         time_ago = time.time() - release_form.hours.data * 60
 
-        Item.release_all(project_name, datetime.datetime.utcfromtimestamp(time_ago))
+        Item.release_all(project_id, datetime.datetime.utcfromtimestamp(time_ago))
         Budget.calculate_budgets()
 
-        logger.info('Released items for %s', project_name)
+        logger.info('Released items for %s', project_id)
 
-    def _delete_all(self, project_name):
-        Item.delete_all(project_name)
+    def _delete_all(self, project_id):
+        Item.delete_all(project_id)
         Budget.calculate_budgets()
 
-        logger.info('Delete all items for %s', project_name)
+        logger.info('Delete all items for %s', project_id)
 
 
 class SettingsHandler(BaseHandler):
     @tornado.web.authenticated
-    def get(self, name):
-        project = Project.get_plain(name)
+    def get(self, project_id):
+        project = Project.get_plain(project_id)
         form = ProjectSettingsForm(**project.to_dict())
 
         self.render(
             'admin/project/shortener_settings.html',
-            project_name=name, form=form,
+            project_id=project_id, form=form,
         )
 
     @tornado.web.authenticated
-    def post(self, name):
+    def post(self, project_id):
         form = ProjectSettingsForm(self.request.arguments)
         message = None
 
         if form.validate():
-            with Project.get_session_object(name) as project:
+            with Project.get_session_object(project_id) as project:
                 form.populate_obj(project)
 
-            logger.info('Changed project %s shortener settings', name)
+            logger.info('Changed project %s shortener settings', project_id)
             message = 'Settings saved.'
         else:
             message = 'Error.'
 
         self.render(
             'admin/project/shortener_settings.html',
-            project_name=name, form=form,
+            project_id=project_id, form=form,
             message=message
         )
 
 
 class DeleteHandler(BaseHandler):
     @tornado.web.authenticated
-    def get(self, name):
+    def get(self, project_id):
         form = ConfirmForm()
-        self.render('admin/project/delete.html', project_name=name, form=form)
+        self.render('admin/project/delete.html', project_id=project_id, form=form)
 
     @tornado.web.authenticated
-    def post(self, name):
+    def post(self, project_id):
         form = ConfirmForm(self.request.arguments)
 
         if form.validate():
-            Project.delete_project(name)
+            Project.delete_project(project_id)
             Budget.calculate_budgets()
 
-            logger.info('Deleted project %s', name)
+            logger.info('Deleted project %s', project_id)
             self.redirect(self.reverse_url('admin.overview'))
         else:
-            self.render('admin/project/delete.html', project_name=name, form=form)
+            self.render('admin/project/delete.html', project_id=project_id, form=form)

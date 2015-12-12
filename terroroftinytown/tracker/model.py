@@ -285,21 +285,21 @@ class Item(Base):
         return ans
 
     @classmethod
-    def get_items(cls, project_name):
+    def get_items(cls, project_id):
         with new_session() as session:
-            rows = session.query(Item).filter_by(project_id=project_name).order_by(Item.datetime_claimed)
+            rows = session.query(Item).filter_by(project_id=project_id).order_by(Item.datetime_claimed)
 
             return list([item.to_dict(with_shortcode=True) for item in rows])
 
     @classmethod
-    def add_items(cls, project_name, sequence_list):
+    def add_items(cls, project_id, sequence_list):
         with new_session() as session:
             query = insert(Item)
             query_args = []
 
             for lower_num, upper_num in sequence_list:
                 query_args.append({
-                    'project_id': project_name,
+                    'project_id': project_id,
                     'lower_sequence_num': lower_num,
                     'upper_sequence_num': upper_num,
                 })
@@ -320,12 +320,12 @@ class Item(Base):
             item.username = None
 
     @classmethod
-    def release_all(cls, project_name=None, old_date=None):
+    def release_all(cls, project_id=None, old_date=None):
         with new_session() as session:
             query = session.query(Item)
 
-            if project_name:
-                query = query.filter_by(project_id=project_name)
+            if project_id:
+                query = query.filter_by(project_id=project_id)
 
             if old_date:
                 query = query.filter(Item.datetime_claimed <= old_date)
@@ -337,7 +337,7 @@ class Item(Base):
             })
 
     @classmethod
-    def release_old(cls, project_name=None, autoqueue_only=False):
+    def release_old(cls, project_id=None, autoqueue_only=False):
         with new_session() as session:
             # we could probably write this in one query
             # but it would be non-portable across SQL dialects
@@ -345,8 +345,8 @@ class Item(Base):
             projects = session.query(Project) \
                 .filter(Project.autorelease_time > 0)
 
-            if project_name:
-                projects = projects.filter_by(name=project_name)
+            if project_id:
+                projects = projects.filter_by(name=project_id)
 
             if autoqueue_only:
                 projects = projects.filter_by(autoqueue=True)
@@ -362,9 +362,9 @@ class Item(Base):
                 })
 
     @classmethod
-    def delete_all(cls, project_name):
+    def delete_all(cls, project_id):
         with new_session() as session:
-            session.query(Item).filter_by(project_id=project_name).delete()
+            session.query(Item).filter_by(project_id=project_id).delete()
 
 
 class BlockedUser(Base):
@@ -433,7 +433,7 @@ class Result(Base):
 
 
     @classmethod
-    def get_results(cls, offset_id=0, limit=1000, project_name=None):
+    def get_results(cls, offset_id=0, limit=1000, project_id=None):
         with new_session() as session:
             if int(offset_id) == 0:
                 offset_id = session.query(func.max(Result.id)).scalar() or 0
@@ -443,9 +443,9 @@ class Result(Base):
                 ) \
                 .filter(Result.id <= int(offset_id))
 
-            if project_name is not None and project_name != 'None':
-                rows = rows.filter(Result.project_id == project_name)
-                alphabet = Project.get_plain(project_name).alphabet
+            if project_id is not None and project_id != 'None':
+                rows = rows.filter(Result.project_id == project_id)
+                alphabet = Project.get_plain(project_id).alphabet
             else:
                 alphabet = None
 
@@ -454,7 +454,7 @@ class Result(Base):
             for row in rows:
                 ans = {
                     'id': row[0],
-                    'project_name': row[1],
+                    'project_id': row[1],
                     'shortcode': row[2],
                     'url': row[3],
                     'encoding': row[4],
@@ -577,8 +577,8 @@ class Budget(object):
         project_names = list(cls.projects.keys())
         random.shuffle(project_names)
 
-        for project_name in project_names:
-            project_info = cls.projects[project_name]
+        for project_id in project_names:
+            project_info = cls.projects[project_id]
 
             if ip_address not in project_info['ip_addresses'] and \
                     version >= project_info['min_version'] and \
@@ -586,7 +586,7 @@ class Budget(object):
                     project_info['claims'] <= project_info['items'] and \
                     project_info['claims'] < project_info['max_num_items']:
 
-                return (project_name, project_info['claims'],
+                return (project_id, project_info['claims'],
                         project_info['items'], project_info['max_num_items'])
 
     @classmethod
@@ -670,11 +670,11 @@ def checkout_item(username, ip_address, version=-1, client_version=-1):
     )
 
     if available:
-        project_name, num_claims, num_items, max_num_items = available
+        project_id, num_claims, num_items, max_num_items = available
 
         with new_session() as session:
             if num_claims >= num_items and num_items < max_num_items:
-                project = session.query(Project).get(project_name)
+                project = session.query(Project).get(project_id)
 
                 if project.autoqueue:
                     item_count = project.num_count_per_item
@@ -697,7 +697,7 @@ def checkout_item(username, ip_address, version=-1, client_version=-1):
             else:
                 item = session.query(Item) \
                     .filter_by(username=None) \
-                    .filter_by(project_id=project_name) \
+                    .filter_by(project_id=project_id) \
                     .first()
                 new_item = False
 
@@ -711,7 +711,7 @@ def checkout_item(username, ip_address, version=-1, client_version=-1):
                 # newly generated items
                 session.commit()
 
-                Budget.check_out(project_name, ip_address, new_item=new_item)
+                Budget.check_out(project_id, ip_address, new_item=new_item)
 
                 return item.to_dict()
 

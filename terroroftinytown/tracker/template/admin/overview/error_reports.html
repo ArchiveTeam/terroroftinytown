@@ -1,7 +1,7 @@
 {% extends '../base.html' %}
 
 {% block menu %}
-{% if project_name is None %}
+{% if not project_id %}
 {% include '../menus/overview_bare.html' %}
 {% else %}
 {% include '../menus/project_bare.html' %}
@@ -12,22 +12,22 @@
 
 {% block main %}
 
-<h1>Error Reports{{ ' for "{}" '.format(project_name) if project_name is not None else '' }}</h1>
+<h1>Error Reports{{ ' for "{}" '.format(project_id) if project_id is not None else '' }}</h1>
 
 {% module Form(auto_delete_form, action=reverse_url('admin.error_reports.auto_delete_setting'), submit='Apply') %}
 
 <hr>
 
-<p>{{ 'There are about {:,} error reports total.'.format(count) if project_name is None else ''}}</p>
+<p>{{ 'There are about {:,} error reports total.'.format(count) if not project_id else ''}}</p>
 
-<a class="btn btn-default" href="{{ '{}?offset_id={}&project_id={}'.format(reverse_url('admin.error_reports'), next_offset_id, project_name) }}">Show more</a>
+<a class="btn btn-default" href="{{ '{}?offset_id={}{}'.format(reverse_url('admin.error_reports'), next_offset_id, '&project_id='+project_id if project_id else '') }}">Show more</a>
 
 <table class="table table-bordered table-striped">
 	<thead>
 		<tr>
 			<th>ID</th>
 			<th>Item ID</th>
-			{% if project_name is None %} <th>Project</th> {% end %}
+			{% if not project_id %} <th>Project</th> {% end %}
 			<th>Date</th>
 			<th>Message</th>
 		</tr>
@@ -37,14 +37,14 @@
 	<tr class="{% if report['project'] %} warning {% end %}">
 		<td>{{ report['id'] }}</td>
 		<td>{{ report['item_id'] }}</td>
-		{% if project_name is None %} <td><a href="{{ reverse_url('admin.error_reports')+'?project_id=' + report['project'] }}">{{ report['project'] }}</a></td> {% end %}
+		{% if not project_id %} <td><a href="{{ reverse_url('admin.error_reports')+'?project_id=' + report['project'] }}">{{ report['project'] }}</a></td> {% end %}
 		<td>{{ report['datetime'] }}</td>
 		<td><pre class="errorReportMessage">{{ report['message'] }}</pre></td>
 	</tr>
 	{% end %}
 </table>
 
-<a class="btn btn-default" href="{{ '{}?offset_id={}&project_id={}'.format(reverse_url('admin.error_reports'), next_offset_id, project_name) }}">Show more</a>
+<a class="btn btn-default" href="{{ '{}?offset_id={}{}'.format(reverse_url('admin.error_reports'), next_offset_id, '&project_id='+project_id if project_id else '') }}">Show more</a>
 
 <hr>
 
