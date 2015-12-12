@@ -433,7 +433,7 @@ class Result(Base):
 
 
     @classmethod
-    def get_results(cls, offset_id=0, limit=1000, project_id=None):
+    def get_results(cls, offset_id=0, limit=1000, project_name=None):
         with new_session() as session:
             if int(offset_id) == 0:
                 offset_id = session.query(func.max(Result.id)).scalar() or 0
@@ -443,9 +443,9 @@ class Result(Base):
                 ) \
                 .filter(Result.id <= int(offset_id))
 
-            if project_id is not None and project_id != 'None':
-                rows = rows.filter(Result.project_id == project_id)
-                alphabet = Project.get_plain(project_id).alphabet
+            if project_name is not None and project_name != 'None':
+                rows = rows.filter(Result.project_id == project_name)
+                alphabet = Project.get_plain(project_name).alphabet
             else:
                 alphabet = None
 
@@ -454,7 +454,7 @@ class Result(Base):
             for row in rows:
                 ans = {
                     'id': row[0],
-                    'project_id': row[1],
+                    'project_name': row[1],
                     'shortcode': row[2],
                     'url': row[3],
                     'encoding': row[4],

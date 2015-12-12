@@ -27,7 +27,7 @@
 		<tr>
 			<th>ID</th>
 			<th>Item ID</th>
-			<th>Project</th>
+			{% if project_name is None %} <th>Project</th> {% end %}
 			<th>Date</th>
 			<th>Message</th>
 		</tr>
@@ -37,7 +37,7 @@
 	<tr class="{% if report['project'] %} warning {% end %}">
 		<td>{{ report['id'] }}</td>
 		<td>{{ report['item_id'] }}</td>
-		<td>{{ report['project'] }}</td>
+		{% if project_name is None %} <td>{{ report['project'] }}</td> {% end %}
 		<td>{{ report['datetime'] }}</td>
 		<td><pre class="errorReportMessage">{{ report['message'] }}</pre></td>
 	</tr>
