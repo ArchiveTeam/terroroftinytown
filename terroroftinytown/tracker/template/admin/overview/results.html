@@ -34,7 +34,12 @@
 	{% for result in results %}
 	<tr>
 		<td>{{ result['id'] }}</td>
-		{% if project_name is None %} <td>{{ result['project_name'] }}</td> {% end %}
+		{% if project_name is None %}
+                  <td>
+                    <a href="{{ '{}?offset_id={}&limit={}&project_name={}'.format(reverse_url('admin.results'), result['id'], limit, result['project_name']) }}">
+                      {{ result['project_name'] }}</a>
+                  </td>
+                {% end %}
 		<td>{{ result['shortcode'] }}</td>
                 {% if project_name is not None %} <td>{{ result['seq_num'] }}</td> {% end %}
 		<td>{{ result['url'] }}</td>
