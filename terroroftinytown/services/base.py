@@ -113,7 +113,11 @@ class BaseService(object):
 
             response.content  # read the response to allow connection reuse
 
-            return (URLStatus.ok, result_url, None)
+            if self.params.get('location_anti_regex') and \
+                   re.search(self.params['location_anti_regex'], result_url):
+                return self.process_no_redirect(response)
+            else:
+                return (URLStatus.ok, result_url, None)
         elif self.params.get('body_regex'):
             return self.process_redirect_body(response)
         else:

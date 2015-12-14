@@ -12,6 +12,7 @@ import subprocess
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.orm.session import make_transient
+from sqlalchemy.orm.util import object_state
 from sqlalchemy.sql.expression import insert, select, delete, exists
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column, ForeignKey
@@ -197,6 +198,7 @@ class Project(Base):
     unavailable_codes = Column(JsonType, default=[200])
     banned_codes = Column(JsonType, default=[403, 420, 429])
     body_regex = Column(String)
+    location_anti_regex = Column(String)
     method = Column(String, default='head', nullable=False)
 
     enabled = Column(Boolean, default=False)
@@ -207,26 +209,7 @@ class Project(Base):
     autorelease_time = Column(Integer, default=60 * 30)
 
     def to_dict(self, with_shortcode=False):
-        ans = {
-            'name': self.name,
-            'min_version': self.min_version,
-            'min_client_version': self.min_client_version,
-            'alphabet': self.alphabet,
-            'url_template': self.url_template,
-            'request_delay': self.request_delay,
-            'redirect_codes': self.redirect_codes,
-            'no_redirect_codes': self.no_redirect_codes,
-            'unavailable_codes': self.unavailable_codes,
-            'banned_codes': self.banned_codes,
-            'body_regex': self.body_regex,
-            'method': self.method,
-            'enabled': self.enabled,
-            'autoqueue': self.autoqueue,
-            'num_count_per_item': self.num_count_per_item,
-            'max_num_items': self.max_num_items,
-            'lower_sequence_num': self.lower_sequence_num,
-            'autorelease_time': self.autorelease_time,
-        }
+        ans = {x.key:x.value for x in object_state(self).attrs}
         if with_shortcode:
             ans['lower_shortcode'] = self.lower_shortcode()
         return ans
@@ -291,37 +274,32 @@ class Item(Base):
     ip_address = Column(String)
 
     def to_dict(self, with_shortcode=False):
-        ans = {
-            'id': self.id,
+        ans = {x.key:x.value for x in object_state(self).attrs}
+        ans.update({
             'project': self.project.to_dict(),
-            'lower_sequence_num': self.lower_sequence_num,
-            'upper_sequence_num': self.upper_sequence_num,
             'datetime_claimed': calendar.timegm(self.datetime_claimed.utctimetuple()) if self.datetime_claimed else None,
-            'tamper_key': self.tamper_key,
-            'username': self.username,
-            'ip_address': self.ip_address,
-        }
+        })
         if with_shortcode:
             ans['lower_shortcode'] = int_to_str(self.lower_sequence_num, self.project.alphabet)
             ans['upper_shortcode'] = int_to_str(self.upper_sequence_num, self.project.alphabet)
         return ans
 
     @classmethod
-    def get_items(cls, project_name):
+    def get_items(cls, project_id):
         with new_session() as session:
-            rows = session.query(Item).filter_by(project_id=project_name).order_by(Item.datetime_claimed)
+            rows = session.query(Item).filter_by(project_id=project_id).order_by(Item.datetime_claimed)
 
             return list([item.to_dict(with_shortcode=True) for item in rows])
 
     @classmethod
-    def add_items(cls, project_name, sequence_list):
+    def add_items(cls, project_id, sequence_list):
         with new_session() as session:
             query = insert(Item)
             query_args = []
 
             for lower_num, upper_num in sequence_list:
                 query_args.append({
-                    'project_id': project_name,
+                    'project_id': project_id,
                     'lower_sequence_num': lower_num,
                     'upper_sequence_num': upper_num,
                 })
@@ -342,12 +320,12 @@ class Item(Base):
             item.username = None
 
     @classmethod
-    def release_all(cls, project_name=None, old_date=None):
+    def release_all(cls, project_id=None, old_date=None):
         with new_session() as session:
             query = session.query(Item)
 
-            if project_name:
-                query = query.filter_by(project_id=project_name)
+            if project_id:
+                query = query.filter_by(project_id=project_id)
 
             if old_date:
                 query = query.filter(Item.datetime_claimed <= old_date)
@@ -359,7 +337,7 @@ class Item(Base):
             })
 
     @classmethod
-    def release_old(cls, project_name=None, autoqueue_only=False):
+    def release_old(cls, project_id=None, autoqueue_only=False):
         with new_session() as session:
             # we could probably write this in one query
             # but it would be non-portable across SQL dialects
@@ -367,8 +345,8 @@ class Item(Base):
             projects = session.query(Project) \
                 .filter(Project.autorelease_time > 0)
 
-            if project_name:
-                projects = projects.filter_by(name=project_name)
+            if project_id:
+                projects = projects.filter_by(name=project_id)
 
             if autoqueue_only:
                 projects = projects.filter_by(autoqueue=True)
@@ -384,9 +362,9 @@ class Item(Base):
                 })
 
     @classmethod
-    def delete_all(cls, project_name):
+    def delete_all(cls, project_id):
         with new_session() as session:
-            session.query(Item).filter_by(project_id=project_name).delete()
+            session.query(Item).filter_by(project_id=project_id).delete()
 
 
 class BlockedUser(Base):
@@ -501,13 +479,11 @@ class ErrorReport(Base):
                       default=datetime.datetime.utcnow)
 
     def to_dict(self):
-        return {
-            'id': self.id,
-            'item_id': self.item_id,
+        ans = {x.key:x.value for x in object_state(self).attrs}
+        ans.update({
             'project': self.item.project_id if self.item else None,
-            'message': self.message,
-            'datetime': self.datetime,
-        }
+        })
+        return ans
 
     @classmethod
     def get_count(cls):
@@ -601,8 +577,8 @@ class Budget(object):
         project_names = list(cls.projects.keys())
         random.shuffle(project_names)
 
-        for project_name in project_names:
-            project_info = cls.projects[project_name]
+        for project_id in project_names:
+            project_info = cls.projects[project_id]
 
             if ip_address not in project_info['ip_addresses'] and \
                     version >= project_info['min_version'] and \
@@ -610,7 +586,7 @@ class Budget(object):
                     project_info['claims'] <= project_info['items'] and \
                     project_info['claims'] < project_info['max_num_items']:
 
-                return (project_name, project_info['claims'],
+                return (project_id, project_info['claims'],
                         project_info['items'], project_info['max_num_items'])
 
     @classmethod
@@ -694,11 +670,11 @@ def checkout_item(username, ip_address, version=-1, client_version=-1):
     )
 
     if available:
-        project_name, num_claims, num_items, max_num_items = available
+        project_id, num_claims, num_items, max_num_items = available
 
         with new_session() as session:
             if num_claims >= num_items and num_items < max_num_items:
-                project = session.query(Project).get(project_name)
+                project = session.query(Project).get(project_id)
 
                 if project.autoqueue:
                     item_count = project.num_count_per_item
@@ -721,7 +697,7 @@ def checkout_item(username, ip_address, version=-1, client_version=-1):
             else:
                 item = session.query(Item) \
                     .filter_by(username=None) \
-                    .filter_by(project_id=project_name) \
+                    .filter_by(project_id=project_id) \
                     .first()
                 new_item = False
 
@@ -735,7 +711,7 @@ def checkout_item(username, ip_address, version=-1, client_version=-1):
                 # newly generated items
                 session.commit()
 
-                Budget.check_out(project_name, ip_address, new_item=new_item)
+                Budget.check_out(project_id, ip_address, new_item=new_item)
 
                 return item.to_dict()
 
