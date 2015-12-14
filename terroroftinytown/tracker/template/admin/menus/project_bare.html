@@ -1,0 +1,39 @@
+<div class="panel panel-default">
+	<div class="panel-heading">
+		{{project_id}}
+	</div>
+	<ul class="list-group">
+		<li class="list-group-item">
+			<a href="{{ reverse_url('projects.overview') }}">Global Admin</a>
+		</li>
+		<li class="list-group-item">
+			<a href="{{ reverse_url('project.claims', project_id) }}">Claims</a>
+		</li>
+		<li class="list-group-item">
+			<a href="{{ reverse_url('project.queue', project_id) }}">Queue Settings</a>
+		</li>
+		<li class="list-group-item">
+			<a href="{{ reverse_url('project.settings', project_id) }}">Shortener Settings</a>
+		</li>
+		<li class="list-group-item">
+			<a href="{{ reverse_url('admin.results')+'?limit=10&project_id='+project_id }}">Results</a>
+		</li>
+		<li class="list-group-item">
+			<a href="{{ reverse_url('admin.error_reports')+'?project_id='+project_id }}">Error Reports</a>
+		</li>
+		<li class="list-group-item">
+			<a href="{{ reverse_url('project.delete', project_id) }}">Delete</a>
+		</li>
+                {% if 'results' in globals() %}
+		  <li class="list-group-item">
+		    <a href="{{ reverse_url('admin.results') }}">Global Results</a>
+		  </li>
+                {% end %}
+                {% if 'error_reports' in globals() %}
+		  <li class="list-group-item">
+		    <a href="{{ reverse_url('admin.error_reports') }}">Global Error Reports</a>
+		  </li>
+                {% end %}
+	</ul>
+</div>
+

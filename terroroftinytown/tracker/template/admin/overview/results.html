@@ -1,4 +1,12 @@
-{% extends 'base.html' %}
+{% extends '../base.html' %}
+
+{% block menu %}
+{% if not project_id %}
+{% include '../menus/overview_bare.html' %}
+{% else %}
+{% include '../menus/project_bare.html' %}
+{% end %}
+{% end %}
 
 {% block title %} Results {% end %}
 
@@ -6,17 +14,17 @@
 
 <h1>Results{{ ' for "{}" '.format(project_id) if project_id is not None else '' }}</h1>
 
-<p>{{ 'There are about {:,} results total.'.format(count) if project_id is None else ''}}</p>
+<p>{{ 'There are about {:,} results total.'.format(count) if not project_id else ''}}</p>
 
-<a class="btn btn-default" href="{{ '{}?offset_id={}&limit={}&project_id={}'.format(reverse_url('admin.results'), next_higher_offset_id, limit, project_id) }}">Show later</a>
+<a class="btn btn-default" href="{{ '{}?offset_id={}&limit={}{}'.format(reverse_url('admin.results'), next_higher_offset_id, limit, '&project_id='+project_id if project_id else '') }}">Show later</a>
 
 <table class="table table-bordered table-striped">
 	<thead>
 		<tr>
 			<th>ID</th>
-			<th>Project</th>
+			{% if not project_id %} <th>Project</th> {% end %}
 			<th>Shortcode</th>
-                        {% if project_id is not None %}<th>Seq Num</th>{% end %}
+                        {% if project_id %} <th>Seq Num</th> {% end %}
 			<th>URL</th>
 			<th>Encoding</th>
 			<th>Date</th>
@@ -26,9 +34,14 @@
 	{% for result in results %}
 	<tr>
 		<td>{{ result['id'] }}</td>
-		<td>{{ result['project_id'] }}</td>
+		{% if not project_id %}
+                  <td>
+                    <a href="{{ '{}?offset_id={}&limit={}&project_id={}'.format(reverse_url('admin.results'), result['id'], limit, result['project_id']) }}">
+                      {{ result['project_id'] }}</a>
+                  </td>
+                {% end %}
 		<td>{{ result['shortcode'] }}</td>
-                {% if project_id is not None %}<td>{{ result['seq_num'] }}</td>{% end %}
+                {% if project_id %} <td>{{ result['seq_num'] }}</td> {% end %}
 		<td>{{ result['url'] }}</td>
 		<td>{{ result['encoding'] }}</td>
 		<td>{{ result['datetime'] }}</td>
@@ -36,6 +49,6 @@
 	{% end %}
 </table>
 
-<a class="btn btn-default" href="{{ '{}?offset_id={}&limit={}&project_id={}'.format(reverse_url('admin.results'), next_lower_offset_id, limit, project_id) }}">Show earlier</a>
+<a class="btn btn-default" href="{{ '{}?offset_id={}&limit={}{}'.format(reverse_url('admin.results'), next_lower_offset_id, limit, '&project_id='+project_id if project_id else '') }}">Show earlier</a>
 
 {% end %}
