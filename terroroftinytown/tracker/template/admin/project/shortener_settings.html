@@ -1,4 +1,6 @@
-{% extends 'base.html' %}
+{% extends '../base.html' %}
+
+{% include '../menus/project.html' %}
 
 {% block title %} Shortener Settings {% end %}
 
@@ -10,7 +12,7 @@
 
 <p class="help-block">Customize how the scraper will operate.</p>
 
-{% if project_name in registry %}
+{% if project_id in registry %}
 <div class="bg-warning">
 	<p><strong>Caution: This project has custom code.</strong></p>
 	<p>
@@ -40,6 +42,10 @@
 	<dd>
 		Python regex if the shortener only serves the unshortened URL in the HTML.
 	</dd>
+        <dt>Location header reject regex</dt>
+        <dd>
+                Python regex to match non-redirect values in the Location header. Use to reject things like links to the shortener's homepage.
+        </dd>
 	<dt>Library version</dt>
 	<dd>
 		<p>Minimum version of terroroftinytown required to get work from this project. Note that the pipeline tries to updates the terroroftinytown submodule automatically.</p>
