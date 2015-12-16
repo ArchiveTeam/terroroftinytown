@@ -37,7 +37,13 @@
 	<tr class="{% if report['project'] %} warning {% end %}">
 		<td>{{ report['id'] }}</td>
 		<td>{{ report['item_id'] }}</td>
-		{% if not project_id %} <td><a href="{{ reverse_url('admin.error_reports')+'?project_id=' + report['project'] }}">{{ report['project'] }}</a></td> {% end %}
+		{% if not project_id %} <td>
+                   {% if report['project'] %}
+                   <a href="{{ reverse_url('admin.error_reports')+'?project_id=' + report['project'] }}">{{ report['project'] }}</a>
+                   {% else %}
+                   None
+                   {% end %}
+                </td> {% end %}
 		<td>{{ report['datetime'] }}</td>
 		<td><pre class="errorReportMessage">{{ report['message'] }}</pre></td>
 	</tr>
