@@ -124,6 +124,7 @@ class BaseService(object):
         elif self.params.get('body_regex'):
             return self.process_redirect_body(response)
         elif self.tolerate_missing_location_header:
+            response.content # read the response to allow connection reuse
             return self.process_no_redirect(response)
         else:
             response.content  # read the response to allow connection reuse
