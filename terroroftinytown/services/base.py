@@ -30,6 +30,9 @@ class BaseService(object):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.current_shortcode = None
         self.user_agent = DEFAULT_USER_AGENT
+        self.tolerate_missing_location_header = bool(
+            self.params.get('location_anti_regex') and \
+            re.search(self.params['location_anti_regex'], ''))
 
     def prepare(self):
         pass
@@ -120,6 +123,8 @@ class BaseService(object):
                 return (URLStatus.ok, result_url, None)
         elif self.params.get('body_regex'):
             return self.process_redirect_body(response)
+        elif self.tolerate_missing_location_header:
+            return self.process_no_redirect(response)
         else:
             response.content  # read the response to allow connection reuse
 
