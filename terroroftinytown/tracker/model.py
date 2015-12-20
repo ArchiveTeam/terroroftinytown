@@ -652,6 +652,14 @@ def new_salt():
 def new_tamper_key():
     return base64.b16encode(os.urandom(16)).decode('ascii')
 
+def deadman_checks():
+    if ErrorReport.get_count() > DEADMAN_MAX_ERROR_REPORTS:
+        return '<div class="alert btn-danger">Too many error reports! Figure out what went wrong.</div>'
+
+    if Result.get_count() > DEADMAN_MAX_RESULTS:
+        return '<div class="alert btn-danger">Too many results! Run the export script.</div>'
+
+    return ''
 
 def checkout_item(username, ip_address, version=-1, client_version=-1):
     assert version is not None
@@ -659,10 +667,7 @@ def checkout_item(username, ip_address, version=-1, client_version=-1):
 
     check_min_version_overrides(version, client_version)
 
-    if ErrorReport.get_count() > DEADMAN_MAX_ERROR_REPORTS:
-        raise NoResourcesAvailable()
-
-    if Result.get_count() > DEADMAN_MAX_RESULTS:
+    if deadman_checks():
         raise NoResourcesAvailable()
 
     available = Budget.get_available_project(
