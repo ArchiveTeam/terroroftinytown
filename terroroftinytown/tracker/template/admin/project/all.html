@@ -8,6 +8,9 @@
 
 <h1>Projects</h1>
 
+{% from terroroftinytown.tracker.model import deadman_checks %}
+{% raw deadman_checks() %}
+
 <h2>Add new project</h2>
 
 {% module Form(add_project_form, action='?action=add_project', submit='Add') %}
