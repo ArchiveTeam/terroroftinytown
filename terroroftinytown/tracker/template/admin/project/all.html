@@ -27,6 +27,7 @@
 			<th>Lower Sequence Number</th>
 			<th>Claims</th>
 			<th>Items</th>
+                        <th>Queue Size</th>
 		</tr>
 	</thead>
 
@@ -46,6 +47,7 @@
 			<td>?</td>
 			<td>?</td>
 		{% end %}
+                <td>{{ project['max_num_items'] }}</td>
 	</tr>
 	{% end %}
 
