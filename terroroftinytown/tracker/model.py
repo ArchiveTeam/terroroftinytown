@@ -16,7 +16,7 @@ from sqlalchemy.orm.util import object_state
 from sqlalchemy.sql.expression import insert, select, delete, exists
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import String, Binary, Float, Boolean, Integer, \
+from sqlalchemy.sql.sqltypes import String, LargeBinary, Float, Boolean, Integer, \
     DateTime
 from sqlalchemy.sql.type_api import TypeDecorator
 
@@ -96,8 +96,8 @@ class User(Base):
     __tablename__ = 'users'
 
     username = Column(String, primary_key=True)
-    salt = Column(Binary, nullable=False)
-    hash = Column(Binary, nullable=False)
+    salt = Column(LargeBinary, nullable=False)
+    hash = Column(LargeBinary, nullable=False)
 
     def set_password(self, password):
         self.salt = new_salt()
