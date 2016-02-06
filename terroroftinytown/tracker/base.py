@@ -27,3 +27,10 @@ class BaseHandler(tornado.web.RequestHandler):
         self.set_status(512, 'EXPORTING OUR SHIT')
         self.render('maintenance.html')
         raise tornado.web.Finish()
+
+    def user_audit_text(self, text):
+        return '[{username} - {ip_address}] {text}'.format(
+            username=self.current_user,
+            ip_address=self.request.remote_ip,
+            text=text,
+        )
