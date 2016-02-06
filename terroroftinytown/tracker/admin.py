@@ -45,14 +45,14 @@ class BannedHandler(BaseHandler):
         if action == 'remove':
             if unblock_form.validate():
                 username = self.get_argument('username')
-                logger.info('Unblocked "%s"', username)
+                logger.info(self.user_audit_text('Unblocked "%s"'), username)
                 BlockedUser.unblock_username(username)
                 message = 'User unblocked.'
 
         else:
             if form.validate():
                 username = form.username.data
-                logger.info('Blocked "%s"', username)
+                logger.info(self.user_audit_text('Blocked "%s"'), username)
                 BlockedUser.block_username(username)
                 message = 'User blocked.'
 

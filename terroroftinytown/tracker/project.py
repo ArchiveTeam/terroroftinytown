@@ -48,7 +48,7 @@ class AllProjectsHandler(BaseHandler):
             except IntegrityError:
                 message = 'Project already exists.'
             else:
-                logger.info('Created project %s', name)
+                logger.info(self.user_audit_text('Created project %s'), name)
                 self.redirect(self.reverse_url('project.overview', name))
                 return
         else:
@@ -100,7 +100,7 @@ class QueueHandler(BaseHandler):
             if enable_form.validate():
                 with Project.get_session_object(project_id) as project:
                     project.enabled = enable_form.enabled.data
-                    logger.info('Project %s enabled=%s',
+                    logger.info(self.user_audit_text('Project %s enabled=%s'),
                                 project_id, project.enabled)
                     message = ('Enabled' if project.enabled else 'Disabled')
             else:
@@ -210,7 +210,8 @@ class ClaimsHandler(BaseHandler):
         seq_list = []
 
         for item in items:
-            logger.info('Adding to project %s item', project_id)
+            logger.info(self.user_audit_text('Adding to project %s item'),
+                        project_id)
             lower_seq_num, upper_seq_num = item.split('-')
             lower_seq_num = int(lower_seq_num)
             upper_seq_num = int(upper_seq_num)
@@ -225,7 +226,7 @@ class ClaimsHandler(BaseHandler):
         Item.delete(item_id)
         Budget.calculate_budgets()
 
-        logger.info('Deleted item %s', item_id)
+        logger.info(self.user_audit_text('Deleted item %s'), item_id)
 
     def _release_one(self):
         item_id = int(self.get_argument('id'))
@@ -233,7 +234,7 @@ class ClaimsHandler(BaseHandler):
         Item.release(item_id)
         Budget.calculate_budgets()
 
-        logger.info('Released item %s', item_id)
+        logger.info(self.user_audit_text('Released item %s'), item_id)
 
     def _release_all(self, project_id, release_form):
         time_ago = time.time() - release_form.hours.data * 60
@@ -241,13 +242,13 @@ class ClaimsHandler(BaseHandler):
         Item.release_all(project_id, datetime.datetime.utcfromtimestamp(time_ago))
         Budget.calculate_budgets()
 
-        logger.info('Released items for %s', project_id)
+        logger.info(self.user_audit_text('Released items for %s'), project_id)
 
     def _delete_all(self, project_id):
         Item.delete_all(project_id)
         Budget.calculate_budgets()
 
-        logger.info('Delete all items for %s', project_id)
+        logger.info(self.user_audit_text('Delete all items for %s'), project_id)
 
 
 class SettingsHandler(BaseHandler):
@@ -270,7 +271,9 @@ class SettingsHandler(BaseHandler):
             with Project.get_session_object(project_id) as project:
                 form.populate_obj(project)
 
-            logger.info('Changed project %s shortener settings', project_id)
+            logger.info(
+                self.user_audit_text('Changed project %s shortener settings'),
+                project_id)
             message = 'Settings saved.'
         else:
             message = 'Error.'
@@ -296,7 +299,7 @@ class DeleteHandler(BaseHandler):
             Project.delete_project(project_id)
             Budget.calculate_budgets()
 
-            logger.info('Deleted project %s', project_id)
+            logger.info(self.user_audit_text('Deleted project %s'), project_id)
             self.redirect(self.reverse_url('admin.overview'))
         else:
             self.render('admin/project/delete.html', project_id=project_id, form=form)
