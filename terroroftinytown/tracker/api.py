@@ -64,7 +64,9 @@ class GetHandler(BaseHandler):
         except NoItemAvailable:
             raise HTTPError(
                 404,
-                reason='No items available currently. Try again later.'
+                reason='No items available currently. '
+                       'Don\'t worry; more items will be made soon. '
+                       'Try again later.'
             )
         except UserIsBanned:
             raise HTTPError(
@@ -98,7 +100,8 @@ class GetHandler(BaseHandler):
         except NoResourcesAvailable as e:
             raise HTTPError(
                 507,
-                reason='The tracker is out of resources. Try again later.'
+                reason='The tracker needs an operator for manual maintenance. '
+                       'Try again later.'
                 )
         else:
             logger.info(
