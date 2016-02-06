@@ -237,7 +237,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         )
 
     def sign_out(self):
-        element = self.driver.find_element_by_link_text('Log out')
+        element = self.driver.find_element_by_partial_link_text('Log out')
         element.click()
 
         WebDriverWait(self.driver, 10).until(
