@@ -136,6 +136,10 @@ class ItemActionForm(Form):
     pass
 
 
+class DeleteOneErrorReportForm(Form):
+    pass
+
+
 class DeleteAllErrorReportsForm(Form):
     pass
 

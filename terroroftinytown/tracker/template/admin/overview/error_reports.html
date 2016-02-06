@@ -30,6 +30,7 @@
 			{% if not project_id %} <th>Project</th> {% end %}
 			<th>Date</th>
 			<th>Message</th>
+			<th>Action</th>
 		</tr>
 	</thead>
 	
@@ -46,6 +47,13 @@
                 </td> {% end %}
 		<td>{{ report['datetime'] }}</td>
 		<td><pre class="errorReportMessage">{{ report['message'] }}</pre></td>
+		<td>
+			{% module Form(
+				item_action_form,
+				action=reverse_url('admin.error_reports.delete_one', report['id']),
+				submit='Delete')
+			%}
+		</td>
 	</tr>
 	{% end %}
 </table>

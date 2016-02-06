@@ -430,8 +430,6 @@ class Result(Base):
             return (session.query(func.max(Result.id)).scalar() or 0) \
                    - (session.query(func.min(Result.id)).scalar() or 0)
 
-
-
     @classmethod
     def get_results(cls, offset_id=0, limit=1000, project_id=None):
         with new_session() as session:
@@ -512,6 +510,12 @@ class ErrorReport(Base):
     def delete_all(cls):
         with new_session() as session:
             session.query(ErrorReport.id).delete()
+
+    @classmethod
+    def delete_one(cls, report_id):
+        with new_session() as session:
+            query = delete(ErrorReport).where(ErrorReport.id == report_id)
+            session.execute(query)
 
     @classmethod
     def delete_orphaned(cls):
