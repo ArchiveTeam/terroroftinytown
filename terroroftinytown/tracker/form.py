@@ -68,7 +68,7 @@ class ProjectSettingsForm(Form):
         [
             validators.InputRequired(),
             validators.Regexp(
-                '^https?://.+/{shortcode}',
+                '^https?://.+{shortcode}',
                 message='Template does not look like a URL template.'),
         ]
     )
@@ -133,6 +133,10 @@ class ReleaseClaimForm(Form):
 
 
 class ItemActionForm(Form):
+    pass
+
+
+class DeleteOneErrorReportForm(Form):
     pass
 
 

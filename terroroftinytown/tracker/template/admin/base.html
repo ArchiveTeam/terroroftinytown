@@ -4,12 +4,15 @@
 
 {% block body %}
 
+{% import datetime %}
+
 <div class="container admin">
 	<div class="row">
 		<div class="logoutLink">
+                  <span style="float: left;">{{ datetime.datetime.utcnow() }}</span>
 			<a href="{{ reverse_url('index') }}">Homepage</a>
 			&middot;
-			<a href="{{ reverse_url('admin.logout') }}">Log out</a>
+			<a href="{{ reverse_url('admin.logout') }}">Log out {{ current_user }}</a>
 		</div>
 	</div>
 

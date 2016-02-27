@@ -16,8 +16,8 @@ class BaseHandler(tornado.web.RequestHandler):
         if username_raw and token:
             username = username_raw.decode('ascii')
 
-            if username:
-                return User.check_account_session(username, token)
+            if username and User.check_account_session(username, token):
+                return username
 
     def prepare(self):
         if self.application.is_maintenance_in_progress():
@@ -27,3 +27,10 @@ class BaseHandler(tornado.web.RequestHandler):
         self.set_status(512, 'EXPORTING OUR SHIT')
         self.render('maintenance.html')
         raise tornado.web.Finish()
+
+    def user_audit_text(self, text):
+        return '[{username} - {ip_address}] {text}'.format(
+            username=self.current_user,
+            ip_address=self.request.remote_ip,
+            text=text,
+        )

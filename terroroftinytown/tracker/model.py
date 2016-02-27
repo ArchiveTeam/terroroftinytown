@@ -16,7 +16,7 @@ from sqlalchemy.orm.util import object_state
 from sqlalchemy.sql.expression import insert, select, delete, exists
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import String, Binary, Float, Boolean, Integer, \
+from sqlalchemy.sql.sqltypes import String, LargeBinary, Float, Boolean, Integer, \
     DateTime
 from sqlalchemy.sql.type_api import TypeDecorator
 
@@ -96,8 +96,8 @@ class User(Base):
     __tablename__ = 'users'
 
     username = Column(String, primary_key=True)
-    salt = Column(Binary, nullable=False)
-    hash = Column(Binary, nullable=False)
+    salt = Column(LargeBinary, nullable=False)
+    hash = Column(LargeBinary, nullable=False)
 
     def set_password(self, password):
         self.salt = new_salt()
@@ -430,8 +430,6 @@ class Result(Base):
             return (session.query(func.max(Result.id)).scalar() or 0) \
                    - (session.query(func.min(Result.id)).scalar() or 0)
 
-
-
     @classmethod
     def get_results(cls, offset_id=0, limit=1000, project_id=None):
         with new_session() as session:
@@ -512,6 +510,12 @@ class ErrorReport(Base):
     def delete_all(cls):
         with new_session() as session:
             session.query(ErrorReport.id).delete()
+
+    @classmethod
+    def delete_one(cls, report_id):
+        with new_session() as session:
+            query = delete(ErrorReport).where(ErrorReport.id == report_id)
+            session.execute(query)
 
     @classmethod
     def delete_orphaned(cls):
@@ -652,6 +656,14 @@ def new_salt():
 def new_tamper_key():
     return base64.b16encode(os.urandom(16)).decode('ascii')
 
+def deadman_checks():
+    if ErrorReport.get_count() > DEADMAN_MAX_ERROR_REPORTS:
+        return '<div class="alert btn-danger">Too many error reports! Figure out what went wrong.</div>'
+
+    if Result.get_count() > DEADMAN_MAX_RESULTS:
+        return '<div class="alert btn-danger">Too many results! Run the export script.</div>'
+
+    return ''
 
 def checkout_item(username, ip_address, version=-1, client_version=-1):
     assert version is not None
@@ -659,10 +671,7 @@ def checkout_item(username, ip_address, version=-1, client_version=-1):
 
     check_min_version_overrides(version, client_version)
 
-    if ErrorReport.get_count() > DEADMAN_MAX_ERROR_REPORTS:
-        raise NoResourcesAvailable()
-
-    if Result.get_count() > DEADMAN_MAX_RESULTS:
+    if deadman_checks():
         raise NoResourcesAvailable()
 
     available = Budget.get_available_project(

@@ -29,7 +29,8 @@ class LoginHandler(BaseHandler):
 
         if form.validate() \
         and self._login(form.username.data, form.password.data):
-            logger.info('User %s logged in.', form.username.data)
+            logger.info(self.user_audit_text('User %s logged in.'),
+                        form.username.data)
             self.redirect(
                 self.get_argument('next', self.reverse_url('admin.overview'))
             )
@@ -90,7 +91,8 @@ class AllUsersHandler(BaseHandler):
             except IntegrityError:
                 message = 'User already exists.'
             else:
-                logger.info('Added new user %s', username)
+                logger.info(self.user_audit_text('Added new user %s'),
+                            username)
                 self.redirect(self.reverse_url('user.overview', username))
                 return
 
@@ -135,7 +137,7 @@ class UserHandler(BaseHandler):
 
     def _delete(self, username, form):
         if form.validate():
-            logger.info('Deleted user %s', username)
+            logger.info(self.user_audit_text('Deleted user %s'), username)
             User.delete_user(username)
             self.redirect(self.reverse_url('users.overview'))
         else:
@@ -146,7 +148,8 @@ class UserHandler(BaseHandler):
             if form.username.data != username:
                 return 'Wrong username'
 
-            logger.info('Updated user %s password', username)
+            logger.info(self.user_audit_text('Updated user %s password'),
+                        username)
             User.update_password(username, form.password.data)
             self.redirect(self.reverse_url('users.overview'))
         else:

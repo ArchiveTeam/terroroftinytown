@@ -5,7 +5,8 @@ import tornado.web
 
 from terroroftinytown.tracker.base import BaseHandler
 from terroroftinytown.tracker.form import BlockUsernameForm, UnblockUsernameForm, \
-    DeleteAllErrorReportsForm, AutoDeleteErrorReportsForm
+    DeleteAllErrorReportsForm, AutoDeleteErrorReportsForm, \
+    DeleteOneErrorReportForm
 from terroroftinytown.tracker.model import BlockedUser, ErrorReport, Result,\
     GlobalSetting
 from tornado.web import HTTPError
@@ -44,14 +45,14 @@ class BannedHandler(BaseHandler):
         if action == 'remove':
             if unblock_form.validate():
                 username = self.get_argument('username')
-                logger.info('Unblocked "%s"', username)
+                logger.info(self.user_audit_text('Unblocked "%s"'), username)
                 BlockedUser.unblock_username(username)
                 message = 'User unblocked.'
 
         else:
             if form.validate():
                 username = form.username.data
-                logger.info('Blocked "%s"', username)
+                logger.info(self.user_audit_text('Blocked "%s"'), username)
                 BlockedUser.block_username(username)
                 message = 'User blocked.'
 
@@ -74,6 +75,7 @@ class ErrorReportsListHandler(BaseHandler):
             enabled=GlobalSetting.get_value(
                 GlobalSetting.AUTO_DELETE_ERROR_REPORTS)
         )
+        delete_one_form = DeleteOneErrorReportForm()
 
         self.render(
             'admin/overview/error_reports.html',
@@ -82,7 +84,8 @@ class ErrorReportsListHandler(BaseHandler):
             auto_delete_form=auto_delete_form,
             next_offset_id=error_reports[-1]['id'] if error_reports else 0,
             project_id=project_id,
-            count=ErrorReport.get_count() if project_id is None else 0
+            count=ErrorReport.get_count() if project_id is None else 0,
+            item_action_form=delete_one_form,
         )
 
 
@@ -93,6 +96,18 @@ class ErrorReportsDeleteAllHandler(BaseHandler):
 
         if form.validate():
             ErrorReport.delete_all()
+            self.redirect(self.reverse_url('admin.error_reports'))
+        else:
+            raise HTTPError(400)
+
+
+class ErrorReportsDeleteOneHandler(BaseHandler):
+    @tornado.web.authenticated
+    def post(self, report_id):
+        form = DeleteOneErrorReportForm(self.request.arguments)
+
+        if form.validate():
+            ErrorReport.delete_one(report_id)
             self.redirect(self.reverse_url('admin.error_reports'))
         else:
             raise HTTPError(400)

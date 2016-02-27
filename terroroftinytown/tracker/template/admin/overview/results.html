@@ -25,9 +25,9 @@
 			{% if not project_id %} <th>Project</th> {% end %}
 			<th>Shortcode</th>
                         {% if project_id %} <th>Seq Num</th> {% end %}
-			<th>URL</th>
 			<th>Encoding</th>
 			<th>Date</th>
+			<th>URL</th>
 		</tr>
 	</thead>
 
@@ -42,9 +42,9 @@
                 {% end %}
 		<td>{{ result['shortcode'] }}</td>
                 {% if project_id %} <td>{{ result['seq_num'] }}</td> {% end %}
-		<td>{{ result['url'] }}</td>
 		<td>{{ result['encoding'] }}</td>
 		<td>{{ result['datetime'] }}</td>
+		<td>{{ result['url'] }}</td>
 	</tr>
 	{% end %}
 </table>
