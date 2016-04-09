@@ -28,6 +28,8 @@
 			<th>Claims</th>
 			<th>Items</th>
                         <th>Queue Size</th>
+                        <th>Found</th>
+                        <th>Scanned</th>
 		</tr>
 	</thead>
 
@@ -48,6 +50,8 @@
 			<td>?</td>
 		{% end %}
                 <td>{{ project['max_num_items'] }}</td>
+                <td>{{ project_stats.get(project['name'], 'xy')[0] }}</td>
+                <td>{{ project_stats.get(project['name'], 'XY')[1] }}</td>
 	</tr>
 	{% end %}
 

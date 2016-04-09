@@ -9,10 +9,10 @@ import tornado.web
 
 from terroroftinytown.tracker.base import BaseHandler
 from terroroftinytown.tracker.form import AddProjectForm, ProjectSettingsForm, \
-    BlockUsernameForm, UnblockUsernameForm, QueueSettingsForm, ConfirmForm, \
+    QueueSettingsForm, ConfirmForm, \
     AddItemsForm, ReleaseClaimForm, ItemActionForm, QueueEnableForm
-from terroroftinytown.tracker.model import Project, BlockedUser, Item, Budget
-
+from terroroftinytown.tracker.model import Project, Item, Budget
+from terroroftinytown.tracker.stats import Stats
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +28,7 @@ class AllProjectsHandler(BaseHandler):
             projects=projects,
             add_project_form=add_project_form,
             project_budgets=Budget.projects,
+            project_stats=Stats.instance.get_project(),
         )
 
     @tornado.web.authenticated
