@@ -16,16 +16,17 @@ from terroroftinytown.client.errors import MalformedResponse
 MOCK_PARAMS = {
     'isgd': {
         'alphabet': '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_',
-        'url_template': 'http://is.gd/{shortcode}',
+        'url_template': 'https://is.gd/{shortcode}',
         'redirect_codes': [301, 302],
         'no_redirect_codes': [404],
         'unavailable_codes': [200, 410],
         'banned_codes': [403, 420, 429, 502],
         'method': 'get',
+        'location_anti_regex': r'^https://is\.gd/'
     },
     'vgd': {
         'alphabet': '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_',
-        'url_template': 'http://v.gd/{shortcode}',
+        'url_template': 'https://v.gd/{shortcode}',
         'redirect_codes': [301, 302],
         'no_redirect_codes': [404],
         'unavailable_codes': [200, 410],

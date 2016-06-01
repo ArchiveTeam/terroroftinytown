@@ -25,6 +25,7 @@ class Database(object):
     @classmethod
     def _apply_pragmas_callback(cls, connection, record):
         connection.execute('PRAGMA journal_mode=WAL')
+        connection.execute('PRAGMA synchronous=NORMAL')
 
     def _delete_everything(self):
         Base.metadata.drop_all(self.engine)
