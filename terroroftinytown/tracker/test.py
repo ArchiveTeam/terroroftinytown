@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver import DesiredCapabilities
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
@@ -74,7 +75,16 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
     def setUp(self):
         self.start()
         Stats.instance.clear()
-        self.driver = webdriver.Firefox()
+
+        if os.environ.get('RUN_MARIONETTE'):
+            # Firefox 47+
+            firefox_capabilities = DesiredCapabilities.FIREFOX
+            firefox_capabilities['marionette'] = True
+            self.driver = webdriver.Firefox(capabilities=firefox_capabilities)
+        elif os.environ.get('RUN_CHROMEDRIVER'):
+            self.driver = webdriver.Chrome()
+        else:
+            self.driver = webdriver.Firefox()
 
     def tearDown(self):
         self.io_loop_thread.stop()
