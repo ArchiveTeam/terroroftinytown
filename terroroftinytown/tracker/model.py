@@ -757,7 +757,7 @@ def checkin_item(item_id, tamper_key, results):
     with new_session() as session:
         row = session.query(
             Item.project_id, Item.username, Item.upper_sequence_num,
-            Item.lower_sequence_num, Item.ip_address
+            Item.lower_sequence_num, Item.ip_address, Item.datetime_claimed
             ) \
             .filter_by(id=item_id, tamper_key=tamper_key).first()
 
@@ -765,14 +765,20 @@ def checkin_item(item_id, tamper_key, results):
             raise InvalidClaim()
 
         (project_id, username, upper_sequence_num, lower_sequence_num,
-         ip_address) = row
+         ip_address, datetime_claimed) = row
 
         item_stat['project'] = project_id
         item_stat['username'] = username
         item_stat['scanned'] = upper_sequence_num - lower_sequence_num + 1
+        item_stat['started'] = datetime_claimed.replace(
+            tzinfo=datetime.timezone.utc).timestamp()
 
         query_args = []
-        time = datetime.datetime.utcnow()
+
+        # tz instead of utcnow() for Unix timestamp in UTC instead of local
+        time = datetime.datetime.now(datetime.timezone.utc)
+
+        item_stat['finished'] = time.timestamp()
 
         for shortcode in results.keys():
             url = results[shortcode]['url']
