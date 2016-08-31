@@ -117,7 +117,7 @@ class Application(tornado.web.Application):
         return model.checkout_item(username, ip_address, version, client_version)
 
     def checkin_item(self, item_id, tamper_key, results):
-        model.checkin_item(item_id, tamper_key, results)
+        return model.checkin_item(item_id, tamper_key, results)
 
     def report_error(self, item_id, tamper_key, message):
         model.report_error(item_id, tamper_key, message)

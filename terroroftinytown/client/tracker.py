@@ -27,7 +27,7 @@ def reraise_with_tracker_error(func):
         try:
             return func(*args, **kwargs)
         except requests.RequestException as error:
-            six.reraise(TrackerError, str(error))
+            six.raise_from(TrackerError(str(error)), error)
     return wrapper
 
 

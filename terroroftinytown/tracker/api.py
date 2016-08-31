@@ -122,7 +122,7 @@ class DoneHandler(BaseHandler):
         results = json.loads(results_str, cls=NativeStringJSONDecoder)
 
         try:
-            self.application.checkin_item(claim_id, tamper_key, results)
+            stats = self.application.checkin_item(claim_id, tamper_key, results)
         except InvalidClaim:
             raise HTTPError(
                 409,
@@ -130,7 +130,12 @@ class DoneHandler(BaseHandler):
                        'may have been already done by someone else.'
                 )
         else:
-            logger.info('Checked in claim %s. Len=%d', claim_id, len(results))
+            time_diff = stats['finished'] - stats['started']
+            logger.info('Checked in claim %s. Len=%d, Time_diff=%d',
+                        claim_id,
+                        len(results),
+                        time_diff
+            )
             self.write({'status': 'OK'})
 
 
