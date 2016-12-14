@@ -1,7 +1,10 @@
+import contextlib
+
 from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support.expected_conditions import staleness_of
 from selenium.webdriver.support.wait import WebDriverWait
 import configparser
 import json
@@ -95,6 +98,15 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
 
     def sleep(self, seconds=0.5):
         time.sleep(seconds)
+
+    @contextlib.contextmanager
+    def wait_for_page_load(self, timeout=30):
+        # http://www.obeythetestinggoat.com/how-to-get-selenium-to-wait-for-page-load-after-a-click.html
+        old_page = self.driver.find_element_by_tag_name('html')
+        yield
+        WebDriverWait(self.driver, timeout).until(
+            staleness_of(old_page)
+        )
 
     def test_all(self):
         self.sign_in()
@@ -211,7 +223,8 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
 
         element = self.driver.find_element_by_link_text('Tracker admin')
 
-        element.click()
+        with self.wait_for_page_load():
+            element.click()
 
         element = self.driver.find_element_by_name('username')
         element.send_keys('test_user')
@@ -230,7 +243,8 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
 
         element = self.driver.find_element_by_link_text('Tracker admin')
 
-        element.click()
+        with self.wait_for_page_load():
+            element.click()
 
         element = self.driver.find_element_by_name('username')
         element.send_keys('test_user')
@@ -284,7 +298,8 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
 
         element = self.driver.find_element_by_link_text('Tracker admin')
 
-        element.click()
+        with self.wait_for_page_load():
+            element.click()
 
         element = self.driver.find_element_by_name('username')
         element.send_keys('user2')
@@ -300,7 +315,9 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
 
     def create_project(self):
         element = self.driver.find_element_by_link_text('Projects')
-        element.click()
+
+        with self.wait_for_page_load():
+            element.click()
 
         WebDriverWait(self.driver, 10).until(
             expected_conditions.title_is('Projects')
@@ -315,17 +332,23 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         self.driver.get(self.get_url('/admin/'))
 
         element = self.driver.find_element_by_link_text('Projects')
-        element.click()
+
+        with self.wait_for_page_load():
+            element.click()
 
         WebDriverWait(self.driver, 10).until(
             expected_conditions.title_is('Projects')
         )
 
         element = self.driver.find_element_by_link_text('test_project')
-        element.click()
+
+        with self.wait_for_page_load():
+            element.click()
 
         element = self.driver.find_element_by_link_text('Shortener Settings')
-        element.click()
+
+        with self.wait_for_page_load():
+            element.click()
 
         element = self.driver.find_element_by_name('alphabet')
         element.clear()
