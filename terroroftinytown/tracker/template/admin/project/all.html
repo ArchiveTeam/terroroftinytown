@@ -28,6 +28,8 @@
 			<th>Claims</th>
 			<th>Items</th>
                         <th>Queue Size</th>
+                        <th>Found</th>
+                        <th>Scanned</th>
 		</tr>
 	</thead>
 
@@ -47,7 +49,12 @@
 			<td>?</td>
 			<td>?</td>
 		{% end %}
-                <td>{{ project['max_num_items'] }}</td>
+                <td><a href="{{ reverse_url('project.queue', project['name']) }}">
+                {{ project['max_num_items'] }}</a></td>
+                <td><a href="{{ reverse_url('admin.results')+'?limit=10&project_id='+project['name'] }}">
+                  {{ project_stats.get(project['name'], 'xy')[0] }}</a></td>
+                <td><a href="{{ reverse_url('admin.error_reports')+'?project_id='+project['name'] }}">
+                  {{ project_stats.get(project['name'], 'XY')[1] }}</a></td>
 	</tr>
 	{% end %}
 

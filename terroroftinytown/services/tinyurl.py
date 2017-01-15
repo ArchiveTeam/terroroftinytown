@@ -50,6 +50,8 @@ class TinyurlService(BaseService):
             return self._parse_errorhelp(new_response)
         elif "Error: TinyURL redirects to a TinyURL." in new_response.text:
             return self._parse_tinyurl_redirect(new_response)
+        elif 'This TinyURL went to:':
+            return self._parse_spam_blocklist(new_response)
         else:
             raise UnhandledStatusCode(
                 'Unhandled 200 change to {0} for {1}'.format(
@@ -100,6 +102,16 @@ class TinyurlService(BaseService):
 
         if not match:
             raise UnexpectedNoResult("No redirect on \"tinyurl redirect\" page on HTTP status 200 for {0}".format(response.url))
+
+        url = match.group(1)
+
+        return (URLStatus.ok, html_parser.HTMLParser().unescape(url), response.encoding)
+
+    def _parse_spam_blocklist(self, response):
+        match = re.search("<p>This TinyURL went to: (.*?)</p>", response.text, re.DOTALL)
+
+        if not match:
+            raise UnexpectedNoResult("No redirect on \"spam redirect\" page on HTTP status 200 for {0}".format(response.url))
 
         url = match.group(1)
 

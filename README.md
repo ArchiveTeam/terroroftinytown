@@ -40,10 +40,20 @@ Test
 
 [![Build Status](https://travis-ci.org/ArchiveTeam/terroroftinytown.svg?branch=master)](https://travis-ci.org/ArchiveTeam/terroroftinytown)
 
-How to run the tests:
+**Note: Web interface testing on Travis CI is currently broken due to outdated version of the Firefox binary. Please test locally.**
+
+To run the tests including testing the web interface,
+
+1. Install Firefox 48+
+2. Install Selenium for Python from PyPI
+3. Download geckodriver and put it located on `PATH` environment variable
+4. Run test runner nose
+
+For example, tests:
 
         apt-get install firefox
         pip3 install selenium
+        wget https://github.com/mozilla/geckodriver/releases/download/v0.11.1/geckodriver-v0.11.1-OS_VERSION_HERE.tar.gz
         nosetests3
 
 

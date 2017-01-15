@@ -19,10 +19,10 @@ class BEACONWriter(BaseWriter):
         if '{shortcode}' in site:
             self._site = site
         else:
-            self.fp.write(('#PREFIX: %s\n' % (site)).encode('ascii'))
+            self.fp.write(('#PREFIX: %s\n' % (site)).encode('utf8'))
 
         if self.homepage:
-            self.fp.write(('#HOMEPAGE: %s\n' % (self.homepage)).encode('ascii'))
+            self.fp.write(('#HOMEPAGE: %s\n' % (self.homepage)).encode('utf8'))
 
         timestamp = datetime.utcnow()
         if 'timestamp' in kwargs:
