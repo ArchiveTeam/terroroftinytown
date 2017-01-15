@@ -52,3 +52,5 @@ bvkke|blocked
 ## HTTP Header too big
 36otfml|blocked
 
+## Spam blocklist
+ntjca69|http://cpoolmail.com/tl.php?p=ws/vx/rs/c2a/sn/rs//http%3A%2F%2Fwww.888casino.com%2Faffiliates%2Ffreeplay.htm%3Fsr%3D1052309
