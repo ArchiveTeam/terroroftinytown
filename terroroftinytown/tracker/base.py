@@ -20,6 +20,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 return username
 
     def prepare(self):
+        self.application.log_filter.username = self.get_current_user()
         if self.application.is_maintenance_in_progress():
             self._show_maintenance_page()
 

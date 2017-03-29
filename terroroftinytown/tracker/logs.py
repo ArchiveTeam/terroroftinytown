@@ -5,7 +5,11 @@ import shutil
 
 
 class LogFilter(object):
+    def __init__(self):
+        self.username = 'not-logged-in'
+
     def filter(self, record):
+        record.username = self.username
         if not record.name:
             return True
         if record.name == 'tornado.access':

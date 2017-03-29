@@ -80,11 +80,12 @@ class Bootstrap:
             filename=log_path,
             backupCount=self.config.get('logging', 'backup_count', fallback=52),
             encoding='utf-8')
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(username)s - %(message)s')
         handler.setFormatter(formatter)
         logging.getLogger().addHandler(handler)
         log_filter = LogFilter()
         handler.addFilter(log_filter)
+        return log_filter
 
 
 class ApplicationBootstrap(Bootstrap):
@@ -93,7 +94,7 @@ class ApplicationBootstrap(Bootstrap):
         self.setup_redis()
         self.setup_stats()
         self.setup_application()
-        self.setup_logging()
+        self.application.log_filter = self.setup_logging()
         self.setup_signal_handlers()
         self.boot()
 
@@ -105,6 +106,7 @@ class ApplicationBootstrap(Bootstrap):
             cookie_secret=self.config['web']['cookie_secret'],
             maintenance_sentinel=self.config['web'].get('maintenance_sentinel_file'),
         )
+
 
     def boot(self):
         host = self.config['web'].get('host', 'localhost')
