@@ -115,16 +115,11 @@ class BaseService(object):
                 result_url = result_url.decode('latin-1')
 
             response.content  # read the response to allow connection reuse
-
-            if self.params.get('location_anti_regex') and \
-                   re.search(self.params['location_anti_regex'], result_url):
-                return self.process_no_redirect(response)
-            else:
-                return (URLStatus.ok, result_url, None)
+            return self.check_anti_regex(response, result_url, None)
         elif self.params.get('body_regex'):
             return self.process_redirect_body(response)
         elif self.tolerate_missing_location_header:
-            response.content # read the response to allow connection reuse
+            response.content  # read the response to allow connection reuse
             return self.process_no_redirect(response)
         else:
             response.content  # read the response to allow connection reuse
@@ -139,7 +134,7 @@ class BaseService(object):
         match = re.search(pattern, html_unescape(response.text))
 
         if match:
-            return (URLStatus.ok, match.group(1), response.encoding)
+            return self.check_anti_regex(response, match.group(1), response.encoding)
         else:
             raise UnexpectedNoResult(
                 'Unexpectedly did not get a body result for {0}'
@@ -167,6 +162,16 @@ class BaseService(object):
                 'Malformed response: {0}'.format(repr(exception.args)))
         else:
             raise PleaseRetry('Connection error: {0}'.format(repr(exception.args)))
+
+    def check_anti_regex(self, response, result_url, encoding):
+        if not result_url or self.matches_anti_regex(result_url):
+            return self.process_no_redirect(response)
+        else:
+            return (URLStatus.ok, result_url, encoding)
+
+    def matches_anti_regex(self, result_url):
+        anti_regex = self.params.get('location_anti_regex')
+        return (anti_regex and re.search(anti_regex, result_url))
 
 
 class DefaultService(BaseService):
