@@ -167,7 +167,7 @@ class BaseService(object):
         if not result_url or self.matches_anti_regex(result_url):
             return self.process_no_redirect(response)
         else:
-            return (URLStatus.ok, result_url, None)
+            return (URLStatus.ok, result_url, encoding)
 
     def matches_anti_regex(self, result_url):
         anti_regex = self.params.get('location_anti_regex')
