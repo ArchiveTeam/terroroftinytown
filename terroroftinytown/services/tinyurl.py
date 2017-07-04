@@ -98,7 +98,7 @@ class TinyurlService(BaseService):
         return (URLStatus.ok, result_url, encoding)
 
     def _parse_tinyurl_redirect(self, response):
-        match = re.search("<p class=\"intro\">The URL you followed redirects back to a TinyURL and therefore we can't directly send you to the site\\. The URL it redirects to is <a href=\"(.*?)\">", response.text, re.DOTALL)
+        match = re.search("<p class=\"intro\">The URL you followed redirects back to a TinyURL and therefore we can't directly send you to the site\\. The URL it redirects to is (?:<script>.*?</script>)?<a href=\"(.*?)\">", response.text, re.DOTALL)
 
         if not match:
             raise UnexpectedNoResult("No redirect on \"tinyurl redirect\" page on HTTP status 200 for {0}".format(response.url))
