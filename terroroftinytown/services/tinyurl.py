@@ -118,7 +118,7 @@ class TinyurlService(BaseService):
         return (URLStatus.ok, html_parser.HTMLParser().unescape(url), response.encoding)
 
     def _preview(self, code, affiliate_url):
-        response = self.fetch_url("http://tinyurl.com/preview.php?num=" + code, method='get')
+        response = self.fetch_url("https://tinyurl.com/preview.php?num=" + code, method='get')
 
         if response.status_code != 200:
             raise UnexpectedNoResult("Unexpected HTTP status %i on preview page %s" % (response.status_code, response.url))
