@@ -60,7 +60,7 @@ For example, tests:
 Client
 ------
 
-The client should work in Python 2 and 3. Please be mindful when writing the client code.
+The client should work in Python 2.7 and 3. Please be mindful when writing the client code.
 
 See [terroroftinytown-client-grab](https://github.com/ArchiveTeam/terroroftinytown-client-grab) for details on how to run the scraper as part of the Warrior project.
 
@@ -70,7 +70,7 @@ Structure
 
 The project is split into two main components: client and tracker.
 
-The client component contains the library needed for performing the request to the shortener. It uses generic shortener parameters such as the alphabet and sequence numbers. The client is responsible for converting the sequence numbers into shortcodes and then fetching them. 
+The client component contains the library needed for performing the request to the shortener. It uses generic shortener parameters such as the alphabet and sequence numbers. The client is responsible for converting the sequence numbers into shortcodes and then fetching them.
 
 The client also contains shortener specific code called services that customize the generic behavior. Custom behavior may be needed to extract the URLs from the HTML itself.
 
