@@ -33,7 +33,7 @@ def reraise_with_tracker_error(func):
 
 class TrackerClient(object):
     def __init__(self, host, username, version=None, bind_address=None,
-                 user_agent=DEFAULT_USER_AGENT):
+                 user_agent=DEFAULT_USER_AGENT, scheme='http'):
         self.host = host
         self.username = username
 
@@ -43,13 +43,16 @@ class TrackerClient(object):
             self.bind_address(bind_address)
 
         self.user_agent = user_agent
+        self.scheme = scheme
 
     @reraise_with_tracker_error
     def get_item(self):
         _logger.info('Contacting tracker.')
 
         response = requests.post(
-            'http://{host}/api/get'.format(host=self.host),
+            '{scheme}://{host}/api/get'.format(
+                host=self.host,
+                scheme=self.scheme),
             data={
                 'username': self.username,
                 'version': VERSION,
@@ -71,7 +74,9 @@ class TrackerClient(object):
         _logger.info('Uploading to tracker.')
 
         response = requests.post(
-            'http://{host}/api/done'.format(host=self.host),
+            '{scheme}://{host}/api/done'.format(
+                host=self.host,
+                scheme=self.scheme),
             data={
                 'claim_id': claim_id,
                 'tamper_key': tamper_key,
@@ -85,7 +90,9 @@ class TrackerClient(object):
     def report_error(self, claim_id, tamper_key, message):
         _logger.info('Sending error report to tracker.')
         response = requests.post(
-            'http://{host}/api/error'.format(host=self.host),
+            '{scheme}://{host}/api/error'.format(
+                host=self.host,
+                scheme=self.scheme),
             data={
                 'claim_id': claim_id,
                 'tamper_key': tamper_key,
