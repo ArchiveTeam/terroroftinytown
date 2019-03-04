@@ -64,9 +64,9 @@ class GetHandler(BaseHandler):
         except NoItemAvailable:
             raise HTTPError(
                 404,
-                reason='No items available currently. '
-                       'Don\'t worry; more items will be made soon. '
-                       'Try again later.'
+                reason='No free items available currently. '
+                        'Don\'t worry; this is normal. '
+                        'You will be assigned items soon.'
             )
         except UserIsBanned:
             raise HTTPError(

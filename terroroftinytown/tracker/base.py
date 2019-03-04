@@ -24,7 +24,7 @@ class BaseHandler(tornado.web.RequestHandler):
             self._show_maintenance_page()
 
     def _show_maintenance_page(self):
-        self.set_status(512, 'EXPORTING OUR SHIT')
+        self.set_status(512, 'Export is in progress. We\'ll be back soon!')
         self.render('maintenance.html')
         raise tornado.web.Finish()
 
