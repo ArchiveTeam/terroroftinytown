@@ -1,3 +1,4 @@
+
 from terroroftinytown.services.base import BaseService
 from terroroftinytown.services.status import URLStatus
 import re
@@ -23,35 +24,5 @@ class GooglService(BaseService):
 		if 'Location' not in response.headers:
 			return False
 		result_url = response.headers['Location']
-		if sys.version_info[0] == 2 and isinstance(result_url, terroroftinytown.six.binary_type):
-			# Headers are treated as latin-1
-			# This is needed so that unit tests don't need to
-			# do implicit unicode conversion. Ick!
-			result_url = result_url.decode('latin-1')
 		response.content  # read the response to allow connection reuse
 		return not not re.search('^https?://(?:www\.)?google\.com/sorry', result_url)
-
-	def process_redirect(self, response):
-		if 'Location' in response.headers:
-			result_url = response.headers['Location']
-
-			if sys.version_info[0] == 2 and isinstance(result_url, terroroftinytown.six.binary_type):
-				# Headers are treated as latin-1
-				# This is needed so that unit tests don't need to
-				# do implicit unicode conversion. Ick!
-				result_url = result_url.decode('latin-1')
-
-			response.content  # read the response to allow connection reuse
-			return self.check_anti_regex(response, result_url, None)
-		elif self.params.get('body_regex'):
-			return self.process_redirect_body(response)
-		elif self.tolerate_missing_location_header:
-			response.content  # read the response to allow connection reuse
-			return self.process_no_redirect(response)
-		else:
-			response.content  # read the response to allow connection reuse
-
-			raise UnexpectedNoResult(
-				'Unexpectedly did not get a redirect result for {0}'
-				.format(repr(response.url))
-			)
