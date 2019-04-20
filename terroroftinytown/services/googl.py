@@ -24,4 +24,4 @@ class GooglService(BaseService):
             return False
         result_url = response.headers['Location']
         response.content  # read the response to allow connection reuse
-        return not not re.search('^https?://(?:www\.)?google\.com/sorry', result_url)
+        return not not re.search('^https?://(?:www\.)?google\.com/sorry/index\?continue=https://goo.gl/[^&]+&q=', result_url)
