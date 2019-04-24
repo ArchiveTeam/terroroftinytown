@@ -29,7 +29,7 @@ Export
 
 The output directory will be created if it does not exists. Specify `--format urlteam` to export in old URLTeam format (no BEACON headers). You will need GNU Sort installed.
 
-A automatic script, to be run from cron, that drains the results, compress, and upload to Internet Archive:
+An automatic script, to be run from cron, that drains the results, compress, and upload to Internet Archive:
 
         python3 -m terroroftinytown.release.supervisor config.conf \
         EXPORT_WORKING_DIRECTORY/ --verbose --batch-size 5000000
