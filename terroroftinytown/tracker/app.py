@@ -49,6 +49,7 @@ class Application(tornado.web.Application):
             U(r'/project/([a-z0-9_-]*)/settings', project.SettingsHandler, name='project.settings'),
             U(r'/project/([a-z0-9_-]*)/delete', project.DeleteHandler, name='project.delete'),
             U(r'/api/live_stats', api.LiveStatsHandler, name='api.live_stats'),
+            U(r'/api/stats/([a-z0-9_-]+)', api.UserStatsHandler, name='api.user_stats'),
             U(r'/api/project_settings', api.ProjectSettingsHandler, name='api.project_settings'),
             U(r'/api/get', api.GetHandler, name='api.get'),
             U(r'/api/done', api.DoneHandler, name='api.done'),

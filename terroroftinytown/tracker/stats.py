@@ -61,6 +61,13 @@ class Stats:
 
         return out
 
+    def get_user_lifetime(self, user):
+        '''Return user lifetime stats as array of [found, scanned]'''
+        key = self.get_key()
+        scanned = self.redis.hget(key+':s', user) or 0
+        found = self.redis.hget(key+':f', user) or 0
+        return [int(found), int(scanned)]
+
     def get_global(self):
         '''Return total stats as array of [found, scanned]'''
         found = self.redis.get(self.get_key()+':tf')

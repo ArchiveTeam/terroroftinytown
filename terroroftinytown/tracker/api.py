@@ -48,6 +48,12 @@ class LiveStatsHandler(tornado.websocket.WebSocketHandler):
         stats_bus.clear_handlers(self)
 
 
+class UserStatsHandler(BaseHandler):
+    def get(self, username):
+        stats = Stats.instance.get_user_lifetime(username)
+        self.write({'stats': stats})
+
+
 class GetHandler(BaseHandler):
     def post(self):
         ip_address = self.request.remote_ip
