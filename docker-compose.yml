@@ -1,0 +1,11 @@
+---
+version: '3'
+services:
+  tracker:
+    build: .
+    ports:
+    - "8888:8888"
+    environment:
+    - PYTHONIOENCODING=utf-8
+  redis:
+    image: redis:alpine
