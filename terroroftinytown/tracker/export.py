@@ -1,25 +1,22 @@
 # encoding=utf-8
 
-import base64
 import collections
 import gzip
-import itertools
 import logging
-import os, lzma
+import lzma
+import os
 import pickle
 import shutil
 import zipfile
 
-from sqlalchemy import func
-from sqlalchemy.sql.expression import delete, bindparam
+from sqlalchemy.sql.expression import bindparam, delete
 
 from terroroftinytown.format import registry
 from terroroftinytown.format.projectsettings import ProjectSettingsWriter
 from terroroftinytown.format.urlformat import quote
 from terroroftinytown.tracker.bootstrap import Bootstrap
-from terroroftinytown.tracker.model import new_session, Project, Result
+from terroroftinytown.tracker.model import Project, Result, new_session
 from terroroftinytown.util.externalsort import GNUExternalSort
-
 
 logger = logging.getLogger(__name__)
 
