@@ -1,24 +1,22 @@
 # encoding=utf-8
 
-import base64
 import collections
-import itertools
+import gzip
 import logging
-import os, lzma
+import lzma
+import os
 import pickle
 import shutil
 import zipfile
 
-from sqlalchemy import func
-from sqlalchemy.sql.expression import delete, bindparam
+from sqlalchemy.sql.expression import bindparam, delete
 
 from terroroftinytown.format import registry
 from terroroftinytown.format.projectsettings import ProjectSettingsWriter
 from terroroftinytown.format.urlformat import quote
 from terroroftinytown.tracker.bootstrap import Bootstrap
-from terroroftinytown.tracker.model import new_session, Project, Result
+from terroroftinytown.tracker.model import Project, Result, new_session
 from terroroftinytown.util.externalsort import GNUExternalSort
-
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +64,7 @@ class Exporter:
         self.project_result_sorters = {}
 
         self.working_set_filename = os.path.join(output_dir,
-                                                 'current_working_set.txt')
+                                                 'current_working_set.pickle.gz')
 
     def setup_format(self, format):
         self.format = registry[format]
@@ -116,7 +114,7 @@ class Exporter:
             if self.after:
                 query = query.filter(Result.datetime > self.after)
 
-            with open(self.working_set_filename, 'wb') as work_file:
+            with gzip.open(self.working_set_filename, 'wb', compresslevel=1) as work_file:
                 last_id = -1
                 num_results = 0
                 running = True
@@ -131,16 +129,14 @@ class Exporter:
                     delete_ids = []
 
                     for result in rows:
-                        line = base64.b64encode(pickle.dumps({
+                        pickle.dump({
                             'id': result.id,
                             'project_id': result.project_id,
                             'shortcode': result.shortcode,
                             'url': result.url,
                             'encoding': result.encoding,
                             'datetime': result.datetime,
-                        }))
-                        work_file.write(line)
-                        work_file.write(b'\n')
+                        }, work_file)
 
                         num_results += 1
                         self.items_count += 1
@@ -171,12 +167,17 @@ class Exporter:
                             [{'id': result_id} for result_id in delete_ids]
                         )
 
+                pickle.dump('eof', work_file)
+
     def _feed_input_sorters(self):
         num_results = 0
 
-        with open(self.working_set_filename, 'rb') as work_file:
-            for line in work_file:
-                result = pickle.loads(base64.b64decode(line))
+        with gzip.open(self.working_set_filename, 'rb') as work_file:
+            while True:
+                result = pickle.load(work_file)
+
+                if result == 'eof':
+                    break
 
                 if result['project_id'] not in self.project_result_sorters:
                     self.project_result_sorters[result['project_id']] = \

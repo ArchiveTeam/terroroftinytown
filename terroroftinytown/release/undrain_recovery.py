@@ -1,7 +1,7 @@
 '''Put the working set from the export script back into the database.'''
+import gzip
 import logging
 import pickle
-import base64
 
 from terroroftinytown.tracker.bootstrap import Bootstrap
 from terroroftinytown.tracker.model import new_session, Result
@@ -25,13 +25,18 @@ class UndrainBootstrap(Bootstrap):
 
     def recover(self):
         logger.info('Recovering from %s', self.args.working_set_file)
-        with open(self.args.working_set_file, 'r') as file, \
+
+        with gzip.open(self.args.working_set_file, 'rb') as file, \
                 new_session() as session:
             query = insert(Result)
             values = []
+            line_num = 0
 
-            for line_num, line in enumerate(file):
-                doc = pickle.loads(base64.b64decode(line))
+            while True:
+                doc = pickle.load(file)
+
+                if doc == 'eof':
+                    break
 
                 values.append({
                     'project_id': doc['project_id'],
@@ -46,6 +51,8 @@ class UndrainBootstrap(Bootstrap):
                     session.execute(query, values)
                     session.commit()
                     values = []
+
+                line_num += 1
 
             logger.info('Finishing up...')
             session.execute(query, values)
