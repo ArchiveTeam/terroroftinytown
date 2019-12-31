@@ -86,6 +86,10 @@ class BaseService(object):
                     url, allow_redirects=False, headers=headers, timeout=60)
         except ConnectionError as e:
             return self.process_connection_error(e)
+        except ValueError as e:
+            if e.message == 'Invalid IPv6 URL':
+                return self.process_unavailable(None)
+            raise e
 
         return response
 
