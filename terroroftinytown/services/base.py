@@ -84,12 +84,8 @@ class BaseService(object):
             else:
                 response = requests.head(
                     url, allow_redirects=False, headers=headers, timeout=60)
-        except ConnectionError as e:
+        except (ConnectionError, ValueError) as e:
             return self.process_connection_error(e)
-        except ValueError as e:
-            if e.message == 'Invalid IPv6 URL':
-                return self.process_unavailable(None)
-            raise e
 
         return response
 
@@ -161,11 +157,12 @@ class BaseService(object):
         )
 
     def process_connection_error(self, exception):
-        if 'ProtocolError' in repr(exception.args):
+        ex_args = repr(exception.args)
+        if 'ProtocolError' in ex_args or 'Invalid IPv6 URL' in ex_args:
             raise MalformedResponse(
-                'Malformed response: {0}'.format(repr(exception.args)))
+                'Malformed response: {0}'.format(ex_args))
         else:
-            raise PleaseRetry('Connection error: {0}'.format(repr(exception.args)))
+            raise PleaseRetry('Connection error: {0}'.format(ex_args))
 
     def check_anti_regex(self, response, result_url, encoding):
         if not result_url or self.matches_anti_regex(result_url):

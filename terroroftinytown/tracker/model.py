@@ -28,7 +28,7 @@ from terroroftinytown.tracker.stats import Stats
 
 
 # These overrides for major api changes
-MIN_VERSION_OVERRIDE = 54  # for terroroftinytown.client
+MIN_VERSION_OVERRIDE = 55  # for terroroftinytown.client
 MIN_CLIENT_VERSION_OVERRIDE = 7  # for terrofoftinytown-client-grab/pipeline.py
 DEADMAN_MAX_ERROR_REPORTS = 4000
 DEADMAN_MAX_RESULTS = 40000000
