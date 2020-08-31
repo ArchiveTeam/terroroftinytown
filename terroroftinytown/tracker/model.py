@@ -646,7 +646,8 @@ def make_hash(plaintext, salt):
     key = salt
     msg = plaintext.encode('ascii')
 
-    return hmac.new(key, msg).digest()
+    # Yes, I know MD5 is bad but it was the silent default at the time
+    return hmac.new(key, msg, digestmod='MD5').digest()
 
 
 def new_salt():
