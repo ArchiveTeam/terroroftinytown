@@ -1,4 +1,5 @@
 # encoding=utf-8
+import collections;
 import functools
 import os.path
 
@@ -16,8 +17,13 @@ from terroroftinytown.tracker.model import GlobalSetting, ErrorReport
 from terroroftinytown.tracker.stats import Stats
 from terroroftinytown.tracker.ui import FormUIModule
 
+ProjectStatus = collections.namedtuple(
+    '_ProjectStatus',
+    ['git_hash', 'projects', 'project_stats'])
 
 class Application(tornado.web.Application):
+    GIT_HASH = model.get_git_hash()
+
     def __init__(self, database, redis=None, **kwargs):
         self.db = database
         self.redis = redis
@@ -54,6 +60,7 @@ class Application(tornado.web.Application):
             U(r'/api/get', api.GetHandler, name='api.get'),
             U(r'/api/done', api.DoneHandler, name='api.done'),
             U(r'/api/error', api.ErrorHandler, name='api.error'),
+            U(r'/api/health', api.HealthHandler, name='api.health'),
             U(r'/status', StatusHandler, name='index.status'),
             U(r'/calculator', CalculatorHandler, name='index.calculator'),
         ]
@@ -128,6 +135,21 @@ class Application(tornado.web.Application):
 
         return sentinel_path and os.path.exists(sentinel_path)
 
+    def is_deadman_safety_tripped(self):
+        return model.deadman_checks()
+
+    def get_project_status(self):
+        projects = list([
+            model.Project.get_plain(name)
+            for name in model.Project.all_project_names()])
+        project_stats = Stats.instance.get_project()
+
+        return ProjectStatus(
+            git_hash=self.GIT_HASH,
+            projects=projects,
+            project_stats=project_stats
+        )
+
 
 class IndexHandler(BaseHandler):
     def get(self):
@@ -149,17 +171,12 @@ class IndexHandler(BaseHandler):
 
 
 class StatusHandler(BaseHandler):
-    GIT_HASH = model.get_git_hash()
-
     def get(self):
-        projects = list([
-            model.Project.get_plain(name)
-            for name in model.Project.all_project_names()])
-        project_stats = Stats.instance.get_project()
+        status = self.application.get_project_status()
 
-        self.render('status.html', projects=projects, services=registry,
-                    project_stats=project_stats,
-                    git_hash=self.GIT_HASH)
+        self.render('status.html', projects=status.projects, services=registry,
+                    project_stats=status.project_stats,
+                    git_hash=status.git_hash)
 
 
 class CalculatorHandler(BaseHandler):

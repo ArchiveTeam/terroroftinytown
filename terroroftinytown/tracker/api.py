@@ -158,3 +158,22 @@ class ErrorHandler(BaseHandler):
         else:
             logger.info('Error reported for claim %s', claim_id)
             self.write({'status': 'OK'})
+
+
+class HealthHandler(BaseHandler):
+    def _show_maintenance_page(self):
+        self.set_status(512, 'export_in_progress')
+
+    def get(self):
+        status = self.application.get_project_status()
+
+        if self.application.is_deadman_safety_tripped():
+            self.set_status(507, 'deadman_safety_tripped')
+
+        self.write({
+            'http_status_code': self._status_code,
+            'http_status_message': self._reason,
+            'git_hash': str(status.git_hash),
+            'projects': [project.name for project in status.projects],
+            'project_stats': status.project_stats
+        })
