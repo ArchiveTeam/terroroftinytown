@@ -139,7 +139,7 @@ app.controller("StatsController", ["$scope", "$filter", "ws", "max_display", fun
 		return item[1][1];
 	};
 	ws.onMessage = function(){
-		ws.stats.live.splice($scope.recentLimit - 1, ws.stats.live.length);
+		ws.stats.live.splice($scope.recentLimit, ws.stats.live.length);
 		// somehow computing this in page cause infinite digest cycles
 		$scope.lifetime = $filter("toArray")(ws.stats.lifetime);
 
