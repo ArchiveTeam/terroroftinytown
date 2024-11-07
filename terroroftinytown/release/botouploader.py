@@ -38,7 +38,6 @@ class BotoUploaderBootstrap(BaseUploaderBootstrap):
             self.access_key,
             self.secret_key,
             host=self.config.get('iaexporter', 'endpoint'),
-            is_secure=False,
             calling_format=OrdinaryCallingFormat()
         )
         bucket_name = self.identifier
