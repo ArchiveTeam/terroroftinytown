@@ -1,30 +1,29 @@
 import contextlib
-
-from selenium import webdriver
-from selenium.webdriver import DesiredCapabilities
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.expected_conditions import staleness_of
-from selenium.webdriver.support.wait import WebDriverWait
-import configparser
 import json
 import os.path
-import requests
 import string
 import threading
 import time
 import unittest
 
+import requests
 import tornado.httpserver
 import tornado.testing
+from selenium import webdriver
+from selenium.webdriver import DesiredCapabilities
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support.expected_conditions import staleness_of
+from selenium.webdriver.support.wait import WebDriverWait
 
+from terroroftinytown.client import VERSION
 from terroroftinytown.tracker.app import Application
 from terroroftinytown.tracker.bootstrap import ApplicationBootstrap
 from terroroftinytown.tracker.database import Database
 from terroroftinytown.tracker.model import MIN_CLIENT_VERSION_OVERRIDE
 from terroroftinytown.tracker.stats import Stats
 from terroroftinytown.util.jsonutil import NativeStringJSONEncoder
-from terroroftinytown.client import VERSION
 
 
 class IOLoopThread(threading.Thread):
@@ -87,6 +86,10 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
             self.driver = webdriver.Firefox(capabilities=firefox_capabilities)
         elif os.environ.get('RUN_CHROMEDRIVER'):
             self.driver = webdriver.Chrome()
+        elif os.environ.get('RUN_CHROMEDRIVER_HEADLESS'):
+            options = Options()
+            options.add_argument("--headless=new")
+            self.driver = webdriver.Chrome(options=options)
         else:
             self.driver = webdriver.Firefox()
 
@@ -103,7 +106,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
     @contextlib.contextmanager
     def wait_for_page_load(self, timeout=30):
         # http://www.obeythetestinggoat.com/how-to-get-selenium-to-wait-for-page-load-after-a-click.html
-        old_page = self.driver.find_element_by_tag_name('html')
+        old_page = self.driver.find_element(By.TAG_NAME, 'html')
         yield
         WebDriverWait(self.driver, timeout).until(
             staleness_of(old_page)
@@ -157,11 +160,11 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         )
         self.sleep(1)
         self.assertEqual(
-            self.driver.find_element_by_xpath('id("globalstats")//strong[1]').text,
+            self.driver.find_element(By.XPATH, 'id("globalstats")//strong[1]').text,
             '20'
         )
         self.assertEqual(
-            self.driver.find_element_by_xpath('id("globalstats")//strong[2]').text,
+            self.driver.find_element(By.XPATH, 'id("globalstats")//strong[2]').text,
             '1'
         )
 
@@ -172,19 +175,19 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         )
         self.sleep(1)
         self.assertEqual(
-            self.driver.find_element_by_xpath('id("leaderboard-recent")//tbody/tr[1]/td[1]').text,
+            self.driver.find_element(By.XPATH, 'id("leaderboard-recent")//tbody/tr[1]/td[1]').text,
             'SMAUG'
         )
         self.assertEqual(
-            self.driver.find_element_by_xpath('id("leaderboard-recent")//tbody/tr[1]/td[2]').text,
+            self.driver.find_element(By.XPATH, 'id("leaderboard-recent")//tbody/tr[1]/td[2]').text,
             '1'
         )
         self.assertEqual(
-            self.driver.find_element_by_xpath('id("leaderboard-recent")//tbody/tr[1]/td[3]').text,
+            self.driver.find_element(By.XPATH, 'id("leaderboard-recent")//tbody/tr[1]/td[3]').text,
             '20'
         )
         self.assertEqual(
-            self.driver.find_element_by_xpath('id("leaderboard-recent")//tbody/tr[1]/td[4]').text,
+            self.driver.find_element(By.XPATH, 'id("leaderboard-recent")//tbody/tr[1]/td[4]').text,
             'test_project'
         )
 
@@ -200,38 +203,38 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         )
         self.sleep(1)
         self.assertEqual(
-            self.driver.find_element_by_xpath('id("leaderboard-recent")//tbody/tr[1]/td[3]').text,
+            self.driver.find_element(By.XPATH, 'id("leaderboard-recent")//tbody/tr[1]/td[3]').text,
             '20'
         )
         self.assertEqual(
-            self.driver.find_element_by_xpath('id("leaderboard-totals")//tbody/tr[1]/td[2]').text,
+            self.driver.find_element(By.XPATH, 'id("leaderboard-totals")//tbody/tr[1]/td[2]').text,
             '2'
         )
         self.assertEqual(
-            self.driver.find_element_by_xpath('id("leaderboard-totals")//tbody/tr[1]/td[3]').text,
+            self.driver.find_element(By.XPATH, 'id("leaderboard-totals")//tbody/tr[1]/td[3]').text,
             '40'
         )
         self.assertEqual(
-            self.driver.find_element_by_xpath('id("globalstats")//strong[1]').text,
+            self.driver.find_element(By.XPATH, 'id("globalstats")//strong[1]').text,
             '40'
         )
         self.assertEqual(
-            self.driver.find_element_by_xpath('id("globalstats")//strong[2]').text,
+            self.driver.find_element(By.XPATH, 'id("globalstats")//strong[2]').text,
             '2'
         )
 
     def sign_in(self):
         self.driver.get(self.get_url('/'))
 
-        element = self.driver.find_element_by_link_text('Tracker admin')
+        element = self.driver.find_element(By.LINK_TEXT, 'Tracker admin')
 
         with self.wait_for_page_load():
             element.click()
 
-        element = self.driver.find_element_by_name('username')
+        element = self.driver.find_element(By.NAME, 'username')
         element.send_keys('test_user')
 
-        element = self.driver.find_element_by_name('password')
+        element = self.driver.find_element(By.NAME, 'password')
         element.send_keys('test_password')
 
         element.submit()
@@ -243,15 +246,15 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
     def sign_in_bad(self):
         self.driver.get(self.get_url('/'))
 
-        element = self.driver.find_element_by_link_text('Tracker admin')
+        element = self.driver.find_element(By.LINK_TEXT, 'Tracker admin')
 
         with self.wait_for_page_load():
             element.click()
 
-        element = self.driver.find_element_by_name('username')
+        element = self.driver.find_element(By.NAME, 'username')
         element.send_keys('test_user')
 
-        element = self.driver.find_element_by_name('password')
+        element = self.driver.find_element(By.NAME, 'password')
         element.send_keys('badpass')
 
         element.submit()
@@ -263,7 +266,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         )
 
     def sign_out(self):
-        element = self.driver.find_element_by_partial_link_text('Log out')
+        element = self.driver.find_element(By.PARTIAL_LINK_TEXT, 'Log out')
         element.click()
 
         WebDriverWait(self.driver, 10).until(
@@ -271,22 +274,22 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         )
 
     def create_user(self):
-        element = self.driver.find_element_by_link_text('Users')
+        element = self.driver.find_element(By.LINK_TEXT, 'Users')
         element.click()
 
         WebDriverWait(self.driver, 10).until(
             expected_conditions.title_is('Users')
         )
 
-        element = self.driver.find_element_by_name('username')
+        element = self.driver.find_element(By.NAME, 'username')
         element.send_keys('user2')
 
-        element = self.driver.find_element_by_name('password')
+        element = self.driver.find_element(By.NAME, 'password')
         element.send_keys('userpass1')
 
         element.submit()
 
-        element = self.driver.find_element_by_link_text('Users')
+        element = self.driver.find_element(By.LINK_TEXT, 'Users')
         element.click()
 
         WebDriverWait(self.driver, 10).until(
@@ -298,15 +301,15 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
     def sign_in_second_user(self):
         self.driver.get(self.get_url('/'))
 
-        element = self.driver.find_element_by_link_text('Tracker admin')
+        element = self.driver.find_element(By.LINK_TEXT, 'Tracker admin')
 
         with self.wait_for_page_load():
             element.click()
 
-        element = self.driver.find_element_by_name('username')
+        element = self.driver.find_element(By.NAME, 'username')
         element.send_keys('user2')
 
-        element = self.driver.find_element_by_name('password')
+        element = self.driver.find_element(By.NAME, 'password')
         element.send_keys('userpass1')
 
         element.submit()
@@ -316,7 +319,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         )
 
     def create_project(self):
-        element = self.driver.find_element_by_link_text('Projects')
+        element = self.driver.find_element(By.LINK_TEXT, 'Projects')
 
         with self.wait_for_page_load():
             element.click()
@@ -325,7 +328,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
             expected_conditions.title_is('Projects')
         )
 
-        element = self.driver.find_element_by_name('name')
+        element = self.driver.find_element(By.NAME, 'name')
         element.send_keys('test_project')
 
         element.submit()
@@ -333,7 +336,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
     def config_project_settings(self):
         self.driver.get(self.get_url('/admin/'))
 
-        element = self.driver.find_element_by_link_text('Projects')
+        element = self.driver.find_element(By.LINK_TEXT, 'Projects')
 
         with self.wait_for_page_load():
             element.click()
@@ -342,78 +345,78 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
             expected_conditions.title_is('Projects')
         )
 
-        element = self.driver.find_element_by_link_text('test_project')
+        element = self.driver.find_element(By.LINK_TEXT, 'test_project')
 
         with self.wait_for_page_load():
             element.click()
 
-        element = self.driver.find_element_by_link_text('Shortener Settings')
+        element = self.driver.find_element(By.LINK_TEXT, 'Shortener Settings')
 
         with self.wait_for_page_load():
             element.click()
 
-        element = self.driver.find_element_by_name('alphabet')
+        element = self.driver.find_element(By.NAME, 'alphabet')
         element.clear()
         element.send_keys(string.ascii_lowercase)
         element.send_keys(string.ascii_uppercase)
         element.send_keys(string.digits)
 
-        element = self.driver.find_element_by_name('url_template')
+        element = self.driver.find_element(By.NAME, 'url_template')
         element.clear()
         element.send_keys('http://www.example.com/{shortcode}')
 
-        element = self.driver.find_element_by_name('request_delay')
+        element = self.driver.find_element(By.NAME, 'request_delay')
         element.clear()
         element.send_keys('1.0')
 
-        element = self.driver.find_element_by_name('redirect_codes')
+        element = self.driver.find_element(By.NAME, 'redirect_codes')
         element.clear()
         element.send_keys('301 302')
 
-        element = self.driver.find_element_by_name('no_redirect_codes')
+        element = self.driver.find_element(By.NAME, 'no_redirect_codes')
         element.clear()
         element.send_keys('404')
 
-        element = self.driver.find_element_by_name('unavailable_codes')
+        element = self.driver.find_element(By.NAME, 'unavailable_codes')
         element.clear()
         element.send_keys('200')
 
-        element = self.driver.find_element_by_name('banned_codes')
+        element = self.driver.find_element(By.NAME, 'banned_codes')
         element.clear()
         element.send_keys('420')
 
-        element = self.driver.find_element_by_name('body_regex')
+        element = self.driver.find_element(By.NAME, 'body_regex')
         element.clear()
         element.send_keys('<a id="redir_link" href="[^"]+">')
 
-        element = self.driver.find_element_by_name('location_anti_regex')
+        element = self.driver.find_element(By.NAME, 'location_anti_regex')
         element.clear()
         element.send_keys('^/error.php$')
 
         element.submit()
 
     def populate_queue(self):
-        element = self.driver.find_element_by_link_text('Claims')
+        element = self.driver.find_element(By.LINK_TEXT, 'Claims')
         element.click()
 
         WebDriverWait(self.driver, 10).until(
             expected_conditions.title_is('Items')
         )
 
-        element = self.driver.find_element_by_name('items')
+        element = self.driver.find_element(By.NAME, 'items')
         element.send_keys('0-19\n20-39')
 
         element.submit()
 
     def enable_queue(self):
-        element = self.driver.find_element_by_link_text('Queue Settings')
+        element = self.driver.find_element(By.LINK_TEXT, 'Queue Settings')
         element.click()
 
         WebDriverWait(self.driver, 10).until(
             expected_conditions.title_is('Queue Settings')
         )
 
-        element = self.driver.find_element_by_name('enabled')
+        element = self.driver.find_element(By.NAME, 'enabled')
         element.click()
 
         element.submit()

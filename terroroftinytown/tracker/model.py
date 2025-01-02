@@ -387,7 +387,7 @@ class BlockedUser(Base):
     @classmethod
     def is_username_blocked(cls, *username):
         with new_session() as session:
-            query = select([BlockedUser.username])\
+            query = select(BlockedUser.username)\
                 .where(BlockedUser.username.in_(username))
 
             result = session.execute(query).first()
