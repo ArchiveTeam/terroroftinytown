@@ -35,4 +35,18 @@ nosetests.xml
 .project
 .pydevproject
 
+# Eclipse
+/.settings
+
+# IntelliJ
+/.idea
+/*.iml
+
+# Visual Studio Code
+/.vscode
+
+# Unit test outputs
+geckodriver.log
+test_tinytown.db
+
 *~
