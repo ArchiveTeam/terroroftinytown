@@ -7,7 +7,6 @@ import unittest
 
 from terroroftinytown.services.registry import registry
 from terroroftinytown.services.status import URLStatus
-from terroroftinytown.six import u
 import terroroftinytown
 import time
 from terroroftinytown.client.errors import MalformedResponse
@@ -181,13 +180,8 @@ MOCK_PARAMS = {
 
 
 class TestLive(unittest.TestCase):
-    #  @unittest.skipIf(os.environ.get('NO_LIVE_SERVICE_TEST'), 'no live test')
+    @unittest.skipIf(os.environ.get('NO_LIVE_SERVICE_TEST'), 'no live test')
     def test_custom_services(self):
-        # for python 2.6 compatbility
-        if os.environ.get('NO_LIVE_SERVICE_TEST'):
-            print('SKIP')
-            return
-
         filenames = get_definition_filenames()
         for filename in filenames:
             service_name = os.path.split(filename)[-1].replace('.txt', '')
@@ -197,7 +191,7 @@ class TestLive(unittest.TestCase):
 #                 continue
 
             params = MOCK_PARAMS[service_name]
-            service = registry[u(service_name)](params)
+            service = registry[service_name](params)
 
             print('Brought up service', service)
 
@@ -209,17 +203,13 @@ class TestLive(unittest.TestCase):
                     url = params['url_template'].format(shortcode=shortcode)
 
                     print('Requesting', url, 'Expect:', expected_result)
-                    
+
                     try:
                         response = service.fetch_url(url)
                     except MalformedResponse:
                         url_status, result_url, encoding = (URLStatus.unavailable, None, None)
                     else:
                         url_status, result_url, encoding = service.process_response(response)
-
-                    if terroroftinytown.six.PY2 and \
-                            isinstance(result_url, terroroftinytown.six.binary_type):
-                        result_url = result_url.decode(encoding)
 
                     print('  Got', url_status, result_url, encoding)
 

@@ -6,6 +6,7 @@ import logging
 import re
 import sys
 import time
+import html
 
 from requests.exceptions import ConnectionError
 
@@ -13,7 +14,6 @@ from terroroftinytown.client import alphabet, VERSION
 from terroroftinytown.client.errors import (UnhandledStatusCode,
     UnexpectedNoResult, ScraperError, PleaseRetry, MalformedResponse)
 from terroroftinytown.services.status import URLStatus
-from terroroftinytown.six.moves import html_parser
 import terroroftinytown
 
 
@@ -106,14 +106,6 @@ class BaseService(object):
     def process_redirect(self, response):
         if 'Location' in response.headers:
             result_url = response.headers['Location']
-
-            if sys.version_info[0] == 2 and \
-                    isinstance(result_url, terroroftinytown.six.binary_type):
-                # Headers are treated as latin-1
-                # This is needed so that unit tests don't need to
-                # do implicit unicode conversion. Ick!
-                result_url = result_url.decode('latin-1')
-
             response.content  # read the response to allow connection reuse
             return self.check_anti_regex(response, result_url, None)
         elif self.params.get('body_regex'):
@@ -179,8 +171,5 @@ class DefaultService(BaseService):
     pass
 
 
-_html_parser_unescaper = html_parser.HTMLParser()
-
-
 def html_unescape(text):
-    return _html_parser_unescaper.unescape(text)
+    return html.unescape(text)

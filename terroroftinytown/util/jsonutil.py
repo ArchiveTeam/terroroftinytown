@@ -1,8 +1,6 @@
 import base64
 import json
-from collections import Sequence, Mapping
-
-import terroroftinytown.six
+from collections.abc import Sequence, Mapping
 
 
 class NativeStringJSONDecoder(json.JSONDecoder):
@@ -15,9 +13,8 @@ class NativeStringJSONDecoder(json.JSONDecoder):
     @classmethod
     def channel_unicode(cls, o):
         # http://stackoverflow.com/a/6415359/1524507
-        if isinstance(o, terroroftinytown.six.string_types):
-            if isinstance(o, terroroftinytown.six.text_type):
-                o = o.encode('ascii')
+        if isinstance(o, str):
+            o = o.encode('ascii')
             return base64.b16decode(o).decode('unicode_escape')
         elif isinstance(o, Sequence):
             return [cls.channel_unicode(item) for item in o]
@@ -38,9 +35,8 @@ class NativeStringJSONEncoder(json.JSONEncoder):
     @classmethod
     def channel_unicode(cls, o):
         # http://stackoverflow.com/a/6415359/1524507
-        if isinstance(o, (terroroftinytown.six.binary_type,
-                          terroroftinytown.six.string_types)):
-            if isinstance(o, terroroftinytown.six.binary_type):
+        if isinstance(o, (bytes, str)):
+            if isinstance(o, bytes):
                 o = o.decode('latin1')
             o = base64.b16encode(o.encode('unicode_escape')).decode('ascii')
             return o

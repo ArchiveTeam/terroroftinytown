@@ -2,7 +2,6 @@ from terroroftinytown.services.base import BaseService
 from terroroftinytown.services.rand import HashRandMixin
 from terroroftinytown.client.errors import UnexpectedNoResult
 from terroroftinytown.services.status import URLStatus
-from terroroftinytown.six import u
 
 
 class TinyurlHuService(BaseService):

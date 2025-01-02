@@ -162,7 +162,7 @@ class Exporter:
                         delete_query = delete(Result).where(
                             Result.id == bindparam('id')
                         )
-                        session.execute(
+                        session.connection().execute(
                             delete_query,
                             [{'id': result_id} for result_id in delete_ids]
                         )

@@ -1,6 +1,6 @@
 # encoding=utf-8
 from wtforms import validators
-from wtforms.fields.core import StringField, BooleanField, FloatField, Field, \
+from wtforms.fields import StringField, BooleanField, FloatField, Field, \
     IntegerField, RadioField
 from wtforms.fields.simple import PasswordField, TextAreaField
 from wtforms.widgets.core import TextInput

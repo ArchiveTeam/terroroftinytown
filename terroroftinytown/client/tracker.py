@@ -6,7 +6,6 @@ import logging
 import requests
 import socket
 
-from terroroftinytown import six
 from terroroftinytown.client import VERSION
 from terroroftinytown.util.jsonutil import NativeStringJSONEncoder
 
@@ -27,7 +26,7 @@ def reraise_with_tracker_error(func):
         try:
             return func(*args, **kwargs)
         except requests.RequestException as error:
-            six.raise_from(TrackerError(str(error)), error)
+            raise TrackerError(str(error)) from error
     return wrapper
 
 

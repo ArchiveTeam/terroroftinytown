@@ -45,6 +45,7 @@ class IOLoopThread(threading.Thread):
         self.io_loop = tornado.ioloop.IOLoop()
 
     def run(self):
+        self.io_loop.make_current()
         self.io_loop.start()
 
     def stop(self):
@@ -57,7 +58,7 @@ class TestTracker(unittest.TestCase):
         app = ExampleApp()
         socket_obj, self.port = tornado.testing.bind_unused_port()
         http_server = tornado.httpserver.HTTPServer(
-            app, io_loop=self.io_loop_thread.io_loop
+            app
         )
         http_server.add_socket(socket_obj)
 

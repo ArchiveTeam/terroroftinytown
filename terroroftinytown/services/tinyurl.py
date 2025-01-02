@@ -1,14 +1,14 @@
 import logging
 import re
 import sys
+import urllib.parse
+import html
 
 from terroroftinytown.client.errors import UnexpectedNoResult, \
     UnhandledStatusCode, PleaseRetry
 from terroroftinytown.services.base import BaseService
 from terroroftinytown.services.rand import HashRandMixin
 from terroroftinytown.services.status import URLStatus
-from terroroftinytown.six.moves import html_parser
-from terroroftinytown.six.moves.urllib import parse as urlparse
 
 
 _logger = logging.getLogger(__name__)
@@ -64,15 +64,12 @@ class TinyurlService(BaseService):
         if not match:
             raise UnexpectedNoResult("No redirect on \"errorhelp\" page on HTTP status 200 for {0}".format(response.url))
 
-        url = urlparse.urlparse(match.group(1))
+        url = urllib.parse.urlparse(match.group(1))
 
         if url.scheme != "http" or url.netloc != "tinyurl.com" or url.path != "/errorb.php":
             raise UnexpectedNoResult("Unexpected redirect on \"errorhelp\" page  on HTTP status 200 for {0}".format(response.url))
 
-        if sys.version_info[0] == 2:
-            query = urlparse.parse_qs(url.query.encode('utf-8'))
-        else:
-            query = urlparse.parse_qs(url.query)
+        query = urllib.parse.parse_qs(url.query)
 
         if not ("url" in query and len(query["url"]) == 1) or not ("path" in query and len(query["path"]) == 1):
             raise UnexpectedNoResult("Unexpected redirect on \"errorhelp\" page  on HTTP status 200 for {0}".format(response.url))
@@ -82,18 +79,7 @@ class TinyurlService(BaseService):
 
         encoding = response.encoding
 
-        if sys.version_info[0] == 2:
-            try:
-                result_url = query["url"][0].decode('utf-8')
-            except UnicodeError:
-                try:
-                    result_url = query["url"][0].decode('cp1252')
-                    encoding = 'cp1252'
-                except UnicodeError:
-                    result_url = query["url"][0].decode('latin-1')
-                    encoding = 'latin-1'
-        else:
-            result_url = query["url"][0]
+        result_url = query["url"][0]
 
         return (URLStatus.ok, result_url, encoding)
 
@@ -105,7 +91,7 @@ class TinyurlService(BaseService):
 
         url = match.group(1)
 
-        return (URLStatus.ok, html_parser.HTMLParser().unescape(url), response.encoding)
+        return (URLStatus.ok, html.unescape(url), response.encoding)
 
     def _parse_spam_blocklist(self, response):
         match = re.search("<p>This TinyURL went to: (.*?)</p>", response.text, re.DOTALL)
@@ -115,7 +101,7 @@ class TinyurlService(BaseService):
 
         url = match.group(1)
 
-        return (URLStatus.ok, html_parser.HTMLParser().unescape(url), response.encoding)
+        return (URLStatus.ok, html.unescape(url), response.encoding)
 
     def _preview(self, code, affiliate_url):
         response = self.fetch_url("https://tinyurl.com/preview.php?num=" + code, method='get')
@@ -133,22 +119,16 @@ class TinyurlService(BaseService):
         if url == "":
             return self._scrub_url(code, affiliate_url)
 
-        return (URLStatus.ok, html_parser.HTMLParser().unescape(url), response.encoding)
+        return (URLStatus.ok, html.unescape(url), response.encoding)
 
     def _scrub_url(self, code, url):
-        parsed_url = urlparse.urlparse(url)
+        parsed_url = urllib.parse.urlparse(url)
 
         if parsed_url.hostname == "redirect.tinyurl.com" and parsed_url.path == "/api/click":
-            if sys.version_info[0] == 2:
-                query = urlparse.parse_qs(parsed_url.query.encode('latin-1'))
-            else:
-                query = urlparse.parse_qs(parsed_url.query, encoding='latin-1')
+            query = urllib.parse.parse_qs(parsed_url.query, encoding='latin-1')
 
             if query["out"]:
-                if sys.version_info[0] == 2:
-                    scrubbed_url = query["out"][0].decode('latin-1')
-                else:
-                    scrubbed_url = query["out"][0]
+                scrubbed_url = query["out"][0]
 
                 return (URLStatus.ok, scrubbed_url, 'latin-1')
 

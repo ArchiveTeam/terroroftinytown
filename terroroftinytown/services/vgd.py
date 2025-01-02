@@ -1,10 +1,10 @@
 import re
+import html
 
 from terroroftinytown.client import errors
 from terroroftinytown.services.isgd import IsgdService
 from terroroftinytown.services.rand import HashRandMixin
 from terroroftinytown.services.status import URLStatus
-from terroroftinytown.six.moves import html_parser
 
 
 class VgdService(IsgdService):
@@ -21,7 +21,7 @@ class VgdService(IsgdService):
             raise errors.UnexpectedNoResult("Could not find target URL in 'Link Disabled' page")
 
         url = match.group(1)
-        url = html_parser.HTMLParser().unescape(url)
+        url = html.unescape(url)
         if url == "":
             return (URLStatus.unavailable, None, None)
         return (URLStatus.ok, url, response.encoding)

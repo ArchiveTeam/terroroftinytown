@@ -6,7 +6,6 @@ import time
 from terroroftinytown.client.errors import PleaseRetry, ScraperError,\
     MalformedResponse
 from terroroftinytown.services.registry import registry
-from terroroftinytown.six import u
 
 
 _logger = logging.getLogger(__name__)
@@ -79,4 +78,4 @@ class Scraper(object):
         if self.params['name'] in registry:
             return registry[self.params['name']]
         else:
-            return registry[u('_default')]
+            return registry['_default']

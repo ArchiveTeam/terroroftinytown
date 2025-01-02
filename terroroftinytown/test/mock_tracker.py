@@ -2,8 +2,7 @@ import json
 import socketserver
 import threading
 
-from terroroftinytown.six.moves.BaseHTTPServer import (HTTPServer,
-    BaseHTTPRequestHandler)
+from http.server import (HTTPServer, BaseHTTPRequestHandler)
 
 
 class TrackerHandler(BaseHTTPRequestHandler):

@@ -34,6 +34,7 @@ class IOLoopThread(threading.Thread):
         self.io_loop = tornado.ioloop.IOLoop()
 
     def run(self):
+        self.io_loop.make_current()
         self.io_loop.start()
 
     def stop(self):
@@ -70,7 +71,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
         self.io_loop_thread = IOLoopThread()
         socket_obj, self.port = tornado.testing.bind_unused_port()
         http_server = tornado.httpserver.HTTPServer(
-            self.application, io_loop=self.io_loop_thread.io_loop
+            self.application
         )
         http_server.add_socket(socket_obj)
         self.io_loop_thread.start()
@@ -108,6 +109,7 @@ class TestTracker(unittest.TestCase, ApplicationBootstrap):
             staleness_of(old_page)
         )
 
+    @unittest.skipIf(os.environ.get('NO_SELENIUM_TEST'), 'no selenium test')
     def test_all(self):
         self.sign_in()
         self.sleep()
