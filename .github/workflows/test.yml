@@ -1,0 +1,28 @@
+name: Python test
+
+on:
+  - push
+  - pull_request
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.12"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pytest
+        pip install -r requirements-tracker.txt
+        pip install -r requirements-test.txt
+    - name: Run tests
+      run: |
+        NO_LIVE_SERVICE_TEST=1 NO_SELENIUM_TEST=1 python -m unittest discover terroroftinytown -p '*test.py'
