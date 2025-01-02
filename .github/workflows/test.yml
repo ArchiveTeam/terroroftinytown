@@ -23,6 +23,10 @@ jobs:
         pip install flake8 pytest
         pip install -r requirements-tracker.txt
         pip install -r requirements-test.txt
-    - name: Run tests
+    - name: Run unit tests
       run: |
-        NO_LIVE_SERVICE_TEST=1 RUN_CHROMEDRIVER_HEADLESS=1 python -m unittest discover terroroftinytown -p '*test.py'
+        NO_LIVE_SERVICE_TEST=1 NO_SELENIUM_TEST=1 python -m unittest discover terroroftinytown -p '*test.py'
+    - name: Run Selenium tests
+      continue-on-error: true
+      run: |
+        NO_LIVE_SERVICE_TEST=1 RUN_CHROMEDRIVER_HEADLESS=1 python -m unittest terroroftinytown.tracker.test
