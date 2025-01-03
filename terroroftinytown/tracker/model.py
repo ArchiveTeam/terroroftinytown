@@ -3,6 +3,7 @@ import base64
 import calendar
 import contextlib
 import datetime
+import hashlib
 import hmac
 import json
 import os
@@ -10,22 +11,23 @@ import random
 import subprocess
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.orm.session import make_transient
 from sqlalchemy.orm.util import object_state
-from sqlalchemy.sql.expression import insert, select, delete, exists
+from sqlalchemy.sql.expression import delete, exists, insert, select
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import String, LargeBinary, Float, Boolean, Integer, \
-    DateTime
+from sqlalchemy.sql.sqltypes import (Boolean, DateTime, Float, Integer,
+                                     LargeBinary, String)
 from sqlalchemy.sql.type_api import TypeDecorator
 
 from terroroftinytown.client import VERSION
-from terroroftinytown.client.alphabet import str_to_int, int_to_str
-from terroroftinytown.tracker.errors import NoItemAvailable, FullClaim, UpdateClient, \
-    InvalidClaim, NoResourcesAvailable
+from terroroftinytown.client.alphabet import int_to_str, str_to_int
+from terroroftinytown.tracker.errors import (FullClaim, InvalidClaim,
+                                             NoItemAvailable,
+                                             NoResourcesAvailable,
+                                             UpdateClient)
 from terroroftinytown.tracker.stats import Stats
-
 
 # These overrides for major api changes
 MIN_VERSION_OVERRIDE = 55  # for terroroftinytown.client
@@ -98,18 +100,23 @@ class User(Base):
     username = Column(String, primary_key=True)
     salt = Column(LargeBinary, nullable=False)
     hash = Column(LargeBinary, nullable=False)
+    hash_format = Column(String, nullable=False, default='legacy')
 
     def set_password(self, password):
         self.salt = new_salt()
-        self.hash = make_hash(password, self.salt)
+        self.hash = make_hash_scrypt(password, self.salt)
+        self.hash_format = 'scrypt'
 
     def check_password(self, password):
-        test_hash = make_hash(password, self.salt)
+        if self.hash_format == 'scrypt':
+            test_hash = make_hash_scrypt(password, self.salt)
+        else:
+            test_hash = make_hash_legacy(password, self.salt)
 
         return compare_digest(self.hash, test_hash)
 
     def get_token(self):
-        return make_hash(self.username, self.salt)
+        return make_hash_scrypt(self.username, self.salt)
 
     def check_token(self, test_token):
         token = self.get_token()
@@ -642,12 +649,16 @@ class Budget(object):
         project_info['ip_addresses'].remove(ip_address)
 
 
-def make_hash(plaintext, salt):
+def make_hash_legacy(plaintext, salt):
     key = salt
     msg = plaintext.encode('ascii')
 
     # Yes, I know MD5 is bad but it was the silent default at the time
     return hmac.new(key, msg, digestmod='MD5').digest()
+
+
+def make_hash_scrypt(plaintext, salt):
+    return hashlib.scrypt(plaintext.encode('utf-8'), salt=salt, n=16384, r=8, p=1)
 
 
 def new_salt():
@@ -837,13 +848,4 @@ def get_git_hash():
 
 
 def compare_digest(value_1, value_2):
-    if len(value_1) != len(value_2):
-        return False
-
-    iterable = [a == b for a, b in zip(value_1, value_2)]
-    ok = True
-
-    for result in iterable:
-        ok &= result
-
-    return ok
+    return hmac.compare_digest(value_1, value_2)
