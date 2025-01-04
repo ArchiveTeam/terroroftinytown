@@ -6,7 +6,6 @@ import shutil
 import sys
 import time
 
-from terroroftinytown.release.botouploader import BotoUploaderBootstrap
 from terroroftinytown.release.iaupload import IAUploaderBootstrap
 from terroroftinytown.tracker.bootstrap import Bootstrap
 from terroroftinytown.tracker.export import ExporterBootstrap
@@ -18,7 +17,6 @@ logger = logging.getLogger(__name__)
 
 UPLOADER_CLASS_MAP = {
     'ia': IAUploaderBootstrap,
-    'boto': BotoUploaderBootstrap,
 }
 
 
@@ -29,7 +27,7 @@ def main():
                             default='/home/tinytown/tinytown-export/')
     arg_parser.add_argument('--verbose', action='store_true')
     arg_parser.add_argument('--uploader',
-                            choices=['ia', 'boto'], default='boto')
+                            choices=['ia'], default='ia')
     arg_parser.add_argument('--batch-size', type=int)
     arg_parser.add_argument('--min-batch-size', type=int)
     arg_parser.add_argument('--max-batches', type=int, default=1)
@@ -83,10 +81,15 @@ def wrapper(args):
     if not os.path.isfile(config_path):
         raise Exception('Config path is not a file.')
 
+    session = ExportSession(args)
+    if session.current_session_exists():
+        session.start_resume()
+
     for batch_num in range(args.max_batches):
         if has_results(args):
             logging.info('Starting batch #%d', batch_num + 1)
-            process_batch(args)
+            session = ExportSession(args)
+            session.start_batch()
             time.sleep(2)
         else:
             logger.info('No results. Nothing to do.')
@@ -97,98 +100,148 @@ def wrapper(args):
     logger.info('Done')
 
 
-def process_batch(args):
-    config_path = args.config_path
-    export_dir = args.export_dir
-    uploader_class = UPLOADER_CLASS_MAP[args.uploader]
-    database_locked_sentinel_path = os.path.join(
-        args.export_dir, 'database_is_locked')
+class ExportSession:
+    def __init__(self, args):
+        self.title = None
+        self.identifier = None
+        self.item_export_directory = None
+        self.state = None
 
-    logger.info('Loading bootstrap.')
+        self.batch_size = args.batch_size
+        self.config_path = args.config_path
+        self.export_dir = args.export_dir
+        self.uploader_class = UPLOADER_CLASS_MAP[args.uploader]
+        self.database_locked_sentinel_path = os.path.join(
+            args.export_dir, 'database_is_locked')
+        self.done_directory = os.path.join(self.export_dir, 'done')
+        self.state_path = os.path.join(self.export_dir, 'current.json')
 
-    bootstrap = Bootstrap()
-    bootstrap.setup_args()
-    bootstrap.parse_args(args=[config_path])
-    bootstrap.load_config()
+        if not os.path.exists(self.done_directory):
+            os.mkdir(self.done_directory)
 
-    time_struct = time.gmtime()
-    timestamp = bootstrap.config.get(
-        'iaexporter', 'timestamp',
-    ).format(
-        year=time_struct.tm_year,
-        month=time_struct.tm_mon,
-        day=time_struct.tm_mday,
-        hour=time_struct.tm_hour,
-        minute=time_struct.tm_min,
-        second=time_struct.tm_sec,
-    )
+    def current_session_exists(self):
+        return os.path.exists(self.state_path)
 
-    done_directory = os.path.join(export_dir, 'done')
+    def _load_state(self):
+        with open(self.state_path, 'w') as file:
+            doc = json.load(file)
 
-    if not os.path.exists(done_directory):
-        os.mkdir(done_directory)
+            self.identifier = doc['identifier'],
+            self.title = doc['title']
+            self.item_export_directory = doc['work_directory']
+            self.state = doc['state']
 
-    item_export_directory = os.path.join(export_dir, timestamp)
+    def _save_state(self, state):
+        data = {
+            'identifier': self.identifier,
+            'title': self.title,
+            'work_directory': self.item_export_directory,
+            'state': state,
+        }
 
-    logger.info('Begin export to %s.', item_export_directory)
+        with open(self.state_path, 'w') as out_file:
+            out_file.write(json.dumps(data))
 
-    title = bootstrap.config.get('iaexporter', 'title')\
-        .format(timestamp=timestamp)
-    identifier = bootstrap.config.get('iaexporter', 'item')\
-        .format(timestamp=timestamp)
+    def start_batch(self):
+        logger.info('Loading config.')
 
-    upload_meta_path = os.path.join(export_dir, 'current.json')
-    upload_meta = {
-        'identifier': identifier,
-        'title': title,
-        'work_directory': item_export_directory,
-    }
+        bootstrap = Bootstrap()
+        bootstrap.setup_args()
+        bootstrap.parse_args(args=[self.config_path])
+        bootstrap.load_config()
 
-    with open(upload_meta_path, 'w') as out_file:
-        out_file.write(json.dumps(upload_meta))
+        time_struct = time.gmtime()
+        self.timestamp = bootstrap.config.get(
+            'iaexporter', 'timestamp',
+        ).format(
+            year=time_struct.tm_year,
+            month=time_struct.tm_mon,
+            day=time_struct.tm_mday,
+            hour=time_struct.tm_hour,
+            minute=time_struct.tm_min,
+            second=time_struct.tm_sec,
+        )
 
-    os.makedirs(item_export_directory)
+        self.item_export_directory = os.path.join(self.export_dir, self.timestamp)
 
-    exporter = ExporterBootstrap()
-    exporter_args = [
-        config_path, '--format', 'beacon',
-        '--include-settings', '--zip',
-        '--dir-length', '0', '--file-length', '0', '--max-right', '8',
-        '--delete', '--zip-filename-infix', '.{}'.format(timestamp),
-        '--database-busy-file', database_locked_sentinel_path,
-        item_export_directory,
+        self.title = bootstrap.config.get('iaexporter', 'title')\
+            .format(timestamp=self.timestamp)
+        self.identifier = bootstrap.config.get('iaexporter', 'item')\
+            .format(timestamp=self.timestamp)
+
+        self._save_state('export_database')
+
+        os.makedirs(self.item_export_directory)
+
+        self._export_database()
+        self._upload()
+
+    def start_resume(self):
+        logging.info('Resuming processing')
+        self._load_state()
+
+        if self.state == 'export_database':
+            self._clear_export_dir()
+            self._export_database()
+            self._upload()
+
+        elif self.state == 'uploading':
+            self._upload()
+
+        else:
+            raise ValueError("unknown export state")
+
+    def _clear_export_dir(self):
+        logging.info('Clearing directory %s', self.item_export_directory)
+
+        shutil.rmtree(self.item_export_directory)
+        os.makedirs(self.item_export_directory)
+
+    def _export_database(self):
+        logger.info('Begin export to %s.', self.item_export_directory)
+
+        exporter = ExporterBootstrap()
+        exporter_args = [
+            self.config_path, '--format', 'beacon',
+            '--include-settings', '--zip',
+            '--dir-length', '0', '--file-length', '0', '--max-right', '8',
+            '--delete', '--zip-filename-infix', '.{}'.format(self.timestamp),
+            '--database-busy-file', self.database_locked_sentinel_path,
+            self.item_export_directory,
         ]
 
-    if args.batch_size:
-        exporter_args.extend(['--max-items', str(args.batch_size)])
+        if self.batch_size:
+            exporter_args.extend(['--max-items', str(self.batch_size)])
 
-    export_dir_start_size = get_dir_size(item_export_directory)
+        export_dir_start_size = get_dir_size(self.item_export_directory)
 
-    exporter.start(args=exporter_args)
+        exporter.start(args=exporter_args)
 
-    logger.info('Export finished')
+        export_dir_end_size = get_dir_size(self.item_export_directory)
 
-    export_dir_end_size = get_dir_size(item_export_directory)
+        if export_dir_start_size == export_dir_end_size:
+            raise Exception('Export directory size did not change: {} bytes'
+                            .format(export_dir_end_size))
 
-    if export_dir_start_size == export_dir_end_size:
-        raise Exception('Export directory size did not change: {} bytes'
-                        .format(export_dir_end_size))
+        logger.info('Export finished')
+        self._save_state('uploading')
 
-    logger.info('Upload starting')
+    def _upload(self):
+        logger.info('Upload starting')
 
-    uploader = uploader_class()
-    args = [
-        config_path,
-        item_export_directory,
-        '--title', upload_meta['title'],
-        '--identifier', upload_meta['identifier']
-    ]
-    uploader.start(args=args)
+        uploader = self.uploader_class()
+        args = [
+            self.config_path,
+            self.item_export_directory,
+            '--title', self.title,
+            '--identifier', self.identifier
+        ]
+        uploader.start(args=args)
 
-    logger.info('Upload done.')
+        logger.info('Upload done.')
 
-    os.remove(upload_meta_path)
-    shutil.move(item_export_directory, done_directory)
+        os.remove(self.state_path)
+        shutil.move(self.item_export_directory, self.done_directory)
 
 
 def has_results(args):

@@ -7,8 +7,10 @@ import lzma
 import os
 import pickle
 import shutil
+import sqlite3
 import zipfile
 
+from sqlalchemy import update
 from sqlalchemy.sql.expression import bindparam, delete
 
 from terroroftinytown.format import registry
@@ -74,6 +76,11 @@ class Exporter:
             os.makedirs(self.output_dir)
 
     def dump(self):
+        # Beginning with sqlite 3.11.0, WAL performance is low on large
+        # transactions is no longer a problem so breaking up transactions
+        # has been removed.
+        assert sqlite3.sqlite_version_info >= (3, 11)
+
         self.make_output_dir()
 
         database_busy_file = self.settings.get('database_busy_file')
@@ -82,6 +89,8 @@ class Exporter:
             with open(database_busy_file, 'w'):
                 pass
 
+
+        self._unmark_result_rows()
         self._drain_to_working_set()
 
         if database_busy_file:
@@ -102,6 +111,24 @@ class Exporter:
                     self.zip_project(project)
 
         os.remove(self.working_set_filename)
+
+        if database_busy_file:
+            with open(database_busy_file, 'w'):
+                pass
+
+            self._delete_marked_rows()
+            os.remove(database_busy_file)
+
+
+    def _unmark_result_rows(self):
+        logger.info('Cleaning up any previous export marked rows')
+
+        with new_session() as session:
+            query = update(Result).where(
+                Result.export == True
+            ).values(export=None)
+            session.connection().execute(query)
+
 
     def _drain_to_working_set(self, size=1000):
         logger.info('Draining to working set %s', self.working_set_filename)
@@ -141,33 +168,36 @@ class Exporter:
                         num_results += 1
                         self.items_count += 1
 
+                        last_id = result.id
                         delete_ids.append(result.id)
 
                         if num_results % 10000 == 0:
                             logger.info('Drain progress: %d', num_results)
-
-                        if num_results % 100000 == 0:
-                            # Risky, but need to do this since WAL
-                            # performance is low on large transactions
-                            logger.info("Checkpoint. (Don't delete stray files if program crashes!)")
-                            work_file.flush()
-                            session.commit()
 
                         if self.max_items and num_results >= self.max_items:
                             logger.info('Reached max items %d.', self.max_items)
                             running = False
                             break
 
-                    if self.settings['delete']:
-                        delete_query = delete(Result).where(
-                            Result.id == bindparam('id')
-                        )
-                        session.connection().execute(
-                            delete_query,
-                            [{'id': result_id} for result_id in delete_ids]
-                        )
+                    export_query = update(Result).where(
+                        Result.id == bindparam('b_id')
+                    ).values(export=True)
+                    session.connection().execute(export_query,
+                        [{'b_id': result_id} for result_id in delete_ids]
+                    )
 
                 pickle.dump('eof', work_file)
+
+    def _delete_marked_rows(self):
+        if self.settings['delete']:
+            logger.info('Deleting marked result rows')
+
+            with new_session() as session:
+                query = delete(Result).where(
+                    Result.export==True
+                )
+
+                session.connection().execute(query)
 
     def _feed_input_sorters(self):
         num_results = 0

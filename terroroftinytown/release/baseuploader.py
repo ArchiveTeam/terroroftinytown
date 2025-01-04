@@ -31,6 +31,7 @@ class BaseUploaderBootstrap(Bootstrap):
         access_key = self.config['iaexporter']['access_key']
         secret_key = self.config['iaexporter']['secret_key']
         description = self.config['iaexporter']['description']
+        mediatype = self.config['iaexporter']['mediatype']
 
         subject_items = ['urlteam', 'terroroftinytown', 'archiveteam']
 
@@ -49,6 +50,7 @@ class BaseUploaderBootstrap(Bootstrap):
         assert secret_key
         assert description
         assert subject
+        assert mediatype
 
         self.identifier = identifier
         self.title = title
@@ -58,6 +60,7 @@ class BaseUploaderBootstrap(Bootstrap):
         self.description = description
         self.filenames = filenames
         self.subject = subject
+        self.mediatype = mediatype
 
         self.upload()
 

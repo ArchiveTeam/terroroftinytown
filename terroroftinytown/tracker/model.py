@@ -423,6 +423,7 @@ class Result(Base):
     url = Column(String, nullable=False)
     encoding = Column(String, nullable=False)
     datetime = Column(DateTime)
+    export = Column(Boolean)
 
     @classmethod
     def has_results(cls):
