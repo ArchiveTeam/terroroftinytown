@@ -4,3 +4,4 @@ wtforms-tornado @ git+https://github.com/chfoo/wtforms-tornado@96a8486f7be4f2894
 wtforms==3.2.1
 SQLAlchemy==2.0.36
 internetarchive==5.0.5
+alembic==1.14.0
