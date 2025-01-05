@@ -368,7 +368,7 @@ class Item(Base):
                 projects = projects.filter_by(autoqueue=True)
 
             for project in projects:
-                min_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=project.autorelease_time)
+                min_time = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=project.autorelease_time)
                 query = session.query(Item) \
                     .filter(Item.datetime_claimed <= min_time, Item.project == project)
                 query.update({
@@ -491,7 +491,7 @@ class ErrorReport(Base):
 
     message = Column(String, nullable=False)
     datetime = Column(DateTime, nullable=False,
-                      default=datetime.datetime.utcnow)
+                      default=func.now())
 
     def to_dict(self):
         ans = {x.key:x.value for x in object_state(self).attrs}
@@ -733,7 +733,7 @@ def checkout_item(username, ip_address, version=-1, client_version=-1):
                 new_item = False
 
             if item:
-                item.datetime_claimed = datetime.datetime.utcnow()
+                item.datetime_claimed = datetime.datetime.now(datetime.timezone.utc)
                 item.tamper_key = new_tamper_key()
                 item.username = username
                 item.ip_address = ip_address

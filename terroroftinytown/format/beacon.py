@@ -1,7 +1,8 @@
 # encoding=utf-8
 '''Formatting URL data into the BEACON format.'''
 
-from datetime import datetime
+import datetime
+
 from terroroftinytown.format.base import *
 
 __all__ = ['BEACONWriter']
@@ -24,7 +25,7 @@ class BEACONWriter(BaseWriter):
         if self.homepage:
             self.fp.write(('#HOMEPAGE: %s\n' % (self.homepage)).encode('utf8'))
 
-        timestamp = datetime.utcnow()
+        timestamp = datetime.datetime.now(datetime.timezone.utc)
         if 'timestamp' in kwargs:
             assert isinstance('timestamp', datetime), \
                 'timestamp argument must be datetime instance'

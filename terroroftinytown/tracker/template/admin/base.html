@@ -9,7 +9,7 @@
 <div class="container admin">
 	<div class="row">
 		<div class="logoutLink">
-                  <span style="float: left;">{{ datetime.datetime.utcnow() }}</span>
+                  <span style="float: left;">{{ datetime.datetime.now(datetime.timezone.utc) }}</span>
 			<a href="{{ reverse_url('index') }}">Homepage</a>
 			&middot;
 			<a href="{{ reverse_url('admin.logout') }}">Log out {{ current_user }}</a>
