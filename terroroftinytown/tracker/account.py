@@ -44,6 +44,10 @@ class LoginHandler(BaseHandler):
             User.save_new_user(username, password)
 
         if User.check_account(username, password):
+            if User.is_password_outdated(username):
+                logger.info(self.user_audit_text('Upgrade password hash format %s'), username)
+                User.set_password(username, password)
+
             self.set_secure_cookie(
                 ACCOUNT_COOKIE_NAME, username, expires_days=30
             )

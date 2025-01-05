@@ -165,6 +165,15 @@ class User(Base):
             user.set_password(password)
 
     @classmethod
+    def is_password_outdated(cls, username):
+        with new_session() as session:
+            user = session.query(User).filter_by(username=username).first()
+
+            return user and user.hash_format == 'legacy'
+
+        return False
+
+    @classmethod
     def delete_user(cls, username):
         with new_session() as session:
             session.query(User).filter_by(username=username).delete()
