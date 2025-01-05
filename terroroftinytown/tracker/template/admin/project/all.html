@@ -18,44 +18,44 @@
 <h2>All projects</h2>
 
 <table class="table table-bordered table-striped">
-	<thead>
-		<tr>
-			<th>Name</th>
-			<th>Enabled</th>
-			<th>AutoQueue</th>
-                        <th>Lower Shortcode</th>
-			<th>Lower Sequence Number</th>
-			<th>Claims</th>
-			<th>Items</th>
-                        <th>Queue Size</th>
-                        <th>Found</th>
-                        <th>Scanned</th>
-		</tr>
-	</thead>
+    <thead>
+        <tr>
+            <th>Name {% module Template('module/table_sort_column.html', url=reverse_url('projects.overview'), name='name', sort=handler.get_argument('sort', None), order=handler.get_argument('order', None)) %}</th>
+            <th>Enabled {% module Template('module/table_sort_column.html', url=reverse_url('projects.overview'), name='enabled', sort=handler.get_argument('sort', None), order=handler.get_argument('order', None)) %}</th>
+            <th>AutoQueue {% module Template('module/table_sort_column.html', url=reverse_url('projects.overview'), name='autoqueue', sort=handler.get_argument('sort', None), order=handler.get_argument('order', None)) %}</th>
+            <th>Lower Shortcode</th>
+            <th>Lower Sequence Number</th>
+            <th>Claims</th>
+            <th>Items</th>
+            <th>Queue Size</th>
+            <th>Found</th>
+            <th>Scanned</th>
+        </tr>
+    </thead>
 
-	{% for project in projects %}
-	<tr class="{% if project['enabled'] %} success {% end %}" >
-		<td><a href="{{ reverse_url('project.overview', project['name']) }}">{{ project['name'] }}</a></td>
-		<td>{% if project['enabled'] %} ✦ {% end %}</td>
-		<td>{% if project['autoqueue'] %} ✦ {% end %}</td>
-		<td>{{ project['lower_shortcode'] }}</td>
-		<td>{{ project['lower_sequence_num'] }}</td>
+    {% for project in projects %}
+    <tr class="{% if project['enabled'] %} success {% end %}" >
+        <td><a href="{{ reverse_url('project.overview', project['name']) }}">{{ project['name'] }}</a></td>
+        <td>{% if project['enabled'] %} ✦ {% end %}</td>
+        <td>{% if project['autoqueue'] %} ✦ {% end %}</td>
+        <td>{{ project['lower_shortcode'] }}</td>
+        <td>{{ project['lower_sequence_num'] }}</td>
 
-		{% if project['name'] in project_budgets %}
-			{% set project_budget_info = project_budgets[project['name']] %}
-			<td>{{ project_budget_info['claims'] }}</td>
-			<td>{{ project_budget_info['items'] }} </td>
-		{% else %}
-			<td>?</td>
-			<td>?</td>
-		{% end %}
-                <td><a href="{{ reverse_url('project.queue', project['name']) }}">
-                {{ project['max_num_items'] }}</a></td>
-                <td><a href="{{ reverse_url('admin.results')+'?limit=10&project_id='+project['name'] }}">
-                  {{ project_stats.get(project['name'], 'xy')[0] }}</a></td>
-                <td><a href="{{ reverse_url('admin.error_reports')+'?project_id='+project['name'] }}">
-                  {{ project_stats.get(project['name'], 'XY')[1] }}</a></td>
-	</tr>
-	{% end %}
+        {% if project['name'] in project_budgets %}
+            {% set project_budget_info = project_budgets[project['name']] %}
+            <td>{{ project_budget_info['claims'] }}</td>
+            <td>{{ project_budget_info['items'] }} </td>
+        {% else %}
+            <td>?</td>
+            <td>?</td>
+        {% end %}
+        <td><a href="{{ reverse_url('project.queue', project['name']) }}">
+            {{ project['max_num_items'] }}</a></td>
+        <td><a href="{{ reverse_url('admin.results')+'?limit=10&project_id='+project['name'] }}">
+            {{ project_stats.get(project['name'], 'xy')[0] }}</a></td>
+        <td><a href="{{ reverse_url('admin.error_reports')+'?project_id='+project['name'] }}">
+            {{ project_stats.get(project['name'], 'XY')[1] }}</a></td>
+    </tr>
+    {% end %}
 
 {% end %}

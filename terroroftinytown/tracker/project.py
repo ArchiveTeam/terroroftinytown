@@ -21,7 +21,10 @@ class AllProjectsHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
         add_project_form = AddProjectForm()
-        projects = Project.all_project_infos()
+        projects = Project.all_project_infos(
+            sort=self.get_argument("sort", None),
+            sort_direction=self.get_argument("order", None)
+        )
 
         self.render(
             'admin/project/all.html',

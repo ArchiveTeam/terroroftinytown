@@ -241,11 +241,18 @@ class Project(Base):
             return list([project.name for project in projects])
 
     @classmethod
-    def all_project_infos(cls):
+    def all_project_infos(cls, sort=None, sort_direction=None):
         with new_session() as session:
             projects = session.query(Project)
+            projects = list([project.to_dict(with_shortcode=True) for project in projects])
 
-            return list([project.to_dict(with_shortcode=True) for project in projects])
+            if sort:
+                projects.sort(
+                    key=lambda project: project.get(sort, ''),
+                    reverse=sort_direction=='desc'
+                )
+
+            return projects
 
     @classmethod
     def new_project(cls, name):

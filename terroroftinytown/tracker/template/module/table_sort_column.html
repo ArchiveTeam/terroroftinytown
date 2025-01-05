@@ -1,0 +1,12 @@
+{% if sort == name %}
+    {% if order == 'asc' %}
+    <a href="{{ url }}?sort={{ name }}&order=desc" title="Sort descending">&blacktriangledown;</a>
+    {% end %}
+    {% if order != 'asc' %}
+    <a href="{{ url }}?sort={{ name }}&order=asc" title="Sort ascending">&blacktriangle;</a>
+    {% end %}
+{% end %}
+
+{% if sort != name %}
+    <a href="{{ url }}?sort={{ name }}&order=asc" title="Sort ascending">&triangledown;</a>
+{% end %}
