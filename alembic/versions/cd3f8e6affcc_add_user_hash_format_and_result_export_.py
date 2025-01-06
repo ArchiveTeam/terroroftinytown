@@ -19,7 +19,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    op.add_column('users', sa.Column('hash_format', sa.String(), nullable=False, default='legacy'))
+    op.add_column('users', sa.Column('hash_format', sa.String(), nullable=False, server_default='legacy'))
     op.add_column('results', sa.Column('export', sa.Boolean()))
 
 
