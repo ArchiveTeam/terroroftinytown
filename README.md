@@ -38,9 +38,7 @@ An automatic script, to be run from cron, that drains the results, compress, and
 Test
 ----
 
-[![Build Status](https://travis-ci.org/ArchiveTeam/terroroftinytown.svg?branch=master)](https://travis-ci.org/ArchiveTeam/terroroftinytown)
-
-**Note: Web interface testing on Travis CI is currently broken due to outdated version of the Firefox binary. Please test locally.**
+![CI Tests](https://github.com/archiveteam/terroroftinytown/actions/workflows/test.yml/badge.svg)
 
 To run the tests including testing the web interface,
 
@@ -56,11 +54,15 @@ For example, tests:
         wget https://github.com/mozilla/geckodriver/releases/download/v0.11.1/geckodriver-v0.11.1-OS_VERSION_HERE.tar.gz
         nosetests3
 
+Alternative examples:
+
+        NO_LIVE_SERVICE_TEST=1 NO_SELENIUM_TEST=1 python -m unittest discover terroroftinytown -p '*test.py'
+        NO_LIVE_SERVICE_TEST=1 RUN_CHROMEDRIVER=1 python -m unittest discover terroroftinytown -p '*test.py'
 
 Client
 ------
 
-The client should work in Python 2.7 and 3. Please be mindful when writing the client code.
+The client should work in Python 3.9+. Please be mindful when writing the client code.
 
 See [terroroftinytown-client-grab](https://github.com/ArchiveTeam/terroroftinytown-client-grab) for details on how to run the scraper as part of the Warrior project.
 
@@ -87,5 +89,3 @@ Notes
 =====
 
 When dealing with non-ASCII characters, one cannot simply treat them as UTF-8 since the originating URL may come from other character sets such as shift-jis. As such, it is ideal to handle the URLs in raw bytes as much as possible. Therefore, the files should be treated as bytes. If not possible, use a "lossless" encoding suitable for your environment. For Python, latin-1 should be used instead of UTF-8. Avoid percent-encoding as much as possible since some servers do not handle percent-encoding well.
-
-
