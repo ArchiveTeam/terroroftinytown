@@ -544,7 +544,7 @@ class ErrorReport(Base):
     @classmethod
     def delete_orphaned(cls):
         with new_session() as session:
-            subquery = select([ErrorReport.id])\
+            subquery = select(ErrorReport.id)\
                 .where(ErrorReport.item_id == Item.id)\
                 .limit(1)
 
