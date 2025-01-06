@@ -6,4 +6,4 @@ import tornado.ioloop
 
 @tornado.gen.coroutine
 def sleep(seconds):
-    tornado.gen.sleep(seconds)
+    yield tornado.gen.sleep(seconds)
