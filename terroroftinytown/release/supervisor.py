@@ -123,7 +123,7 @@ class ExportSession:
         return os.path.exists(self.state_path)
 
     def _load_state(self):
-        with open(self.state_path, 'w') as file:
+        with open(self.state_path, 'r') as file:
             doc = json.load(file)
 
             self.identifier = doc['identifier'],
