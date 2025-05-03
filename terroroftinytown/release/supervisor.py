@@ -126,7 +126,7 @@ class ExportSession:
         with open(self.state_path, 'r') as file:
             doc = json.load(file)
 
-            self.identifier = doc['identifier'],
+            self.identifier = doc['identifier']
             self.title = doc['title']
             self.item_export_directory = doc['work_directory']
             self.state = doc['state']
